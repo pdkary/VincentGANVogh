@@ -1,63 +1,28 @@
-from DCGAN import DCGAN, GanBuildingConfig
+from DCGAN import DCGAN
 from DataHelper import DataHelper
 import numpy as np
 import tensorflow as tf
 from jupyterplot import ProgressPlot
 import time
 
-class GanConfig():
-  def __init__(self,learning_rate,gauss_factor,kernel_size,relu_alpha,dropout_rate,batch_norm_momentum,
-               latent_size,style_size,batch_size,img_shape,preview_rows,preview_cols,data_path,image_type,model_name):
-    self.learning_rate = learning_rate
-    self.gauss_factor = gauss_factor
-    self.kernel_size = kernel_size
-    self.relu_alpha = relu_alpha
-    self.dropout_rate = dropout_rate
-    self.batch_norm_momentum = batch_norm_momentum
-    self.latent_size = latent_size
-    self.style_size = style_size
-    self.batch_size = batch_size
-    self.img_shape = img_shape
-    self.preview_rows = preview_rows
-    self.preview_cols = preview_cols
-    self.data_path = data_path
-    self.image_type = image_type
-    self.model_name = model_name
-  
-  def get_building_config(self):
-    return GanBuildingConfig(self.learning_rate,
-                             self.img_shape,
-                             self.latent_size,
-                             self.style_size,
-                             self.kernel_size,
-                             self.relu_alpha,
-                             self.dropout_rate,
-                             self.batch_norm_momentum)
-
 class GanTrainer(DCGAN):
-  def __init__(self,gan_config):
-    
-    super().__init__(gan_config.get_building_config())
+  def __init__(self,gan_shape_config,gan_building_config,gan_training_config):
+    super().__init__(gan_shape_config,gan_building_config,gan_training_config)
+
     self.moving_average_size = 50
     self.preview_margin = 16
 
     self.GenModel = self.GenModel()
     self.DisModel = self.DisModel()
 
-    self.data_path = gan_config.data_path
-    self.image_type = gan_config.image_type
-    self.model_name = gan_config.model_name
     self.image_output_path = self.data_path + "/images"
     self.model_output_path = self.data_path + "/models"
 
-    self.batch_size = gan_config.batch_size
-    self.preview_rows = gan_config.preview_rows
-    self.preview_cols = gan_config.preview_cols
     self.preview_size = self.preview_rows*self.preview_cols
 
-    self.gauss_factor = gan_config.gauss_factor
-
     self.latent_noise = tf.random.normal(shape=(self.latent_size,))
+    self.latent_noise_image = tf.random.normal(shape = self.img_shape ,stddev=self.gauss_factor)
+
     self.training_latent = self.latent_noise_batch(self.batch_size)
     self.preview_latent = self.latent_noise_batch(self.preview_size)
 
@@ -82,7 +47,10 @@ class GanTrainer(DCGAN):
 
   #Noise Sample
   def noiseImage(self,batch_size):
-    return tf.random.normal(shape = (batch_size,*self.img_shape) ,stddev=self.gauss_factor)
+    noise_batch = np.full((batch_size,*self.img_shape),0.0,dtype=np.float32)
+    for i in range(batch_size):
+      noise_batch[i] = self.latent_noise_image
+    return noise_batch
   
   def get_generator_input(self,latent_noise,batch_size):
     return [self.style_noise(batch_size),self.noiseImage(batch_size),latent_noise]
