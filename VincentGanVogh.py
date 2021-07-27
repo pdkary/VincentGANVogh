@@ -39,5 +39,5 @@ EPOCHS = 2500
 BATCHES_PER_EPOCH = 1
 PRINT_EVERY = 10
 
-gan_trainer = GanTrainer(gan_shape_config,gan_building_config,gan_training_config)
-gan_trainer.train_n_eras(ERAS,EPOCHS,BATCHES_PER_EPOCH,PRINT_EVERY)
+VGV = GanTrainer(gan_shape_config,gan_building_config,gan_training_config)
+# VGV.train_n_eras(ERAS,EPOCHS,BATCHES_PER_EPOCH,PRINT_EVERY)
