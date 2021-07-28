@@ -16,7 +16,7 @@ class GanBuilder(GanBase):
     for shape,upsampling in zip(self.gen_layer_shapes,self.gen_layer_upsampling):
       gen_model = self.generator_block(gen_model,style_model,*shape,upsampling=upsampling)
     
-    gen_model = Conv2D(filters=self.channels, kernel_size=1, padding='same',activation='sigmoid')(gen_model)
+    gen_model = Conv2D(self.channels, self.kernel_size, padding='same',activation='sigmoid')(gen_model)
     return gen_model
 
   def build_discriminator(self,disc_model_input):
@@ -25,8 +25,8 @@ class GanBuilder(GanBase):
       disc_model = self.disc_conv_block(disc_model,*shape)     
     
     disc_model = Flatten()(disc_model)
-    disc_model = M
+    disc_model = MinibatchDiscrimination(self.minibatch_size,self.channels)(disc_model)
     for size in self.disc_dense_sizes:
       disc_model = self.disc_dense_block(disc_model,size)
-    disc_model = Dense(1,activation="sigmoid")(disc_model)
+    disc_model = Dense(1,activation="sigmoid", kernel_initializer = 'he_normal')(disc_model)
     return disc_model
