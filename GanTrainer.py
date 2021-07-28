@@ -9,7 +9,6 @@ class GanTrainer(DCGAN):
   def __init__(self,gan_shape_config,gan_building_config,gan_training_config):
     super().__init__(gan_shape_config,gan_building_config,gan_training_config)
 
-    self.moving_average_size = 50
     self.preview_margin = 16
 
     self.GenModel = self.GenModel()
@@ -75,7 +74,7 @@ class GanTrainer(DCGAN):
     d_loss,d_acc = self.train_discriminator(disc_input)
     return d_loss,d_acc,g_loss,g_acc
   
-  def train(self,epochs,batches_per_epoch,printerval):
+  def train(self,epochs,batches_per_epoch,printerval,ma_size):
     d_loss_ma_buffer, g_loss_ma_buffer = [], []
     d_acc_ma_buffer, g_acc_ma_buffer = [], []
     time_ma_buffer = []
@@ -113,11 +112,11 @@ class GanTrainer(DCGAN):
         g_acc_ma_buffer.append(g_acc)
         time_ma_buffer.append(epoch_elapsed)
 
-        d_loss_ma_buffer = d_loss_ma_buffer[1:] if len(d_loss_ma_buffer) >= self.moving_average_size else d_loss_ma_buffer
-        g_loss_ma_buffer = g_loss_ma_buffer[1:] if len(g_loss_ma_buffer) >= self.moving_average_size else g_loss_ma_buffer
-        d_acc_ma_buffer = d_acc_ma_buffer[1:] if len(d_acc_ma_buffer) >= self.moving_average_size else d_acc_ma_buffer
-        g_acc_ma_buffer = g_acc_ma_buffer[1:] if len(g_acc_ma_buffer) >= self.moving_average_size else g_acc_ma_buffer
-        time_ma_buffer = time_ma_buffer[1:] if len(time_ma_buffer) >= self.moving_average_size else time_ma_buffer
+        d_loss_ma_buffer = d_loss_ma_buffer[1:] if len(d_loss_ma_buffer) >= ma_size else d_loss_ma_buffer
+        g_loss_ma_buffer = g_loss_ma_buffer[1:] if len(g_loss_ma_buffer) >= ma_size else g_loss_ma_buffer
+        d_acc_ma_buffer = d_acc_ma_buffer[1:] if len(d_acc_ma_buffer) >= ma_size else d_acc_ma_buffer
+        g_acc_ma_buffer = g_acc_ma_buffer[1:] if len(g_acc_ma_buffer) >= ma_size else g_acc_ma_buffer
+        time_ma_buffer = time_ma_buffer[1:] if len(time_ma_buffer) >= ma_size else time_ma_buffer
 
         d_loss_ma,g_loss_ma = np.mean(d_loss_ma_buffer),np.mean(g_loss_ma_buffer)
         d_acc_ma,g_acc_ma = np.mean(d_acc_ma_buffer), np.mean(g_acc_ma_buffer)
@@ -125,9 +124,9 @@ class GanTrainer(DCGAN):
 
         self.progress_plot.update([[d_loss,d_loss_ma],[d_acc,d_acc_ma],[g_loss,g_loss_ma],[g_acc,g_acc_ma],[epoch_elapsed,time_ma]])
   
-  def train_n_eras(self,eras,epochs,batches_per_epoch,printerval):
+  def train_n_eras(self,eras,epochs,batches_per_epoch,printerval,ma_size):
     self.progress_plot = ProgressPlot(plot_names =['D Loss','D acc','G Loss','G acc', 'Epoch Duration'],line_names=["value", "MA"])
     for i in range(eras):
-      self.train(epochs,batches_per_epoch,printerval)
+      self.train(epochs,batches_per_epoch,printerval,ma_size)
       filename = self.model_name + "%d"%((i+1)*epochs)
       self.G.save(self.model_output_path + filename)
