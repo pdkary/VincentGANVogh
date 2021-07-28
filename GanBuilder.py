@@ -26,7 +26,7 @@ class GanBuilder(GanBase):
     disc_model = Flatten()(disc_model)
     
     for size in self.disc_dense_sizes:
-      minibatch = size == self.disc_dense_sizes[-1]
+      minibatch = size == self.disc_dense_sizes[0]
       disc_model = self.disc_dense_block(disc_model,size,minibatch=minibatch)
     disc_model = Dense(1,activation="sigmoid")(disc_model)
     return disc_model
