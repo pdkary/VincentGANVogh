@@ -1,5 +1,6 @@
 from keras.layers import Dense,Reshape,Conv2D,Flatten
 from GanBase import GanBase
+from MinibatchDiscrimination import MinibatchDiscrimination
 
 class GanBuilder(GanBase):
   def build_style_model(self,input_tensor,size,layers):
@@ -24,9 +25,8 @@ class GanBuilder(GanBase):
       disc_model = self.disc_conv_block(disc_model,*shape)     
     
     disc_model = Flatten()(disc_model)
-    
+    disc_model = M
     for size in self.disc_dense_sizes:
-      minibatch = size == self.disc_dense_sizes[0]
-      disc_model = self.disc_dense_block(disc_model,size,minibatch=minibatch)
+      disc_model = self.disc_dense_block(disc_model,size)
     disc_model = Dense(1,activation="sigmoid")(disc_model)
     return disc_model
