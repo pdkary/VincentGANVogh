@@ -57,7 +57,7 @@ class DataHelper():
   
     filename = os.path.join(output_path,f"train-{epoch}" + image_type)
     if channels == 1:
-      im = Image.fromarray(image_array[0])
+      im = Image.fromarray(image_array,mode='L')
     else:
       im = Image.fromarray(image_array)
     im.save(filename)
