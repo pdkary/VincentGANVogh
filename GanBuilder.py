@@ -13,8 +13,8 @@ class GanBuilder(GanBase):
     gen_model = Dense(4*4*1024, kernel_initializer = 'he_normal')(latent_input_tensor)
     gen_model = Reshape((4,4,1024))(gen_model)
     
-    for shape,upsampling in zip(self.gen_layer_shapes,self.gen_layer_upsampling):
-      gen_model = self.generator_block(gen_model,style_model,*shape,upsampling=upsampling)
+    for shape,upsampling,noise in zip(self.gen_layer_shapes,self.gen_layer_upsampling,self.gen_layer_noise):
+      gen_model = self.generator_block(gen_model,style_model,*shape,upsampling=upsampling,noise=noise)
     
     gen_model = Conv2D(self.channels, 1, padding='same',activation='sigmoid')(gen_model)
     return gen_model
