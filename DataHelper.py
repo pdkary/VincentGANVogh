@@ -15,7 +15,12 @@ class DataHelper():
     x = []
     for i in images:
       img = Image.open(i)
-      img = img.convert('RGBA') if channels == 4 else img.convert('RGB')
+      if channels == 4:
+        img = img.convert('RGBA')
+      elif channels == 3:
+        img = img.convert('RGB')
+      elif channels == 1:
+        img = img.convert('L')
       img = img.resize(size=(img_rows,img_cols),resample=Image.ANTIALIAS)
       img = np.array(img).astype('float32')
       img = img/255
@@ -51,5 +56,8 @@ class DataHelper():
         image_count += 1
   
     filename = os.path.join(output_path,f"train-{epoch}" + image_type)
-    im = Image.fromarray(image_array)
+    if channels == 1:
+      im = Image.fromarray(image_array[0],mode='L')
+    else:
+      im = Image.fromarray(image_array)
     im.save(filename)

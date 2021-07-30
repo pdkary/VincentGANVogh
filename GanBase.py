@@ -1,7 +1,6 @@
 import keras.backend as K
 from GanConfig import GanConfig
 from InstanceNormalization import InstanceNormalization
-from MinibatchDiscrimination import MinibatchDiscrimination
 from keras.layers.advanced_activations import LeakyReLU
 from keras.layers import Dense,Conv2D,UpSampling2D,Lambda,BatchNormalization,Add,Dropout,MaxPooling2D
 
@@ -37,16 +36,15 @@ class GanBase(GanConfig):
         beta = Dense(filters,bias_initializer='zeros')(style_model)
       
       out = Conv2D(filters,self.kernel_size,padding='same', kernel_initializer = 'he_normal')(out)
-      out = Lambda(AdaIN)([out,gamma,beta]) if style else BatchNormalization(momentum=self.batch_norm_momentum)(out)
       out = Add()([out,noise_model]) if noise else out
+      out = Lambda(AdaIN)([out,gamma,beta]) if style else BatchNormalization(momentum=self.batch_norm_momentum)(out)
       out = LeakyReLU(self.relu_alpha)(out)
     return out
 
-  def disc_dense_block(self,input_tensor,size,dropout=True,minibatch=False):
+  def disc_dense_block(self,input_tensor,size,dropout=True):
     out_db = Dense(size, kernel_initializer = 'he_normal')(input_tensor)
     out_db = Dropout(self.dropout_rate)(out_db) if dropout else out_db
     out_db = LeakyReLU(self.relu_alpha)(out_db)
-    out_db = MinibatchDiscrimination(self.minibatch_size, self.channels+2)(out_db) if minibatch else out_db
     return out_db
 
   def disc_conv_block(self,input_tensor, filters, convolutions):
