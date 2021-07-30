@@ -78,22 +78,21 @@ class GanTrainer(DCGAN):
     d_loss_ma_buffer, g_loss_ma_buffer = [], []
     d_acc_ma_buffer, g_acc_ma_buffer = [], []
     time_ma_buffer = []
+    
+    batches = self.dataset.shuffle(128).take(batches_per_epoch)
 
     for epoch in range(epochs):
       epoch_start = time.time()
       batch_d_loss, batch_g_loss = [], []
       batch_d_acc, batch_g_acc = [], []
-
-      batches_in_epoch = np.random.randint(0,len(self.dataset)-1,size=batches_per_epoch)
   
-      for i,image_batch in enumerate(self.dataset):
-        if i in batches_in_epoch and len(image_batch) == self.batch_size:
-          training_imgs = image_batch.numpy()
-          bd_loss,bd_acc,bg_loss,bg_acc = self.train_step(training_imgs)
-          batch_d_loss.append(bd_loss)
-          batch_g_loss.append(bg_loss)
-          batch_d_acc.append(bd_acc)
-          batch_g_acc.append(bg_acc)
+      for image_batch in enumerate(batches):
+        training_imgs = image_batch.numpy()
+        bd_loss,bd_acc,bg_loss,bg_acc = self.train_step(training_imgs)
+        batch_d_loss.append(bd_loss)
+        batch_g_loss.append(bg_loss)
+        batch_d_acc.append(bd_acc)
+        batch_g_acc.append(bg_acc)
       
       d_loss, g_loss = np.mean(batch_d_loss),np.mean(batch_g_loss)
       d_acc, g_acc = np.mean(batch_d_acc), np.mean(batch_g_acc)
