@@ -8,7 +8,7 @@ class DCGAN(GanBuilder):
     super().__init__(gan_shape_config,gan_building_config,gan_training_config)
 
     self.real_image_input = Input(shape=self.img_shape, name="image_input")
-    self.latent_model_input = Input(shape=self.latent_size, name="latent_space_input")
+    self.latent_model_input = Input(shape=self.gen_constant_shape, name="latent_space_input")
     self.noise_model_input = Input(shape=self.img_shape,name="noise_image_input")
     self.style_model_input = Input(shape=(self.style_size,),name="style_input")
 
