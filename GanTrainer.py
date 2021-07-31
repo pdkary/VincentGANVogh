@@ -79,15 +79,17 @@ class GanTrainer(DCGAN):
     d_acc_ma_buffer, g_acc_ma_buffer = [], []
     time_ma_buffer = []
     
-    batches = self.dataset.shuffle(128).take(batches_per_epoch)
+    batches = self.dataset.shuffle(batches_per_epoch)
 
     for epoch in range(epochs):
       epoch_start = time.time()
       batch_d_loss, batch_g_loss = [], []
       batch_d_acc, batch_g_acc = [], []
+      
+      iters = batches.make_one_shot_iterator()
   
-      for image_batch in batches:
-        bd_loss,bd_acc,bg_loss,bg_acc = self.train_step(image_batch)
+      for i in range(batches_per_epoch):
+        bd_loss,bd_acc,bg_loss,bg_acc = self.train_step(iters.get_next())
         batch_d_loss.append(bd_loss)
         batch_g_loss.append(bg_loss)
         batch_d_acc.append(bd_acc)
