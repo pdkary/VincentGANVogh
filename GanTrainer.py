@@ -87,8 +87,7 @@ class GanTrainer(DCGAN):
       batch_d_acc, batch_g_acc = [], []
   
       for image_batch in enumerate(batches):
-        training_imgs = image_batch.numpy()
-        bd_loss,bd_acc,bg_loss,bg_acc = self.train_step(training_imgs)
+        bd_loss,bd_acc,bg_loss,bg_acc = self.train_step(image_batch)
         batch_d_loss.append(bd_loss)
         batch_g_loss.append(bg_loss)
         batch_d_acc.append(bd_acc)
