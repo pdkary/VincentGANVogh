@@ -30,7 +30,7 @@ class GanTrainer(DCGAN):
     self.zeros = np.zeros((self.batch_size, 1), dtype=np.float32)
     
     print("Preparing Dataset".upper())
-    self.images = DataHelper.load_data(self.data_path,self.img_shape,self.image_type)
+    self.images = DataHelper.load_data(self.data_path,self.img_shape,self.image_type,self.flip_lr,self.load_n_percent)
     self.dataset = tf.data.Dataset.from_tensor_slices(self.images).batch(self.batch_size)
     print("DATASET LOADED")
 
@@ -79,17 +79,15 @@ class GanTrainer(DCGAN):
     d_acc_ma_buffer, g_acc_ma_buffer = [], []
     time_ma_buffer = []
     
-    batches = self.dataset.shuffle(batches_per_epoch)
+    batches = self.dataset.shuffle(60000)
 
     for epoch in range(epochs):
       epoch_start = time.time()
       batch_d_loss, batch_g_loss = [], []
       batch_d_acc, batch_g_acc = [], []
       
-      iters = batches.make_one_shot_iterator()
-  
-      for i in range(batches_per_epoch):
-        bd_loss,bd_acc,bg_loss,bg_acc = self.train_step(iters.get_next())
+      for img_batch in batches.take(batches_per_epoch):
+        bd_loss,bd_acc,bg_loss,bg_acc = self.train_step(img_batch)
         batch_d_loss.append(bd_loss)
         batch_g_loss.append(bg_loss)
         batch_d_acc.append(bd_acc)

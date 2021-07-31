@@ -26,7 +26,7 @@ class GanBuildingConfig():
 class GanTrainingConfig():
   def __init__(self,learning_rate,disc_loss_function,gen_loss_function,
                use_latent_noise,gauss_factor,batch_size,preview_rows,
-               preview_cols,data_path,image_type,model_name):
+               preview_cols,data_path,image_type,model_name,flip_lr,load_n_percent):
     self.learning_rate = learning_rate
     self.disc_loss_function = disc_loss_function
     self.gen_loss_function = gen_loss_function
@@ -38,6 +38,8 @@ class GanTrainingConfig():
     self.data_path = data_path
     self.image_type = image_type
     self.model_name = model_name
+    self.flip_lr = flip_lr
+    self.load_n_percent = load_n_percent
 
 class GanConfig(GanShapeConfig,GanBuildingConfig,GanTrainingConfig):
   def __init__(self,gan_shape_config,gan_building_config,gan_training_config):

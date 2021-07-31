@@ -6,14 +6,17 @@ import matplotlib.pyplot as plt
 
 class DataHelper():
   @staticmethod
-  def load_data(folder,image_shape,image_type):
+  def load_data(folder,image_shape,image_type,flip_lr=True,load_n_percent=100):
     img_rows,img_cols,channels = image_shape
     glob_glob = folder + "/*" + image_type
     images = glob.glob(glob_glob)
     print("LOADING FROM %s"%(glob_glob))
     print("LOADING %d IMAGES"%len(images))
     x = []
-    for i in images:
+    num_images = len(images)
+    for n,i in enumerate(images):
+      if 100*n/num_images == load_n_percent:
+        break
       img = Image.open(i)
       if channels == 4:
         img = img.convert('RGBA')
@@ -25,7 +28,8 @@ class DataHelper():
       img = np.array(img).astype('float32')
       img = img/255
       x.append(img)
-      x.append(np.fliplr(img))
+      if flip_lr:
+        x.append(np.fliplr(img))
       
     print("LOADED %d IMAGES"%len(x))
     i = np.random.randint(0,len(x)-1,size=1)[0]
