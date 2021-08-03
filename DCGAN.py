@@ -1,5 +1,4 @@
 from keras.layers import Input, Activation, Cropping2D
-from keras.optimizers import Adam
 from GanBuilder import GanBuilder
 from keras.models import Model
 
@@ -11,9 +10,6 @@ class DCGAN(GanBuilder):
     self.latent_model_input = Input(shape=self.gen_constant_shape, name="latent_space_input")
     self.noise_model_input = Input(shape=self.img_shape,name="noise_image_input")
     self.style_model_input = Input(shape=(self.style_size,),name="style_input")
-
-    self.ad_optimizer = Adam(self.learning_rate, beta_1 = 0, beta_2 = 0.99, decay = 0.00001)
-    self.dis_optimizer = Adam(self.learning_rate, beta_1 = 0, beta_2 = 0.99, decay = 0.00001)
 
     self.noisy_input = [self.style_model_input,self.noise_model_input,self.latent_model_input]
     self.full_input = [self.real_image_input,*self.noisy_input]
@@ -59,7 +55,7 @@ class DCGAN(GanBuilder):
     generated_output = self.G(self.noisy_input)
     discriminated_output = self.D(generated_output,training=False)
     self.gen_model = Model(inputs=self.noisy_input,outputs=discriminated_output,name="generator_model")
-    self.gen_model.compile(optimizer=self.ad_optimizer,loss=self.gen_loss_function,metrics=['accuracy'])
+    self.gen_model.compile(optimizer=self.gen_optimizer,loss=self.gen_loss_function,metrics=['accuracy'])
     self.gen_model.summary()
     return self.gen_model
   
@@ -70,6 +66,6 @@ class DCGAN(GanBuilder):
     d_fake = self.D(generated_imgs)
 
     self.dis_model = Model(inputs=self.full_input,outputs=[d_real,d_fake],name="discriminator_model")
-    self.dis_model.compile(optimizer=self.dis_optimizer,loss=self.disc_loss_function,metrics=['accuracy'])
+    self.dis_model.compile(optimizer=self.disc_optimizer,loss=self.disc_loss_function,metrics=['accuracy'])
     self.dis_model.summary()
     return self.dis_model

@@ -24,10 +24,11 @@ class GanBuildingConfig():
     self.batch_norm_momentum = batch_norm_momentum
 
 class GanTrainingConfig():
-  def __init__(self,learning_rate,disc_loss_function,gen_loss_function,
+  def __init__(self,gen_optimizer,disc_optimizer,disc_loss_function,gen_loss_function,
                use_latent_noise,gauss_factor,batch_size,preview_rows,
                preview_cols,data_path,image_type,model_name,flip_lr,load_n_percent):
-    self.learning_rate = learning_rate
+    self.gen_optimizer = gen_optimizer
+    self.disc_optimizer = disc_optimizer
     self.disc_loss_function = disc_loss_function
     self.gen_loss_function = gen_loss_function
     self.use_latent_noise = use_latent_noise
