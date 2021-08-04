@@ -1,12 +1,13 @@
 class GanShapeConfig():
   def __init__(self,img_shape,gen_constant_shape,style_size,kernel_size,
-               style_layer_size,style_layers,gen_layer_shapes,
+               noise_kernel_size,style_layer_size,style_layers,gen_layer_shapes,
                gen_layer_upsampling,gen_layer_noise,disc_layer_shapes,
                disc_dense_sizes,minibatch,minibatch_size):
     self.img_shape = img_shape
     self.gen_constant_shape = gen_constant_shape
     self.style_size = style_size
     self.kernel_size = kernel_size
+    self.noise_kernel_size = noise_kernel_size
     self.style_layer_size = style_layer_size
     self.style_layers = style_layers
     self.gen_layer_shapes = gen_layer_shapes
