@@ -1,7 +1,8 @@
 from keras.layers import Input, Activation, Cropping2D
 from GanBuilder import GanBuilder
 from keras.models import Model
-
+import tensorflow as tf
+  
 class DCGAN(GanBuilder):
   def __init__(self,gan_shape_config,gan_building_config,gan_training_config):
     super().__init__(gan_shape_config,gan_building_config,gan_training_config)
@@ -53,6 +54,7 @@ class DCGAN(GanBuilder):
   def GenModel(self):
     self.set_trainable(True,False)
     generated_output = self.G(self.noisy_input)
+    zero_batch = tf.zeros_like(generated_output)
     discriminated_output = self.D(generated_output,training=False)
     self.gen_model = Model(inputs=self.noisy_input,outputs=discriminated_output,name="generator_model")
     self.gen_model.compile(optimizer=self.gen_optimizer,loss=self.gen_loss_function,metrics=['accuracy'])
@@ -62,10 +64,14 @@ class DCGAN(GanBuilder):
   def DisModel(self):
     self.set_trainable(False,True)
     d_real = self.D(self.real_image_input)
-    generated_imgs = self.G(self.noisy_input)
-    d_fake = self.D(generated_imgs)
+    
+    generated_imgs = self.G(self.noisy_input,training=False)
+    d_fake = self.D(generated_imgs,trainin=False)
+    
+    zero_batch = tf.zeros_like(generated_imgs)
+    d_zeros = self.D(zero_batch,training=False)
 
-    self.dis_model = Model(inputs=self.full_input,outputs=[d_real,d_fake],name="discriminator_model")
+    self.dis_model = Model(inputs=self.full_input,outputs=[d_real,d_fake,d_zeros],name="discriminator_model")
     self.dis_model.compile(optimizer=self.disc_optimizer,loss=self.disc_loss_function,metrics=['accuracy'])
     self.dis_model.summary()
     return self.dis_model
