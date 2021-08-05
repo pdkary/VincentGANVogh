@@ -28,6 +28,7 @@ class GanTrainer(DCGAN):
 
     self.ones = np.ones((self.batch_size, 1), dtype=np.float32)
     self.zeros = np.zeros((self.batch_size, 1), dtype=np.float32)
+    self.nones = -self.ones
     
     print("Preparing Dataset".upper())
     self.images = DataHelper.load_data(self.data_path,self.img_shape,self.image_type,self.flip_lr,self.load_n_percent)
@@ -63,7 +64,7 @@ class GanTrainer(DCGAN):
   
   def train_discriminator(self,training_data):
     self.set_trainable(False,True)
-    d_losses = self.DisModel.train_on_batch(training_data,[self.ones,self.zeros,self.zeros])
+    d_losses = self.DisModel.train_on_batch(training_data,[self.ones,self.zeros,self.nones])
     label = self.DisModel.metrics_names.index('discriminator_base_accuracy')
     return d_losses[0],d_losses[label]
     

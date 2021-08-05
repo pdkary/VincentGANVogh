@@ -53,7 +53,7 @@ class DCGAN(GanBuilder):
 
   def GenModel(self):
     self.set_trainable(True,False)
-    generated_output = self.G(self.noisy_input,training=False)
+    generated_output = self.G(self.noisy_input)
     discriminated_output = self.D(generated_output,training=False)
     self.gen_model = Model(inputs=self.noisy_input,outputs=discriminated_output,name="generator_model")
     self.gen_model.compile(optimizer=self.gen_optimizer,loss=self.gen_loss_function,metrics=['accuracy'])
@@ -62,13 +62,13 @@ class DCGAN(GanBuilder):
   
   def DisModel(self):
     self.set_trainable(False,True)
-    d_real = self.D(self.real_image_input,training=False)
+    d_real = self.D(self.real_image_input)
     
     generated_imgs = self.G(self.noisy_input,training=False)
-    d_fake = self.D(generated_imgs,training=False)
+    d_fake = self.D(generated_imgs)
     
     zero_batch = tf.zeros_like(generated_imgs)
-    d_zeros = self.D(zero_batch,training=False)
+    d_zeros = self.D(zero_batch)
 
     self.dis_model = Model(inputs=self.full_input,outputs=[d_real,d_fake,d_zeros],name="discriminator_model")
     self.dis_model.compile(optimizer=self.disc_optimizer,loss=self.disc_loss_function,metrics=['accuracy'])
