@@ -71,6 +71,7 @@ class DCGAN(GanBuilder):
     d_zeros = self.D(zero_batch)
 
     self.dis_model = Model(inputs=self.full_input,outputs=[d_real,d_fake,d_zeros],name="discriminator_model")
-    self.dis_model.compile(optimizer=self.disc_optimizer,loss=self.disc_loss_function,metrics=['accuracy'])
+    optimizer_loss = [self.disc_loss_function for i in range(3)]
+    self.dis_model.compile(optimizer=self.disc_optimizer,loss=optimizer_loss,metrics=['accuracy'])
     self.dis_model.summary()
     return self.dis_model
