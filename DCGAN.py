@@ -67,7 +67,7 @@ class DCGAN(GanBuilder):
     generated_imgs = self.G(self.noisy_input,training=False)
     d_fake = self.D(generated_imgs)
     
-    zero_batch = tf.zeros_like(generated_imgs)
+    zero_batch = tf.ones_like(generated_imgs)
     d_zeros = self.D(zero_batch)
 
     self.dis_model = Model(inputs=self.full_input,outputs=[d_real,d_fake,d_zeros],name="discriminator_model")
