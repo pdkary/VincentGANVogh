@@ -27,7 +27,6 @@ class GanTrainer(DCGAN):
     self.preview_latent = self.latent_noise_batch(self.preview_size)
 
     self.ones = np.ones((self.batch_size, 1), dtype=np.float32)
-    self.tenths = self.ones/10
     self.zeros = np.zeros((self.batch_size, 1), dtype=np.float32)
     
     print("Preparing Dataset".upper())
@@ -64,7 +63,7 @@ class GanTrainer(DCGAN):
   
   def train_discriminator(self,training_data):
     self.set_trainable(False,True)
-    d_losses = self.DisModel.train_on_batch(training_data,[self.ones,self.tenths,self.zeros])
+    d_losses = self.DisModel.train_on_batch(training_data,[self.ones,self.zeros,self.zeros])
     label = self.DisModel.metrics_names.index('discriminator_base_accuracy')
     return d_losses[0],d_losses[label]
     
