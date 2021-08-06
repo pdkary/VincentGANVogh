@@ -58,12 +58,12 @@ class GanTrainer(DCGAN):
 
   def train_generator(self, noise_data):
     self.set_trainable(True,False)
-    g_losses = self.GenModel.train_on_batch(noise_data,self.ones)
+    g_losses = self.GenModel.train_on_batch(noise_data,self.zeros)
     return g_losses[0],g_losses[1]
   
   def train_discriminator(self,training_data):
     self.set_trainable(False,True)
-    d_losses = self.DisModel.train_on_batch(training_data,[self.ones,self.zeros,self.zeros])
+    d_losses = self.DisModel.train_on_batch(training_data,[self.zeros,self.ones,self.ones])
     label = self.DisModel.metrics_names.index('discriminator_base_accuracy')
     return d_losses[0],d_losses[label]
     
