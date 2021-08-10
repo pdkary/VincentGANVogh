@@ -20,6 +20,7 @@ class GanTrainer(DCGAN):
     self.preview_size = self.preview_rows*self.preview_cols
 
     self.latent_noise = tf.random.normal(shape=self.gen_constant_shape)
+    
     if self.use_latent_noise:
       self.latent_noise_image = tf.random.normal(shape = self.img_shape ,stddev=self.gauss_factor)
 

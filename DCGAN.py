@@ -67,10 +67,9 @@ class DCGAN(GanBuilder):
     generated_imgs = self.G(self.noisy_input,training=False)
     d_fake = self.D(generated_imgs)
     
-    zero_batch = tf.ones_like(generated_imgs)
-    d_zeros = self.D(zero_batch)
+    d_noise = self.D(self.noise_model_input)
 
-    self.dis_model = Model(inputs=self.full_input,outputs=[d_real,d_fake,d_zeros],name="discriminator_model")
+    self.dis_model = Model(inputs=self.full_input,outputs=[d_real,d_fake,d_noise],name="discriminator_model")
     optimizer_loss = [self.disc_loss_function for i in range(3)]
     self.dis_model.compile(optimizer=self.disc_optimizer,loss=optimizer_loss,metrics=['accuracy'])
     self.dis_model.summary()
