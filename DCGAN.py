@@ -70,9 +70,9 @@ class DCGAN(GanBuilder):
     d_real = self.D(self.real_image_input)    
     d_fake = self.D(generated_imgs)
     d_noise = self.D(self.noise_model_input)
-    d_homo = self.D(self.homogenous_input)
+    # d_homo = self.D(self.homogenous_input)
 
-    output_arr = [d_real,d_fake,d_noise,d_homo]
+    output_arr = [d_real,d_fake,d_noise]
 
     output = Concatenate(axis=1)(output_arr)
 
