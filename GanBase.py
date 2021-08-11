@@ -3,7 +3,7 @@ from GanConfig import GanConfig
 from InstanceNormalization import InstanceNormalization
 from keras.layers.advanced_activations import LeakyReLU
 from keras.layers import Dense,Conv2D,UpSampling2D,Lambda,BatchNormalization,Add,Dropout,MaxPooling2D
-from tensorflow import Variable
+from tensorflow import Variable,float32
 
 def AdaIN(input_arr):
   input_tensor, gamma, beta = input_arr
@@ -31,7 +31,7 @@ class GanBase(GanConfig):
     noise_model = self.noise_dict[out.shape[1]]
     for i in range(convolutions):
       if noise:
-        noise_coefficient = Variable(1)
+        noise_coefficient = Variable(1,dtype=float32)
         noise_model = noise_coefficient*Conv2D(filters,self.noise_kernel_size,padding='same',kernel_initializer='he_normal')(noise_model)
       if style:
         gamma = Dense(filters,bias_initializer='ones')(style_model)
