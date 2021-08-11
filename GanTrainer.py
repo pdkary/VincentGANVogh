@@ -48,7 +48,7 @@ class GanTrainer(DCGAN):
   
   def homogenous_noise(self,batch_size):
     homo_ones = tf.ones(shape=(batch_size,*self.img_shape))
-    scale = tf.random.normal(shape=(1))
+    scale = tf.random.uniform(1,minval=0,maxval=1,dtype=tf.float32)
     return scale*homo_ones
 
   #Noise Sample
