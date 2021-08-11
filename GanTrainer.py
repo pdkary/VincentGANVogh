@@ -45,6 +45,11 @@ class GanTrainer(DCGAN):
   #Style Z and latent noise
   def style_noise(self,batch_size):
     return tf.random.normal(shape = (batch_size,self.style_size))
+  
+  def homogenous_noise(self,batch_size):
+    homo_ones = tf.ones(shape=(batch_size,*self.img_shape))
+    scale = tf.random.normal(shape=(1))
+    return scale*homo_ones
 
   #Noise Sample
   def noiseImage(self,batch_size):
@@ -72,7 +77,7 @@ class GanTrainer(DCGAN):
     
   def train_step(self,training_imgs):
     generator_input = self.get_generator_input(self.training_latent,self.batch_size)
-    disc_input = [training_imgs, *generator_input]
+    disc_input = [training_imgs, *generator_input,self.homogenous_image_input(self.batch_size)]
     g_loss,g_acc = self.train_generator(generator_input)
     d_loss,d_acc = self.train_discriminator(disc_input)
     return d_loss,d_acc,g_loss,g_acc
