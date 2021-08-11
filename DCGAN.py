@@ -65,19 +65,18 @@ class DCGAN(GanBuilder):
   
   def DisModel(self):
     self.set_trainable(False,True)
-    d_real = self.D(self.real_image_input)
-    
     generated_imgs = self.G(self.noisy_input,training=False)
+
+    d_real = self.D(self.real_image_input)    
     d_fake = self.D(generated_imgs)
-    
     d_noise = self.D(self.noise_model_input)
 
-    output_arr = np.array([d_real,d_fake,d_noise])
+    output_arr = [d_real,d_fake,d_noise]
 
     output = Concatenate(axis=1)(output_arr)
     loss_funcs = [self.disc_loss_function for i in output_arr]
 
-    self.dis_model = Model(inputs=self.full_input,outputs=[d_real,d_fake,d_noise],name="discriminator_model")
+    self.dis_model = Model(inputs=self.full_input,outputs=output_arr,name="discriminator_model")
     self.dis_model.compile(optimizer=self.disc_optimizer,loss=loss_funcs,metrics=['accuracy'])
     self.dis_model.summary()
     return self.dis_model
