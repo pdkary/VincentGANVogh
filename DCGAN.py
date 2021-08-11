@@ -74,9 +74,8 @@ class DCGAN(GanBuilder):
     output_arr = [d_real,d_fake,d_noise]
 
     output = Concatenate(axis=1)(output_arr)
-    loss_funcs = [self.disc_loss_function for i in output_arr]
 
     self.dis_model = Model(inputs=self.full_input,outputs=output_arr,name="discriminator_model")
-    self.dis_model.compile(optimizer=self.disc_optimizer,loss=loss_funcs,metrics=['accuracy'])
+    self.dis_model.compile(optimizer=self.disc_optimizer,loss=self.disc_loss_function,metrics=['accuracy'])
     self.dis_model.summary()
     return self.dis_model
