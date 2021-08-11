@@ -2,6 +2,7 @@ from keras.layers import Input, Activation, Cropping2D, Concatenate
 from GanBuilder import GanBuilder
 from keras.models import Model
 import tensorflow as tf
+import numpy as np
   
 class DCGAN(GanBuilder):
   def __init__(self,gan_shape_config,gan_building_config,gan_training_config):
@@ -71,9 +72,12 @@ class DCGAN(GanBuilder):
     
     d_noise = self.D(self.noise_model_input)
 
-    output = Concatenate(axis=1)([d_real, d_fake, d_noise])
+    output_arr = np.array([d_real,d_fake,d_noise])
 
-    self.dis_model = Model(inputs=self.full_input,outputs=output,name="discriminator_model")
-    self.dis_model.compile(optimizer=self.disc_optimizer,loss=self.disc_loss_function,metrics=['accuracy'])
+    output = Concatenate(axis=1)(output_arr)
+    loss_funcs = [self.disc_loss_function for i in output_arr]
+
+    self.dis_model = Model(inputs=self.full_input,outputs=[d_real,d_fake,d_noise],name="discriminator_model")
+    self.dis_model.compile(optimizer=self.disc_optimizer,loss=loss_funcs,metrics=['accuracy'])
     self.dis_model.summary()
     return self.dis_model
