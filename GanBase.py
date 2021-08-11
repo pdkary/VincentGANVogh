@@ -31,8 +31,8 @@ class GanBase(GanConfig):
     noise_model = self.noise_dict[out.shape[1]]
     for i in range(convolutions):
       if noise:
-        noise_coefficient = Variable(1,dtype=float32)
-        noise_model = noise_coefficient*Conv2D(filters,self.noise_kernel_size,padding='same',kernel_initializer='he_normal')(noise_model)
+        # noise_coefficient = Variable(1,dtype=float32)
+        noise_model = Conv2D(filters,self.noise_kernel_size,padding='same',kernel_initializer='he_normal')(noise_model)
       if style:
         gamma = Dense(filters,bias_initializer='ones')(style_model)
         beta = Dense(filters,bias_initializer='zeros')(style_model)
