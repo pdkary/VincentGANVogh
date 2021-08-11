@@ -36,7 +36,7 @@ class DCGAN(GanBuilder):
     noise_layers = [self.N]
     noise_sizes = [self.N.shape[1]]
     curr_size = self.N.shape[1]
-    while curr_size > 4:
+    while curr_size > self.gen_constant_shape[0]:
       curr_size = curr_size//2
       noise_layers.append(Cropping2D(curr_size//2)(noise_layers[-1]))
       noise_sizes.append(curr_size)
