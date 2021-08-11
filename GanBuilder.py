@@ -1,9 +1,8 @@
 from keras.layers import Dense,Reshape,Conv2D,Flatten
-from GanBase import GanBase
+from GanBuildingBlocks import GanBuildingBlocks
 from MinibatchDiscrimination import MinibatchDiscrimination
-from numpy import prod
 
-class GanBuilder(GanBase):
+class GanBuilder(GanBuildingBlocks):
   def build_style_model(self,input_tensor,size,layers):
     style_model = self.style_model_block(input_tensor,size)
     for i in range(layers-1):
