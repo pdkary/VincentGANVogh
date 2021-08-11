@@ -73,7 +73,7 @@ class DCGAN(GanBuilder):
     d_homogenous = self.D(self.homogenous_input)
 
     self.dis_model = Model(inputs=self.full_input,outputs=[d_real,d_fake,d_noise,d_homogenous],name="discriminator_model")
-    optimizer_loss = [self.disc_loss_function for i in range(3)]
+    optimizer_loss = [self.disc_loss_function for i in range(4)]
     self.dis_model.compile(optimizer=self.disc_optimizer,loss=optimizer_loss,metrics=['accuracy'])
     self.dis_model.summary()
     return self.dis_model
