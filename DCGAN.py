@@ -70,9 +70,8 @@ class DCGAN(GanBuilder):
     d_fake = self.D(generated_imgs)
     
     d_noise = self.D(self.noise_model_input)
-    d_homogenous = self.D(self.homogenous_input)
 
-    output = Concatenate(axis=1)([d_real, d_fake, d_noise, d_homogenous])
+    output = Concatenate(axis=1)([d_real, d_fake, d_noise])
 
     self.dis_model = Model(inputs=self.full_input,outputs=output,name="discriminator_model")
     self.dis_model.compile(optimizer=self.disc_optimizer,loss=self.disc_loss_function,metrics=['accuracy'])

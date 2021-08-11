@@ -16,7 +16,7 @@ def AdaIN(input_arr):
   bias = K.reshape(beta, pool_shape)
   return y * scale + bias
   
-class GanBase(GanConfig):
+class GanBuildingBlocks(GanConfig):
   def __init__(self,gan_shape_config,gan_building_config,gan_training_config):
     super().__init__(gan_shape_config,gan_building_config,gan_training_config)
   
