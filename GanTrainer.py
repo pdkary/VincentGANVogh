@@ -64,7 +64,9 @@ class GanTrainer(DCGAN):
   
   def train_discriminator(self,training_data):
     self.set_trainable(False,True)
-    d_losses = self.DisModel.train_on_batch(training_data,[self.zeros,self.ones,self.ones])
+    ##labels: {real: 0, fake: 1}
+    ## disc outputs are [real, fake, noise, homogenous]
+    d_losses = self.DisModel.train_on_batch(training_data,[self.zeros,self.ones,self.ones,self.ones])
     label = self.DisModel.metrics_names.index('discriminator_base_accuracy')
     return d_losses[0],d_losses[label]
     
