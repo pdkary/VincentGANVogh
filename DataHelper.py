@@ -15,7 +15,7 @@ class DataHelper():
     x = []
     num_images = len(images)
     for n,i in enumerate(images):
-      if 100*n/num_images == load_n_percent:
+      if 100*n/num_images >= load_n_percent:
         break
       img = Image.open(i)
       if channels == 4:
