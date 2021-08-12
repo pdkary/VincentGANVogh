@@ -23,19 +23,13 @@ class DCGAN(GanBuilder):
     self.generator_input = [self.style_model_input,self.noise_model_input,self.latent_model_input]
 
     self.init_noise_model()
-    self.init_style_model()
-    self.init_generator()
-    self.init_discriminator()
-
-  def init_generator(self):
     S = self.build_style_model(self.style_model_input,self.style_layer_size,self.style_layers)
     G = self.build_generator(self.latent_model_input,S)
-    self.G = Model(inputs=self.generator_input,outputs=G, name="generator_base")
-    
-  def init_discriminator(self):
     D = self.build_discriminator(self.real_image_input)
+    
+    self.G = Model(inputs=self.generator_input,outputs=G, name="generator_base")
     self.D = Model(inputs=self.real_image_input,outputs=D,name="discriminator_base")
-  
+
   def init_noise_model(self):
     self.N = Activation('linear')(self.noise_model_input)
     noise_layers = [self.N]

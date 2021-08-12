@@ -29,5 +29,5 @@ class GanBuilder(GanBuildingBlocks):
     disc_model = MinibatchDiscrimination(self.minibatch_size,self.channels)(disc_model) if self.minibatch else disc_model
     for size in self.disc_dense_sizes:
       disc_model = self.disc_dense_block(disc_model,size)
-    disc_model = Dense(1, kernel_initializer = 'he_normal')(disc_model)
+    disc_model = Dense(1,activation="tanh", kernel_initializer = 'he_normal')(disc_model)
     return disc_model
