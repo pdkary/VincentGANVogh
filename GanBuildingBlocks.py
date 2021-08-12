@@ -3,7 +3,6 @@ from GanConfig import GanConfig
 from InstanceNormalization import InstanceNormalization
 from keras.layers.advanced_activations import LeakyReLU
 from keras.layers import Dense,Conv2D,UpSampling2D,Lambda,BatchNormalization,Add,Dropout,MaxPooling2D
-from tensorflow import Variable,float32
 
 def AdaIN(input_arr):
   input_tensor, gamma, beta = input_arr
