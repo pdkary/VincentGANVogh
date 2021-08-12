@@ -75,7 +75,6 @@ class GanTrainer(DCGAN):
 
   def train_generator(self, noise_data):
     self.set_trainable(True,False)
-    ## gen outputs are [fake]
     g_losses = self.GenModel.train_on_batch(noise_data,self.ones)
     return g_losses[0],g_losses[1]
   

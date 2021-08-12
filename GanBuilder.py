@@ -10,10 +10,7 @@ class GanBuilder(GanBuildingBlocks):
     return style_model
 
   def build_generator(self,latent_input_tensor,style_model):
-
-    gen_model = Dense(self.gen_constant_shape[-1], kernel_initializer = 'he_normal')(latent_input_tensor)
-    gen_model = Reshape(self.gen_constant_shape)(gen_model)
-    
+    gen_model =latent_input_tensor
     for shape,upsampling,noise in zip(self.gen_layer_shapes,self.gen_layer_upsampling,self.gen_layer_noise):
       gen_model = self.generator_block(gen_model,style_model,*shape,upsampling=upsampling,noise=noise)
     
