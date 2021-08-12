@@ -12,10 +12,15 @@ class DCGAN(GanBuilder):
     self.latent_model_input = Input(shape=self.gen_constant_shape, name="latent_space_input")
     self.noise_model_input = Input(shape=self.img_shape,name="noise_image_input")
     self.style_model_input = Input(shape=(self.style_size,),name="style_input")
-    self.homogenous_image_input = Input(shape=self.img_shape,name="homogenous_input")
+    self.homogenous_input = Input(shape=self.img_shape,name="homogenous_input")
 
-    self.noisy_input = [self.style_model_input,self.noise_model_input,self.latent_model_input]
-    self.full_input = [self.real_image_input,*self.noisy_input,self.homogenous_image_input]
+    self.discriminator_input = [self.real_image_input,
+                       self.latent_model_input,
+                       self.style_model_input,
+                       self.noise_model_input,
+                       self.homogenous_input]
+    
+    self.generator_input = [self.style_model_input,self.noise_model_input,self.latent_model_input]
 
     self.init_noise_model()
     self.init_style_model()
@@ -23,15 +28,13 @@ class DCGAN(GanBuilder):
     self.init_discriminator()
 
   def init_generator(self):
-    G = self.build_generator(self.latent_model_input,self.S)
-    self.G = Model(inputs=self.noisy_input,outputs=G, name="generator_base")
+    S = self.build_style_model(self.style_model_input,self.style_layer_size,self.style_layers)
+    G = self.build_generator(self.latent_model_input,S)
+    self.G = Model(inputs=self.generator_input,outputs=G, name="generator_base")
     
   def init_discriminator(self):
     D = self.build_discriminator(self.real_image_input)
     self.D = Model(inputs=self.real_image_input,outputs=D,name="discriminator_base")
-  
-  def init_style_model(self):
-    self.S = self.build_style_model(self.style_model_input,self.style_layer_size,self.style_layers)
   
   def init_noise_model(self):
     self.N = Activation('linear')(self.noise_model_input)
@@ -55,25 +58,25 @@ class DCGAN(GanBuilder):
 
   def GenModel(self):
     self.set_trainable(True,False)
-    generated_output = self.G(self.noisy_input)
+    generated_output = self.G(self.generator_input)
     discriminated_output = self.D(generated_output,training=False)
-    self.gen_model = Model(inputs=self.noisy_input,outputs=discriminated_output,name="generator_model")
+    self.gen_model = Model(inputs=self.generator_input,outputs=discriminated_output,name="generator_model")
     self.gen_model.compile(optimizer=self.gen_optimizer,loss=self.gen_loss_function,metrics=['accuracy'])
     self.gen_model.summary()
     return self.gen_model
   
   def DisModel(self):
     self.set_trainable(False,True)
-    generated_imgs = self.G(self.noisy_input,training=False)
+    generated_imgs = self.G(self.generator_input,training=False)
 
     d_real = self.D(self.real_image_input)    
     d_fake = self.D(generated_imgs)
     d_noise = self.D(self.noise_model_input)
-    d_homo = self.D(self.homogenous_image_input)
+    d_homo = self.D(self.homogenous_input)
 
     output_arr = [d_real,d_fake,d_noise,d_homo]
 
-    self.dis_model = Model(inputs=self.full_input,outputs=output_arr,name="discriminator_model")
+    self.dis_model = Model(inputs=self.discriminator_input,outputs=output_arr,name="discriminator_model")
     self.dis_model.compile(optimizer=self.disc_optimizer,loss=self.disc_loss_function,metrics=['accuracy'])
     self.dis_model.summary()
     return self.dis_model

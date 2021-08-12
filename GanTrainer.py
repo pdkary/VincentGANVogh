@@ -61,16 +61,20 @@ class GanTrainer(DCGAN):
     return noise_batch
   
   def get_generator_input(self,latent_noise,batch_size):
-    return [self.style_noise(batch_size),self.noiseImage(batch_size),latent_noise]
+    return [self.style_noise(batch_size),
+            self.noiseImage(batch_size),
+            latent_noise]
 
   def train_generator(self, noise_data):
     self.set_trainable(True,False)
+    ##labels: {real: 1, fake: -1, noise: 0, homo: 0}
+    ## gen outputs are [fake]
     g_losses = self.GenModel.train_on_batch(noise_data,self.ones)
     return g_losses[0],g_losses[1]
   
   def train_discriminator(self,training_data):
     self.set_trainable(False,True)
-    ##labels: {real: 1, fake: 0.5, noise: 0, homo: 0}
+    ##labels: {real: 1, fake: -1, noise: 0, homo: 0}
     ## disc outputs are [real, fake, noise, homogenous]
     d_losses = self.DisModel.train_on_batch(training_data,[self.ones,self.nones,self.zeros,self.zeros])
     label = self.DisModel.metrics_names.index('discriminator_base_accuracy')
