@@ -60,10 +60,19 @@ class GanTrainer(DCGAN):
       noise_batch[i] = n_image
     return noise_batch
   
-  def get_generator_input(self,latent_noise,batch_size):
+  def get_generator_input(self,training=True):
+    batch_size = self.batch_size if training else self.preview_size
+    latent_noise = self.training_latent if training else self.preview_latent
     return [self.style_noise(batch_size),
             self.noiseImage(batch_size),
             latent_noise]
+    
+  def get_discriminator_input(self,training_imgs):
+    return [training_imgs,
+            self.training_latent,
+            self.style_noise(self.batch_size),
+            self.noiseImage(self.batch_size),
+            self.homogenous_noise(self.batch_size)]
 
   def train_generator(self, noise_data):
     self.set_trainable(True,False)
@@ -81,8 +90,8 @@ class GanTrainer(DCGAN):
     return d_losses[0],d_losses[label]
     
   def train_step(self,training_imgs):
-    generator_input = self.get_generator_input(self.training_latent,self.batch_size)
-    disc_input = [training_imgs, *generator_input,self.homogenous_noise(self.batch_size)]
+    generator_input = self.get_generator_input()
+    disc_input = self.get_discriminator_input(training_imgs)
     g_loss,g_acc = self.train_generator(generator_input)
     d_loss,d_acc = self.train_discriminator(disc_input)
     return d_loss,d_acc,g_loss,g_acc
@@ -108,7 +117,7 @@ class GanTrainer(DCGAN):
       d_acc, g_acc = np.mean(batch_d_acc), np.mean(batch_g_acc)
 
       if epoch % printerval == 0:
-        preview_seed = self.get_generator_input(self.preview_latent,self.preview_size)
+        preview_seed = self.get_generator_input(training=False)
         generated_images = np.array(self.G.predict(preview_seed))
         DataHelper.save_images(epoch,generated_images,self.img_shape,self.preview_rows,self.preview_cols,self.preview_margin,self.image_output_path,self.image_type)
 
