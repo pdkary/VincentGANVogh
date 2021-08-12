@@ -12,13 +12,11 @@ class DCGAN(GanBuilder):
     self.latent_model_input = Input(shape=self.gen_constant_shape, name="latent_space_input")
     self.noise_model_input = Input(shape=self.img_shape,name="noise_image_input")
     self.style_model_input = Input(shape=(self.style_size,),name="style_input")
-    self.homogenous_input = Input(shape=self.img_shape,name="homogenous_input")
 
     self.discriminator_input = [self.real_image_input,
                        self.latent_model_input,
                        self.style_model_input,
-                       self.noise_model_input,
-                       self.homogenous_input]
+                       self.noise_model_input]
     
     self.generator_input = [self.style_model_input,
                             self.noise_model_input,
@@ -67,10 +65,8 @@ class DCGAN(GanBuilder):
 
     d_real = self.D(self.real_image_input)    
     d_fake = self.D(generated_imgs)
-    d_noise = self.D(self.noise_model_input)
-    d_homo = self.D(self.homogenous_input)
 
-    output_arr = [d_real,d_fake,d_noise,d_homo]
+    output_arr = [d_real,d_fake]
 
     self.dis_model = Model(inputs=self.discriminator_input,outputs=output_arr,name="discriminator_model")
     self.dis_model.compile(optimizer=self.disc_optimizer,loss=self.disc_loss_function,metrics=['accuracy'])
