@@ -70,8 +70,7 @@ class GanTrainer(DCGAN):
     return [training_imgs,
             self.training_latent,
             self.style_noise(self.batch_size),
-            self.noiseImage(self.batch_size),
-            self.homogenous_noise(self.batch_size)]
+            self.noiseImage(self.batch_size)]
 
   def train_generator(self, noise_data):
     self.set_trainable(True,False)
