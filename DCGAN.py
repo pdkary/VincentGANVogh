@@ -20,7 +20,9 @@ class DCGAN(GanBuilder):
                        self.noise_model_input,
                        self.homogenous_input]
     
-    self.generator_input = [self.style_model_input,self.noise_model_input,self.latent_model_input]
+    self.generator_input = [self.style_model_input,
+                            self.noise_model_input,
+                            self.latent_model_input]
 
     self.init_noise_model()
     S = self.build_style_model(self.style_model_input,self.style_layer_size,self.style_layers)
