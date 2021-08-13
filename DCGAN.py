@@ -32,19 +32,15 @@ class DCGAN(GanBuilder):
 
   def init_noise_model(self):
     self.N = Activation('linear')(self.noise_model_input)
-    
-    crop_size = (self.N.shape[-1] - self.gen_constant_shape[-1])//2
-
-    noise_layers = [Cropping2D(crop_size)(self.N)]
-    noise_sizes = [self.gen_constant_shape[0]]
-    
-    for layer in self.gen_layer_shapes:
-      crop_size = self.gen_constant_shape[-1] - layer[0]
-      noise_sizes.append(layer[0])
-      noise_layers.append(Cropping2D(crop_size)(self.N))
+    noise_layers = [self.N]
+    noise_sizes = [self.N.shape[1]]
+    curr_size = self.N.shape[1]
+    while curr_size > self.gen_constant_shape[0]:
+      curr_size = curr_size//2
+      noise_layers.append(Cropping2D(curr_size//2)(noise_layers[-1]))
+      noise_sizes.append(curr_size)
     
     self.noise_dict = dict(zip(noise_sizes,noise_layers))
-    print(self.noise_dict)
 
   def set_trainable(self,gen_state,disc_state):
     self.G.trainable = gen_state
