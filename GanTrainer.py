@@ -1,9 +1,8 @@
 from DCGAN import DCGAN
 from DataHelper import DataHelper
+from GanPlotter import GanPlotter
 import numpy as np
 import tensorflow as tf
-from jupyterplot import ProgressPlot
-import time
 
 class GanTrainer(DCGAN):
   def __init__(self,gan_shape_config,gan_building_config,gan_training_config):
@@ -42,11 +41,6 @@ class GanTrainer(DCGAN):
   #Style Z and latent noise
   def style_noise(self,batch_size):
     return tf.random.normal(shape = (batch_size,self.style_size))
-  
-  def homogenous_noise(self,batch_size):
-    homo_ones = tf.ones(shape=(batch_size,*self.img_shape))
-    scale = tf.random.uniform((1,1),minval=0,maxval=1,dtype=tf.float32)
-    return scale*homo_ones
 
   #Noise Sample
   def noiseImage(self,batch_size):
@@ -88,55 +82,27 @@ class GanTrainer(DCGAN):
     d_loss,d_acc = self.train_discriminator(disc_input)
     return d_loss,d_acc,g_loss,g_acc
   
-  def train(self,epochs,batches_per_epoch,printerval,ma_size):
-    d_loss_ma_buffer, g_loss_ma_buffer = [], []
-    d_acc_ma_buffer, g_acc_ma_buffer = [], []
-    time_ma_buffer = []
-    
+  def train(self,epochs,batches_per_epoch,printerval):
     for epoch in range(epochs):
-      epoch_start = time.time()
-      batch_d_loss, batch_g_loss = [], []
-      batch_d_acc, batch_g_acc = [], []
+      self.gan_plotter.start_batch()
       
       for img_batch in self.dataset.take(batches_per_epoch):
         bd_loss,bd_acc,bg_loss,bg_acc = self.train_step(img_batch)
-        batch_d_loss.append(bd_loss)
-        batch_g_loss.append(bg_loss)
-        batch_d_acc.append(bd_acc)
-        batch_g_acc.append(bg_acc)
+        self.gan_plotter.batch_update(bd_loss,bd_acc,bg_loss,bg_acc)
+        
+      self.gan_plotter.end_batch()
       
-      d_loss, g_loss = np.mean(batch_d_loss),np.mean(batch_g_loss)
-      d_acc, g_acc = np.mean(batch_d_acc), np.mean(batch_g_acc)
-
       if epoch % printerval == 0:
         preview_seed = self.get_generator_input(training=False)
         generated_images = np.array(self.G.predict(preview_seed))
         DataHelper.save_images(epoch,generated_images,self.img_shape,self.preview_rows,self.preview_cols,self.preview_margin,self.image_output_path,self.image_type)
 
-      epoch_elapsed = time.time()-epoch_start
-
       if epoch >= 10:
-        d_loss_ma_buffer.append(d_loss)
-        g_loss_ma_buffer.append(g_loss)
-        d_acc_ma_buffer.append(d_acc)
-        g_acc_ma_buffer.append(g_acc)
-        time_ma_buffer.append(epoch_elapsed)
-
-        d_loss_ma_buffer = d_loss_ma_buffer[1:] if len(d_loss_ma_buffer) >= ma_size else d_loss_ma_buffer
-        g_loss_ma_buffer = g_loss_ma_buffer[1:] if len(g_loss_ma_buffer) >= ma_size else g_loss_ma_buffer
-        d_acc_ma_buffer = d_acc_ma_buffer[1:] if len(d_acc_ma_buffer) >= ma_size else d_acc_ma_buffer
-        g_acc_ma_buffer = g_acc_ma_buffer[1:] if len(g_acc_ma_buffer) >= ma_size else g_acc_ma_buffer
-        time_ma_buffer = time_ma_buffer[1:] if len(time_ma_buffer) >= ma_size else time_ma_buffer
-
-        d_loss_ma,g_loss_ma = np.mean(d_loss_ma_buffer),np.mean(g_loss_ma_buffer)
-        d_acc_ma,g_acc_ma = np.mean(d_acc_ma_buffer), np.mean(g_acc_ma_buffer)
-        time_ma = np.mean(time_ma_buffer)
-
-        self.progress_plot.update([[d_loss,d_loss_ma],[d_acc,d_acc_ma],[g_loss,g_loss_ma],[g_acc,g_acc_ma],[epoch_elapsed,time_ma]])
+        self.gan_plotter.log_epoch()
   
   def train_n_eras(self,eras,epochs,batches_per_epoch,printerval,ma_size):
-    self.progress_plot = ProgressPlot(plot_names =['D Loss','D acc','G Loss','G acc', 'Epoch Duration'],line_names=["value", "MA"])
+    self.gan_plotter = GanPlotter(plot_names =['D Loss','D acc','G Loss','G acc', 'Epoch Duration'],moving_average_size=ma_size)
     for i in range(eras):
-      self.train(epochs,batches_per_epoch,printerval,ma_size)
+      self.train(epochs,batches_per_epoch,printerval)
       filename = self.model_name + "%d"%((i+1)*epochs)
       self.G.save(self.model_output_path + filename)
