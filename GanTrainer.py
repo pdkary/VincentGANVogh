@@ -21,8 +21,8 @@ class GanTrainer(DCGAN):
 
     self.gen_constant = tf.random.normal(shape=self.gen_constant_shape)
     
-    self.training_latent = self.latent_noise_batch(self.batch_size)
-    self.preview_latent = self.latent_noise_batch(self.preview_size)
+    self.training_latent = self.get_batched_constant(self.batch_size)
+    self.preview_latent = self.get_batched_constant(self.preview_size)
 
     self.ones = np.ones((self.batch_size, 1), dtype=np.float32)
     self.zeros = np.zeros((self.batch_size, 1), dtype=np.float32)
@@ -33,11 +33,11 @@ class GanTrainer(DCGAN):
     print("DATASET LOADED")
 
   
-  def latent_noise_batch(self,batch_size):
-    latent_batch = np.full((batch_size,*self.gen_constant_shape),0.0,dtype=np.float32)
+  def get_batched_constant(self,batch_size):
+    gc_batch = np.full((batch_size,*self.gen_constant_shape),0.0,dtype=np.float32)
     for i in range(batch_size):
-      latent_batch[i] = self.gen_constant
-    return latent_batch
+      gc_batch[i] = self.gen_constant
+    return gc_batch
 
   #Style Z and latent noise
   def style_noise(self,batch_size):
@@ -52,7 +52,7 @@ class GanTrainer(DCGAN):
   def noiseImage(self,batch_size):
     noise_batch = np.full((batch_size,*self.img_shape),0.0,dtype=np.float32)
     for i in range(batch_size):
-      n_image = self.latent_noise_image if self.use_latent_noise else tf.random.normal(shape=self.img_shape,stddev=self.gauss_factor)
+      n_image = tf.random.normal(shape=self.img_shape,stddev=self.gauss_factor)
       noise_batch[i] = n_image
     return noise_batch
   

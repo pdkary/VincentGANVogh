@@ -9,22 +9,22 @@ class DCGAN(GanBuilder):
     super().__init__(gan_shape_config,gan_building_config,gan_training_config)
 
     self.real_image_input = Input(shape=self.img_shape, name="image_input")
-    self.latent_model_input = Input(shape=self.gen_constant_shape, name="latent_space_input")
+    self.gen_constant_input = Input(shape=self.gen_constant_shape, name="gen_constant_input")
     self.noise_model_input = Input(shape=self.img_shape,name="noise_image_input")
     self.style_model_input = Input(shape=(self.style_size,),name="style_input")
 
     self.discriminator_input = [self.real_image_input,
-                       self.latent_model_input,
+                       self.gen_constant_input,
                        self.style_model_input,
                        self.noise_model_input]
     
     self.generator_input = [self.style_model_input,
                             self.noise_model_input,
-                            self.latent_model_input]
+                            self.gen_constant_input]
 
     self.init_noise_model()
     S = self.build_style_model(self.style_model_input,self.style_layer_size,self.style_layers)
-    G = self.build_generator(self.latent_model_input,S)
+    G = self.build_generator(self.gen_constant_input,S)
     D = self.build_discriminator(self.real_image_input)
     
     self.G = Model(inputs=self.generator_input,outputs=G, name="generator_base")
