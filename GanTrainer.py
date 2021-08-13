@@ -101,7 +101,7 @@ class GanTrainer(DCGAN):
         self.gan_plotter.log_epoch()
   
   def train_n_eras(self,eras,epochs,batches_per_epoch,printerval,ma_size):
-    self.gan_plotter = GanPlotter(plot_names =['D Loss','D acc','G Loss','G acc', 'Epoch Duration'],moving_average_size=ma_size)
+    self.gan_plotter = GanPlotter(moving_average_size=ma_size)
     for i in range(eras):
       self.train(epochs,batches_per_epoch,printerval)
       filename = self.model_name + "%d"%((i+1)*epochs)

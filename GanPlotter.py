@@ -3,9 +3,9 @@ import time
 import numpy as np
 
 class GanPlotter:
-    def __init__(self,plot_names,moving_average_size) -> None:
+    def __init__(self,moving_average_size) -> None:
         self.moving_average_size = moving_average_size
-        self.progress_plot = ProgressPlot(plot_names = plot_names,line_names=["value", "MA"])
+        self.progress_plot = ProgressPlot(plot_names = ['D Loss','D acc','G Loss','G acc', 'Epoch Duration'],line_names=["value", "MA"])
         self.d_loss_ma_buffer = []
         self.g_loss_ma_buffer = []
         self.d_acc_ma_buffer = []
@@ -32,6 +32,8 @@ class GanPlotter:
         self.g_acc = np.mean(self.batch_g_acc)
     
     def log_epoch(self):
+        self.epoch_elapsed = time.time()-self.epoch_start
+        
         self.d_loss_ma_buffer.append(self.d_loss)
         self.g_loss_ma_buffer.append(self.g_loss)
         self.d_acc_ma_buffer.append(self.d_acc)
@@ -48,5 +50,4 @@ class GanPlotter:
         d_acc_ma,g_acc_ma = np.mean(d_acc_ma_buffer), np.mean(g_acc_ma_buffer)
         time_ma = np.mean(time_ma_buffer)
         
-        self.epoch_elapsed = time.time()-self.epoch_start
         self.progress_plot.update([[self.d_loss,d_loss_ma],[self.d_acc,d_acc_ma],[self.g_loss,g_loss_ma],[self.g_acc,g_acc_ma],[self.epoch_elapsed,time_ma]])
