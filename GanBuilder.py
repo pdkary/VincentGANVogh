@@ -12,6 +12,7 @@ class GanBuilder(GanBuildingBlocks):
   def build_generator(self,latent_input_tensor,style_model):
     gen_model =latent_input_tensor
     for shape,upsampling,noise in zip(self.gen_layer_shapes,self.gen_layer_upsampling,self.gen_layer_noise):
+      print(shape,upsampling,noise)
       gen_model = self.generator_block(gen_model,style_model,*shape,upsampling=upsampling,noise=noise)
     
     gen_model = Conv2D(self.channels, self.kernel_size, padding='same',activation='sigmoid')(gen_model)
