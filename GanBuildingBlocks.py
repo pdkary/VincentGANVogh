@@ -27,8 +27,6 @@ class GanBuildingBlocks(GanConfig):
   def generator_block(self,input_tensor,style_model,filters,convolutions,upsampling=True,style=True,noise=True):
     out = input_tensor
     out = UpSampling2D(interpolation='bilinear')(out) if upsampling else out
-    print(out.shape)
-    print(self.noise_dict)
     noise_model = self.noise_dict[out.shape[1]]
     for i in range(convolutions):
       if noise:
