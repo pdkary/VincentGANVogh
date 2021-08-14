@@ -21,7 +21,7 @@ class GanBuildingBlocks(GanConfig):
   
   def style_model_block(self,input_tensor,size):
     out = Dense(size, kernel_initializer = 'he_normal')(input_tensor)
-    # out = LeakyReLU(self.relu_alpha)(out)
+    out = LeakyReLU(0.1)(out)
     return out 
 
   def generator_block(self,input_tensor,style_model,filters,convolutions,upsampling=True,style=True,noise=True):
