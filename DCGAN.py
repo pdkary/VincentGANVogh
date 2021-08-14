@@ -4,8 +4,8 @@ from keras.models import Model
   
 class DCGAN():
   def __init__(self,gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config):
-    self.generator = Generator(self,gen_model_config,noise_model_config,style_model_config)
-    self.discriminator = Discriminator(self,**disc_model_config.__dict__)
+    self.generator = Generator(gen_model_config,noise_model_config,style_model_config)
+    self.discriminator = Discriminator(disc_model_config)
     self.training_config = gan_training_config
 
     G = self.generator.build()
