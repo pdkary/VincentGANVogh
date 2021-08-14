@@ -36,7 +36,7 @@ class DCGAN():
     return self.gen_model
   
   def DisModel(self):
-    dis_model_input = [*self.discriminator.input,*self.generator.input]
+    dis_model_input = [self.discriminator.input,*self.generator.input]
     self.set_trainable(False,True)
     generated_imgs = self.G(self.generator.input,training=False)
 
