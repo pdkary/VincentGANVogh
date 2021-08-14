@@ -5,8 +5,8 @@ from keras.layers import Dense,Dropout,LeakyReLU,Conv2D,MaxPooling2D,Flatten, In
 
 class Discriminator(DiscriminatorModelConfig):
     def __init__(self,disc_model_config):
+        DiscriminatorModelConfig.__init__(self,**disc_model_config.__dict__)
         self.input = Input(shape=self.img_shape, name="image_input")
-        DiscriminatorModelConfig.__init__(self,**disc_model_config.__data__)
         
     def build(self):
         disc_model = self.input
@@ -25,7 +25,7 @@ class Discriminator(DiscriminatorModelConfig):
     def disc_dense_block(self,input_tensor,size,dropout=True):
         out_db = Dense(size, kernel_initializer = 'he_normal')(input_tensor)
         out_db = Dropout(self.dropout_rate)(out_db) if dropout else out_db
-        out_db = LeakyReLU(self.relu_alpha)(out_db)
+        out_db = LeakyReLU(self.disc_relu_alpha)(out_db)
         return out_db
     
     def disc_conv_block(self,input_tensor, filters, convolutions):
@@ -33,7 +33,7 @@ class Discriminator(DiscriminatorModelConfig):
         for i in range(convolutions):
             out_cb = Conv2D(filters,self.disc_kernel_size,padding="same")(out_cb)
             out_cb = InstanceNormalization()(out_cb)
-            out_cb = LeakyReLU(self.relu_alpha)(out_cb)
+            out_cb = LeakyReLU(self.disc_relu_alpha)(out_cb)
         out_cb = MaxPooling2D()(out_cb)
         return out_cb
     
