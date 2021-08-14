@@ -9,14 +9,13 @@ class GanTrainer(DCGAN):
     super().__init__(gan_shape_config,gan_building_config,gan_training_config)
 
     self.preview_margin = 16
+    self.preview_size = self.preview_rows*self.preview_cols
 
     self.GenModel = self.GenModel()
     self.DisModel = self.DisModel()
 
     self.image_output_path = self.data_path + "/images"
     self.model_output_path = self.data_path + "/models"
-
-    self.preview_size = self.preview_rows*self.preview_cols
 
     self.gen_constant = tf.random.normal(shape=self.gen_constant_shape)
     
