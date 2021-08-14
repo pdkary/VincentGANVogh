@@ -2,6 +2,7 @@ from keras.layers.convolutional import Cropping2D
 from GanConfig import GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
 from keras.layers import UpSampling2D,Conv2D,Dense,Add,Lambda,BatchNormalization,LeakyReLU,Reshape,Input
 import keras.backend as K
+from numpy import prod
 
 def AdaIN(input_arr):
   input_tensor, gamma, beta = input_arr
@@ -34,10 +35,11 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         return self.build_generator(S,N)
     
     def build_noise_model(self):
+        img_size = prod(self.img_shape)
         out = Dense(self.noise_layer_size,kernel_initializer = 'he_normal')(self.noise_model_input)
         for i in range(self.noise_model_layers-1):
             out = Dense(self.noise_layer_size,kernel_initializer = 'he_normal')(out)
-        out = Dense(self.img_size,kernel_initializer = 'he_normal')(out)
+        out = Dense(img_size,kernel_initializer = 'he_normal')(out)
         out = Reshape(shape=self.img_shape)(out)
         return out
     
@@ -53,7 +55,7 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         gen_model = self.gen_constant_input
         for shape,upsampling,noise,style in zip(self.gen_layer_shapes,self.gen_layer_upsampling,self.gen_layer_noise,self.gen_layer_using_style):
             gen_model = self.generator_block(gen_model,style_model,noise_model,*shape,upsampling=upsampling,style=style,noise=noise)
-        gen_model = Conv2D(self.channels, self.gen_kernel_size, padding='same',activation='sigmoid')(gen_model)
+        gen_model = Conv2D(self.img_shape[-1], self.gen_kernel_size, padding='same',activation='sigmoid')(gen_model)
         return gen_model 
 
     def generator_block(self,input_tensor,style_model,noise_model,filters,convolutions,upsampling=True,style=True,noise=True):

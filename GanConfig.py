@@ -32,10 +32,6 @@ class GeneratorModelConfig():
                relu_alpha,
                batch_norm_momentum):
     self.img_shape = img_shape
-    self.img_rows = img_shape[0]
-    self.img_cols = img_shape[1]
-    self.channels = img_shape[2]
-    self.img_size = self.img_rows*self.img_cols*self.channels
     self.gen_constant_shape = gen_constant_shape
     self.gen_kernel_size = gen_kernel_size
     self.gen_layer_shapes = gen_layer_shapes
@@ -57,9 +53,6 @@ class DiscriminatorModelConfig():
                minibatch,
                minibatch_size):
     self.img_shape = img_shape
-    self.img_rows = img_shape[0]
-    self.img_cols = img_shape[1]
-    self.channels = img_shape[2]
     self.disc_kernel_size = disc_kernel_size
     self.disc_layer_shapes = disc_layer_shapes
     self.disc_dense_sizes = disc_dense_sizes

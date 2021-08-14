@@ -15,7 +15,7 @@ class Discriminator(DiscriminatorModelConfig):
         
         disc_model = Flatten()(disc_model)
         if self.minibatch:
-            disc_model = MinibatchDiscrimination(self.minibatch_size,self.channels)(disc_model)
+            disc_model = MinibatchDiscrimination(self.minibatch_size,self.img_shape[-1])(disc_model)
         
         for size,dropout in zip(self.disc_dense_sizes,self.disc_layer_dropout):
             disc_model = self.disc_dense_block(disc_model,size,dropout=dropout)
