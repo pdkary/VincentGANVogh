@@ -8,6 +8,7 @@ class StyleModelConfig():
     self.style_layer_size = style_layer_size
     self.style_layers = style_layers
     self.style_relu_alpha = relu_alpha
+    print("initted style model")
 
 class NoiseModelConfig():
   def __init__(self,
@@ -19,6 +20,8 @@ class NoiseModelConfig():
     self.noise_layer_size = noise_layer_size
     self.noise_model_layers = noise_model_layers
     self.noise_kernel_size = noise_kernel_size
+    print("initted noise model")
+
 
 class GeneratorModelConfig():
   def __init__(self,
@@ -44,6 +47,7 @@ class GeneratorModelConfig():
     self.gen_layer_noise = gen_layer_noise
     self.gen_relu_alpha = relu_alpha
     self.batch_norm_momentum = batch_norm_momentum
+    print("initted gen model")
 
 class DiscriminatorModelConfig():
   def __init__(self,
@@ -67,7 +71,9 @@ class DiscriminatorModelConfig():
     self.relu_alpha = relu_alpha
     self.dropout_rate = dropout_rate
     self.minibatch = minibatch
-    self.minibatch_size = minibatch_size
+    self.minibatch_size = minibatch_size    
+    print("initted disc model")
+
 
 class GanTrainingConfig():
   def __init__(self,
@@ -97,3 +103,5 @@ class GanTrainingConfig():
     self.model_name = model_name
     self.flip_lr = flip_lr
     self.load_n_percent = load_n_percent
+    print("initted gan trainer config")
+
