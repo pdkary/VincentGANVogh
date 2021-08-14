@@ -51,11 +51,7 @@ class GanTrainer(DCGAN):
 
   #Noise Sample
   def noise(self,batch_size):
-    noise_batch = np.full((batch_size,self.noise_latent_size),0.0,dtype=np.float32)
-    for i in range(batch_size):
-      n_image = tf.random.normal(shape=(self.noise_latent_size),stddev=self.gauss_factor)
-      noise_batch[i] = n_image
-    return noise_batch
+    return tf.random.normal(shape = (batch_size,self.noise_latent_size),stddev=self.gauss_factor)
   
   def get_generator_input(self,training=True):
     batch_size = self.batch_size if training else self.preview_size
