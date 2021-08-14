@@ -5,29 +5,33 @@ import numpy as np
 import tensorflow as tf
 
 class GanTrainer(DCGAN):
-  def __init__(self,gan_shape_config,gan_building_config,gan_training_config):
-    super().__init__(gan_shape_config,gan_building_config,gan_training_config)
+  def __init__(self,gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config):
+    super().__init__(gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config)
 
     self.preview_margin = 16
-    self.preview_size = self.preview_rows*self.preview_cols
+    self.preview_size = self.training_config.preview_rows*self.training_config.preview_cols
 
     self.GenModel = self.GenModel()
     self.DisModel = self.DisModel()
 
-    self.image_output_path = self.data_path + "/images"
-    self.model_output_path = self.data_path + "/models"
+    self.image_output_path = self.training_config.data_path + "/images"
+    self.model_output_path = self.training_config.data_path + "/models"
 
     self.gen_constant = tf.random.normal(shape=self.gen_constant_shape)
     
-    self.training_latent = self.get_batched_constant(self.batch_size)
+    self.training_latent = self.get_batched_constant(self.training_config.batch_size)
     self.preview_latent = self.get_batched_constant(self.preview_size)
 
-    self.ones = np.ones((self.batch_size, 1), dtype=np.float32)
-    self.zeros = np.zeros((self.batch_size, 1), dtype=np.float32)
+    self.ones = np.ones((self.training_config.batch_size, 1), dtype=np.float32)
+    self.zeros = np.zeros((self.training_config.batch_size, 1), dtype=np.float32)
     
     print("Preparing Dataset".upper())
-    self.images = DataHelper.load_data(self.data_path,self.img_shape,self.image_type,self.flip_lr,self.load_n_percent)
-    self.dataset = tf.data.Dataset.from_tensor_slices(self.images).batch(self.batch_size)
+    self.images = DataHelper.load_data(self.data_path,
+                                       self.img_shape,
+                                       self.image_type,
+                                       self.flip_lr,
+                                       self.load_n_percent)
+    self.dataset = tf.data.Dataset.from_tensor_slices(self.images).batch(self.training_config.batch_size)
     print("DATASET LOADED")
 
   
@@ -39,22 +43,23 @@ class GanTrainer(DCGAN):
 
   #Style Z and latent noise
   def style_noise(self,batch_size):
-    return tf.random.normal(shape = (batch_size,self.style_size))
+    return tf.random.normal(shape = (batch_size,self.style_latent_size))
 
   #Noise Sample
   def noiseImage(self,batch_size):
     noise_batch = np.full((batch_size,*self.img_shape),0.0,dtype=np.float32)
     for i in range(batch_size):
-      n_image = tf.random.normal(shape=self.img_shape,stddev=self.gauss_factor)
+      n_image = tf.random.normal(shape=self.img_shape,
+                                 stddev=self.training_config.gauss_factor)
       noise_batch[i] = n_image
     return noise_batch
   
   def get_generator_input(self,training=True):
     batch_size = self.batch_size if training else self.preview_size
     latent_noise = self.training_latent if training else self.preview_latent
-    return [self.style_noise(batch_size),
-            self.noiseImage(batch_size),
-            latent_noise]
+    return [latent_noise,
+            self.style_noise(batch_size),
+            self.noiseImage(batch_size)]
     
   def get_discriminator_input(self,training_imgs):
     return [training_imgs,
