@@ -40,7 +40,7 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         for i in range(self.noise_model_layers-1):
             out = Dense(self.noise_layer_size,kernel_initializer = 'he_normal')(out)
         out = Dense(img_size,kernel_initializer = 'he_normal')(out)
-        out = Reshape(shape=self.img_shape)(out)
+        out = Reshape(self.img_shape)(out)
         return out
     
     def build_style_model(self):
