@@ -16,6 +16,10 @@ def AdaIN(input_arr):
   
 class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
     def __init__(self,gen_config,noise_config,style_config):
+        GeneratorModelConfig.__init__(self,**gen_config.__dict__)
+        NoiseModelConfig.__init__(self,**noise_config.__dict__)
+        StyleModelConfig.__init__(self,**style_config.__dict__)
+
         self.gen_constant_input = Input(shape=self.gen_constant_shape, name="gen_constant_input")
         self.style_model_input = Input(shape=self.style_latent_size, name="style_model_input")
         self.noise_model_input = Input(shape=self.noise_latent_size, name="noise_model_input")
@@ -23,10 +27,6 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         self.input = [self.gen_constant_input,
                       self.style_model_input,
                       self.noise_model_input]
-                
-        GeneratorModelConfig.__init__(self,**gen_config.__dict__)
-        NoiseModelConfig.__init__(self,**noise_config.__dict__)
-        StyleModelConfig.__init__(self,**style_config.__dict__)
         
     def build(self):
         S = self.build_style_model()

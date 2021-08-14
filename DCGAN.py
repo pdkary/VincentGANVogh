@@ -1,4 +1,4 @@
-from typing import Generator
+from Generator import Generator
 from Discriminator import Discriminator
 from keras.models import Model
   
