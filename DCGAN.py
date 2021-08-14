@@ -1,10 +1,6 @@
 from typing import Generator
 from Discriminator import Discriminator
-from GanConfig import DiscriminatorModelConfig, GanTrainingConfig, GeneratorModelConfig
-from keras.layers import Input, Activation, Cropping2D, Concatenate
 from keras.models import Model
-import tensorflow as tf
-import numpy as np
   
 class DCGAN():
   def __init__(self,gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config):
@@ -52,7 +48,7 @@ class DCGAN():
 
     output_arr = [d_real,d_fake]
 
-    self.dis_model = Model(inputs=self.dis_model_input,
+    self.dis_model = Model(inputs=dis_model_input,
                            outputs=output_arr,
                            name="discriminator_model")
     self.dis_model.compile(optimizer=self.training_config.disc_optimizer,
