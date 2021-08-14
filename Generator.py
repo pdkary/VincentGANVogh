@@ -74,5 +74,5 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
             out = Conv2D(filters,self.gen_kernel_size,padding='same', kernel_initializer = 'he_normal')(out)
             out = Add()([out,noise_model]) if noise else out
             out = Lambda(AdaIN)([out,gamma,beta]) if style else BatchNormalization(momentum=self.batch_norm_momentum)(out)
-            out = LeakyReLU(self.relu_alpha)(out)
+            out = LeakyReLU(self.gen_relu_alpha)(out)
         return out
