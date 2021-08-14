@@ -5,9 +5,9 @@ from GanPlotter import GanPlotter
 import numpy as np
 import tensorflow as tf
 
-class GanTrainer(DCGAN,GanTrainingConfig):
+class GanTrainer(DCGAN):
   def __init__(self,gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config):
-    DCGAN().__init__(gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config)
+    DCGAN.__init__(gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config)
 
     self.img_shape = gen_model_config.img_shape
     self.noise_latent_size = noise_model_config.noise_latent_size
