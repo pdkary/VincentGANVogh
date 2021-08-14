@@ -17,7 +17,7 @@ class GanTrainer(DCGAN):
     self.image_output_path = self.training_config.data_path + "/images"
     self.model_output_path = self.training_config.data_path + "/models"
 
-    self.gen_constant = tf.random.normal(shape=self.gen_constant_shape)
+    self.gen_constant = tf.random.normal(shape=gen_model_config.gen_constant_shape)
     
     self.training_latent = self.get_batched_constant(self.training_config.batch_size)
     self.preview_latent = self.get_batched_constant(self.preview_size)
