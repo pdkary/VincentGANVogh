@@ -1,12 +1,13 @@
+from GanConfig import GanTrainingConfig
 from Generator import Generator
 from Discriminator import Discriminator
 from keras.models import Model
   
-class DCGAN():
+class DCGAN(GanTrainingConfig):
   def __init__(self,gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config):
     self.generator = Generator(gen_model_config,noise_model_config,style_model_config)
     self.discriminator = Discriminator(disc_model_config)
-    self.training_config = gan_training_config
+    GanTrainingConfig.__init__(self,**gan_training_config.__dict__)
 
     G = self.generator.build()
     D = self.discriminator.build()
@@ -29,8 +30,8 @@ class DCGAN():
     self.gen_model = Model(inputs=self.generator.input,
                            outputs=discriminated_output,
                            name="generator_model")
-    self.gen_model.compile(optimizer=self.training_config.gen_optimizer,
-                           loss=self.training_config.gen_loss_function,
+    self.gen_model.compile(optimizer=self.gen_optimizer,
+                           loss=self.gen_loss_function,
                            metrics=['accuracy'])
     self.gen_model.summary()
     return self.gen_model
@@ -48,8 +49,8 @@ class DCGAN():
     self.dis_model = Model(inputs=dis_model_input,
                            outputs=output_arr,
                            name="discriminator_model")
-    self.dis_model.compile(optimizer=self.training_config.disc_optimizer,
-                           loss=self.training_config.disc_loss_function,
+    self.dis_model.compile(optimizer=self.disc_optimizer,
+                           loss=self.disc_loss_function,
                            metrics=['accuracy'])
     self.dis_model.summary()
     return self.dis_model
