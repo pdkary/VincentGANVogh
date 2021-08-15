@@ -10,7 +10,7 @@ class GanTrainer(DCGAN):
     DCGAN.__init__(self,gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config)
 
     self.img_shape = gen_model_config.img_shape
-    self.noise_image_size = noise_model_config.noise_latent_size
+    self.noise_image_size = noise_model_config.noise_image_size
     self.style_latent_size = style_model_config.style_latent_size
     self.preview_margin = 16
     self.preview_size = self.preview_rows*self.preview_cols
