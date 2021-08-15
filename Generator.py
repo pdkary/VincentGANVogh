@@ -55,18 +55,20 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
     def generator_block(self,input_tensor,style_model,noise_model,filters,convolutions,upsampling=True,style=True,noise=True):
         out = input_tensor
         out = UpSampling2D(interpolation='bilinear')(out) if upsampling else out
-        ## crop noise model to size
-        desired_size = out.shape[1]
-        noise_size = noise_model.shape[1]
-        noise_model = Cropping2D((noise_size-desired_size)//2)(noise_model)
         for i in range(convolutions):
+            out = Conv2D(filters,self.gen_kernel_size,padding='same', kernel_initializer = 'he_normal')(out)
             if noise:
+                ## crop noise model to size
+                desired_size = out.shape[1]
+                noise_size = noise_model.shape[1]
+                noise_model = Cropping2D((noise_size-desired_size)//2)(noise_model)
                 noise_model = Conv2D(filters,self.noise_kernel_size,padding='same',kernel_initializer='he_normal')(noise_model)
+                out = Add()([out,noise_model])
             if style:
                 gamma = Dense(filters,bias_initializer='ones')(style_model)
                 beta = Dense(filters,bias_initializer='zeros')(style_model)
-            out = Conv2D(filters,self.gen_kernel_size,padding='same', kernel_initializer = 'he_normal')(out)
-            out = Add()([out,noise_model]) if noise else out
-            out = Lambda(AdaIN)([out,gamma,beta]) if style else BatchNormalization(momentum=self.batch_norm_momentum)(out)
+                out = Lambda(AdaIN)([out,gamma,beta]) 
+            else:
+                out = BatchNormalization(momentum=self.batch_norm_momentum)(out)
             out = LeakyReLU(self.gen_relu_alpha)(out)
         return out
