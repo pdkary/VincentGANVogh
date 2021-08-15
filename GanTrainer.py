@@ -12,7 +12,7 @@ def discriminator_loss(real_output, fake_output):
   real_loss = cross_entropy(tf.ones_like(real_output), real_output)
   real_acc = np.average(real_output)
   fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
-  fake_acc = np.average(fake_output)
+  fake_acc = 1 - np.average(fake_output)
   total_loss = real_loss + fake_loss
   total_acc = (real_acc + fake_acc)/2
   return total_loss,total_acc
