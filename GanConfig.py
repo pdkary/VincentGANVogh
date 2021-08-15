@@ -63,7 +63,7 @@ class DiscriminatorModelConfig():
     self.dropout_rate = dropout_rate
     self.minibatch = minibatch
     self.minibatch_size = minibatch_size
-    self.disc_loss_funtion = disc_loss_function
+    self.disc_loss_function = disc_loss_function
     self.disc_optimizer = disc_optimizer
 
 class GanTrainingConfig():
