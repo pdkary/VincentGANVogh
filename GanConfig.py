@@ -12,9 +12,11 @@ class StyleModelConfig():
 class NoiseModelConfig():
   def __init__(self,
                noise_image_size,
-               noise_kernel_size):
+               noise_kernel_size,
+               gauss_factor):
     self.noise_image_size = noise_image_size
     self.noise_kernel_size = noise_kernel_size
+    self.gauss_factor = gauss_factor
 
 class GeneratorModelConfig():
   def __init__(self,
@@ -68,7 +70,6 @@ class DiscriminatorModelConfig():
 
 class GanTrainingConfig():
   def __init__(self,
-               gauss_factor,
                batch_size,
                preview_rows,
                preview_cols,
@@ -77,7 +78,6 @@ class GanTrainingConfig():
                model_name,
                flip_lr,
                load_n_percent):
-    self.gauss_factor = gauss_factor
     self.batch_size = batch_size
     self.preview_rows = preview_rows
     self.preview_cols = preview_cols

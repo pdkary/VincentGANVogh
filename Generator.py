@@ -4,7 +4,8 @@ from GanConfig import GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
 from keras.layers import UpSampling2D,Conv2D,Dense,Add,Lambda,BatchNormalization,LeakyReLU,Input
 from keras.models import Model
 import keras.backend as K
-from numpy import prod
+import numpy as np
+import tensorflow as tf
 
 def AdaIN(input_arr):
   input_tensor, gamma, beta = input_arr
@@ -27,10 +28,27 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         self.style_model_input = Input(shape=self.style_latent_size, name="style_model_input")
         self.noise_model_input = Input(shape=self.noise_image_size, name="noise_model_input")
         
+        self.gen_constant = tf.random.normal(shape=self.gen_constant_shape)
+        
         self.input = [self.gen_constant_input,
                       self.style_model_input,
                       self.noise_model_input]
+    
+    def get_constant(self,batch_size):
+        gc_batch = np.full((batch_size,*self.gen_constant_shape),0.0,dtype=np.float32)
+        for i in range(batch_size):
+            gc_batch[i] = self.gen_constant
+        return gc_batch
+
+    def get_style_noise(self,batch_size):
+        return tf.random.normal(shape = (batch_size,self.style_latent_size))
         
+    def get_noise(self,batch_size):
+        noise_batch = np.full((batch_size,*self.noise_image_size),0.0,dtype=np.float32)
+        for i in range(batch_size):
+            noise_batch[i] = tf.random.normal(shape=self.noise_image_size,stddev=self.gauss_factor)
+        return noise_batch
+    
     def build(self):
         S = self.build_style_model()
         N = self.build_noise_model()

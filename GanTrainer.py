@@ -41,45 +41,23 @@ class GanTrainer(GanTrainingConfig):
     self.image_output_path = self.data_path + "/images"
     self.model_output_path = self.data_path + "/models"
     
-    self.gen_constant_shape = gen_model_config.gen_constant_shape
-    self.gen_constant = tf.random.normal(shape=self.gen_constant_shape)
-    
-    self.training_latent = self.get_batched_constant(self.batch_size)
+    self.training_latent = self.generator.get_constant(self.batch_size)
     self.preview_latent = self.get_batched_constant(self.preview_size)
 
     print("Preparing Dataset".upper())
-    self.images = DataHelper.load_data(self.data_path,
-                                       self.img_shape,
-                                       self.image_type,
-                                       self.flip_lr,
-                                       self.load_n_percent)
-    self.dataset_size = len(self.images)
+    self.images = DataHelper.load_data(self.data_path,self.img_shape,self.image_type,self.flip_lr,self.load_n_percent)
     self.dataset = tf.data.Dataset.from_tensor_slices(self.images).batch(self.batch_size)
+    self.dataset_size = len(self.images)
     print("DATASET LOADED")
 
-  def get_batched_constant(self,batch_size):
-    gc_batch = np.full((batch_size,*self.gen_constant_shape),0.0,dtype=np.float32)
-    for i in range(batch_size):
-      gc_batch[i] = self.gen_constant
-    return gc_batch
-
-  #Style Z and latent noise
-  def style_noise(self,batch_size):
-    return tf.random.normal(shape = (batch_size,self.style_latent_size))
-
   #Noise Sample
-  def noise(self,batch_size):
-    noise_batch = np.full((batch_size,*self.noise_image_size),0.0,dtype=np.float32)
-    for i in range(batch_size):
-      noise_batch[i] = tf.random.normal(shape=self.noise_image_size,stddev=self.gauss_factor)
-    return noise_batch
   
   def get_generator_input(self,training=True):
     batch_size = self.batch_size if training else self.preview_size
     latent_noise = self.training_latent if training else self.preview_latent
     return [latent_noise,
-            self.style_noise(batch_size),
-            self.noise(batch_size)]
+            self.generator.style_noise(batch_size),
+            self.generator.get_noise(batch_size)]
     
   def train_step(self,training_imgs):
     generator_input = self.get_generator_input()
