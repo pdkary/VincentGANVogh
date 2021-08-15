@@ -30,9 +30,7 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         
         self.gen_constant = tf.random.normal(shape=self.gen_constant_shape)
         
-        self.input = [self.gen_constant_input,
-                      self.style_model_input,
-                      self.noise_model_input]
+        self.input = [self.gen_constant_input, self.style_model_input, self.noise_model_input]
     
     def get_constant(self,batch_size):
         gc_batch = np.full((batch_size,*self.gen_constant_shape),0.0,dtype=np.float32)
