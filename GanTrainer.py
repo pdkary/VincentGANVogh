@@ -58,7 +58,6 @@ class GanTrainer(GanTrainingConfig):
     self.dataset = tf.data.Dataset.from_tensor_slices(self.images).batch(self.batch_size)
     print("DATASET LOADED")
 
-  
   def get_batched_constant(self,batch_size):
     gc_batch = np.full((batch_size,*self.gen_constant_shape),0.0,dtype=np.float32)
     for i in range(batch_size):
@@ -83,25 +82,18 @@ class GanTrainer(GanTrainingConfig):
             self.style_noise(batch_size),
             self.noise(batch_size)]
     
-  def get_discriminator_input(self,training_imgs):
-    return [training_imgs,
-            self.training_latent,
-            self.style_noise(self.batch_size),
-            self.noise(self.batch_size)]
-    
   def train_step(self,training_imgs):
     generator_input = self.get_generator_input()
-    disc_input = self.get_discriminator_input(training_imgs)
     with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
       generated_images = self.GenModel(generator_input, training=True)
-      real_output = self.DisModel(disc_input,training=True)
+      real_output = self.DisModel(training_imgs,training=True)
       fake_output = self.DisModel(generated_images,training=True)
       
       g_loss,g_acc = generator_loss(fake_output)
       d_loss,d_acc = discriminator_loss(real_output,fake_output)
         
-      gradients_of_generator = gen_tape.gradient(gen_loss, self.GenModel.trainable_variables)
-      gradients_of_discriminator = disc_tape.gradient(disc_loss, self.DisModel.trainable_variables)
+      gradients_of_generator = gen_tape.gradient(g_loss, self.GenModel.trainable_variables)
+      gradients_of_discriminator = disc_tape.gradient(d_loss, self.DisModel.trainable_variables)
   
       self.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.GeModel.trainable_variables))
       self.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.DisModel.trainable_variables))
