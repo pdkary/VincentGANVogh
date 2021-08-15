@@ -93,8 +93,8 @@ class GanTrainer(GanTrainingConfig):
       gradients_of_generator = gen_tape.gradient(g_loss, self.GenModel.trainable_variables)
       gradients_of_discriminator = disc_tape.gradient(d_loss, self.DisModel.trainable_variables)
   
-      self.GenModel.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.GenModel.trainable_variables))
-      self.DisModel.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.DisModel.trainable_variables))
+      self.generator.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.GenModel.trainable_variables))
+      self.discriminator.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.DisModel.trainable_variables))
   
     return d_loss,d_acc,g_loss,g_acc
   
