@@ -1,7 +1,8 @@
 from keras.layers.convolutional import Cropping2D
 from keras.layers.core import Activation
 from GanConfig import GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
-from keras.layers import UpSampling2D,Conv2D,Dense,Add,Lambda,BatchNormalization,LeakyReLU,Reshape,Input
+from keras.layers import UpSampling2D,Conv2D,Dense,Add,Lambda,BatchNormalization,LeakyReLU,Input
+from keras.models import Model
 import keras.backend as K
 from numpy import prod
 
@@ -46,10 +47,15 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         return out 
     
     def build_generator(self,style_model,noise_model):
-        gen_model = self.gen_constant_input
+        out = self.gen_constant_input
         for shape,upsampling,noise,style in zip(self.gen_layer_shapes,self.gen_layer_upsampling,self.gen_layer_noise,self.gen_layer_using_style):
-            gen_model = self.generator_block(gen_model,style_model,noise_model,*shape,upsampling=upsampling,style=style,noise=noise)
-        gen_model = Conv2D(self.img_shape[-1], self.gen_kernel_size, padding='same',activation='sigmoid')(gen_model)
+            out = self.generator_block(out,style_model,noise_model,*shape,upsampling=upsampling,style=style,noise=noise)
+        out = Conv2D(self.img_shape[-1], self.gen_kernel_size, padding='same',activation='sigmoid')(out)
+        
+        gen_model = Model(inputs=self.input,outputs=out,name="Generator")
+        gen_model.compile(optimizer=self.gen_optimizer,
+                           loss=self.gen_loss_function,
+                           metrics=['accuracy'])
         return gen_model 
 
     def generator_block(self,input_tensor,style_model,noise_model,filters,convolutions,upsampling=True,style=True,noise=True):

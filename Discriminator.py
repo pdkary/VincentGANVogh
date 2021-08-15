@@ -2,6 +2,7 @@ from GanConfig import DiscriminatorModelConfig
 from InstanceNormalization import InstanceNormalization
 from MinibatchDiscrimination import MinibatchDiscrimination
 from keras.layers import Dense,Dropout,LeakyReLU,Conv2D,MaxPooling2D,Flatten, Input
+from keras.models import Model
 
 class Discriminator(DiscriminatorModelConfig):
     def __init__(self,disc_model_config):
@@ -9,17 +10,22 @@ class Discriminator(DiscriminatorModelConfig):
         self.input = Input(shape=self.img_shape, name="image_input")
         
     def build(self):
-        disc_model = self.input
+        out = self.input
         for shape in self.disc_layer_shapes:
-            disc_model = self.disc_conv_block(disc_model,*shape) 
+            out = self.disc_conv_block(out,*shape) 
         
-        disc_model = Flatten()(disc_model)
+        out = Flatten()(out)
         if self.minibatch:
-            disc_model = MinibatchDiscrimination(self.minibatch_size,self.img_shape[-1])(disc_model)
+            out = MinibatchDiscrimination(self.minibatch_size,self.img_shape[-1])(out)
         
         for size,dropout in zip(self.disc_dense_sizes,self.disc_layer_dropout):
-            disc_model = self.disc_dense_block(disc_model,size,dropout=dropout)
-            disc_model = Dense(1,activation="sigmoid", kernel_initializer = 'he_normal')(disc_model)
+            out = self.disc_dense_block(out,size,dropout=dropout)
+            out = Dense(1,activation="sigmoid", kernel_initializer = 'he_normal')(out)
+        
+        disc_model = Model(inputs=self.input,outputs=out,name="Discriminator")
+        disc_model.compile(optimizer=self.disc_optimizer,
+                           loss=self.disc_loss_function,
+                           metrics=['accuracy'])
         return disc_model
     
     def disc_dense_block(self,input_tensor,size,dropout=True):

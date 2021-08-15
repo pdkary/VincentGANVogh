@@ -1,22 +1,42 @@
 from GanConfig import GanTrainingConfig
-from DCGAN import DCGAN
+from Generator import Generator
+from Discriminator import Discriminator
 from DataHelper import DataHelper
 from GanPlotter import GanPlotter
 import numpy as np
 import tensorflow as tf
 
-class GanTrainer(DCGAN):
+cross_entropy = tf.keras.losses.BinaryCrossentropy()
+
+def discriminator_loss(real_output, fake_output):
+  real_loss = cross_entropy(tf.ones_like(real_output), real_output)
+  real_acc = np.average(real_output)
+  fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
+  fake_acc = np.average(fake_output)
+  total_loss = real_loss + fake_loss
+  total_acc = (real_acc + fake_acc)/2
+  return total_loss,total_acc
+ 
+def generator_loss(fake_output):
+  ones = tf.ones_like(fake_output)
+  loss = cross_entropy(ones,fake_output)
+  acc = np.average(fake_output)
+  return loss,acc
+
+class GanTrainer(GanTrainingConfig):
   def __init__(self,gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config):
-    DCGAN.__init__(self,gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config)
+    GanTrainingConfig.__init__(self,**gan_training_config.__dict__)
+    self.generator = Generator(gen_model_config,noise_model_config,style_model_config)
+    self.discriminator = Discriminator(disc_model_config)
+
+    self.GenModel = self.generator.build()
+    self.DisModel = self.discriminator.build()
 
     self.img_shape = gen_model_config.img_shape
     self.noise_image_size = noise_model_config.noise_image_size
     self.style_latent_size = style_model_config.style_latent_size
     self.preview_margin = 16
     self.preview_size = self.preview_rows*self.preview_cols
-
-    self.GenModel = self.GenModel()
-    self.DisModel = self.DisModel()
 
     self.image_output_path = self.data_path + "/images"
     self.model_output_path = self.data_path + "/models"
@@ -68,23 +88,24 @@ class GanTrainer(DCGAN):
             self.training_latent,
             self.style_noise(self.batch_size),
             self.noise(self.batch_size)]
-
-  def train_generator(self, noise_data):
-    self.set_trainable(True,False)
-    g_losses = self.GenModel.train_on_batch(noise_data,self.ones)
-    return g_losses[0],g_losses[1]
-  
-  def train_discriminator(self,training_data):
-    self.set_trainable(False,True)
-    d_losses = self.DisModel.train_on_batch(training_data,[self.ones,self.zeros])
-    label = self.DisModel.metrics_names.index('discriminator_base_accuracy')
-    return d_losses[0],d_losses[label]
     
   def train_step(self,training_imgs):
     generator_input = self.get_generator_input()
     disc_input = self.get_discriminator_input(training_imgs)
-    g_loss,g_acc = self.train_generator(generator_input)
-    d_loss,d_acc = self.train_discriminator(disc_input)
+    with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
+      generated_images = self.GenModel(generator_input, training=True)
+      real_output = self.DisModel(disc_input,training=True)
+      fake_output = self.DisModel(generated_images,training=True)
+      
+      g_loss,g_acc = generator_loss(fake_output)
+      d_loss,d_acc = discriminator_loss(real_output,fake_output)
+        
+      gradients_of_generator = gen_tape.gradient(gen_loss, self.GenModel.trainable_variables)
+      gradients_of_discriminator = disc_tape.gradient(disc_loss, self.DisModel.trainable_variables)
+  
+      self.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.GeModel.trainable_variables))
+      self.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.DisModel.trainable_variables))
+  
     return d_loss,d_acc,g_loss,g_acc
   
   def train(self,epochs,batches_per_epoch,printerval):
