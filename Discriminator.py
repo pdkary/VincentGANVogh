@@ -20,7 +20,7 @@ class Discriminator(DiscriminatorModelConfig):
         
         for size,dropout in zip(self.disc_dense_sizes,self.disc_layer_dropout):
             out = self.disc_dense_block(out,size,dropout=dropout)
-            out = Dense(1,activation="sigmoid", kernel_initializer = 'he_normal')(out)
+        out = Dense(1,activation="sigmoid", kernel_initializer = 'he_normal')(out)
         
         disc_model = Model(inputs=self.input,outputs=out,name="Discriminator")
         disc_model.compile(optimizer=self.disc_optimizer,
