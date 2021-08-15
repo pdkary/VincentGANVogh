@@ -53,6 +53,7 @@ class GanTrainer(GanTrainingConfig):
                                        self.image_type,
                                        self.flip_lr,
                                        self.load_n_percent)
+    self.dataset_size = len(self.images)
     self.dataset = tf.data.Dataset.from_tensor_slices(self.images).batch(self.batch_size)
     print("DATASET LOADED")
 
@@ -99,6 +100,7 @@ class GanTrainer(GanTrainingConfig):
     return d_loss,d_acc,g_loss,g_acc
   
   def train(self,epochs,batches_per_epoch,printerval):
+    self.dataset = self.dataset.shuffle(self.dataset_size//8)
     for epoch in range(epochs):
       self.gan_plotter.start_batch()
       
