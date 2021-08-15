@@ -35,6 +35,9 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         return self.build_generator(S,N)
     
     def build_noise_model(self):
+        if self.noise_model_layers == 0:
+            return self.noise_model_input
+        
         out = self.noise_model_input
         for i in range(self.noise_model_layers):
             out = Dense(self.noise_layer_size,kernel_initializer = 'he_normal')(out)
