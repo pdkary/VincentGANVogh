@@ -26,6 +26,7 @@ class Discriminator(DiscriminatorModelConfig):
         disc_model.compile(optimizer=self.disc_optimizer,
                            loss=self.disc_loss_function,
                            metrics=['accuracy'])
+        disc_model.summary()
         return disc_model
     
     def disc_dense_block(self,input_tensor,size,dropout=True):

@@ -40,15 +40,13 @@ class GanTrainer(GanTrainingConfig):
 
     self.image_output_path = self.data_path + "/images"
     self.model_output_path = self.data_path + "/models"
+    
     self.gen_constant_shape = gen_model_config.gen_constant_shape
     self.gen_constant = tf.random.normal(shape=self.gen_constant_shape)
     
     self.training_latent = self.get_batched_constant(self.batch_size)
     self.preview_latent = self.get_batched_constant(self.preview_size)
 
-    self.ones = np.ones((self.batch_size, 1), dtype=np.float32)
-    self.zeros = np.zeros((self.batch_size, 1), dtype=np.float32)
-    
     print("Preparing Dataset".upper())
     self.images = DataHelper.load_data(self.data_path,
                                        self.img_shape,
@@ -112,7 +110,7 @@ class GanTrainer(GanTrainingConfig):
       
       if epoch % printerval == 0:
         preview_seed = self.get_generator_input(training=False)
-        generated_images = np.array(self.G.predict(preview_seed))
+        generated_images = np.array(self.GenModel.predict(preview_seed))
         DataHelper.save_images(epoch,generated_images,self.img_shape,self.preview_rows,self.preview_cols,self.preview_margin,self.image_output_path,self.image_type)
 
       if epoch >= 10:
@@ -123,4 +121,4 @@ class GanTrainer(GanTrainingConfig):
     for i in range(eras):
       self.train(epochs,batches_per_epoch,printerval)
       filename = self.model_name + "%d"%((i+1)*epochs)
-      self.G.save(self.model_output_path + filename)
+      self.GenModel.save(self.model_output_path + filename)

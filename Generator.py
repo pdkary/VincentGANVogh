@@ -56,6 +56,7 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         gen_model.compile(optimizer=self.gen_optimizer,
                            loss=self.gen_loss_function,
                            metrics=['accuracy'])
+        gen_model.summary()
         return gen_model 
 
     def generator_block(self,input_tensor,style_model,noise_model,filters,convolutions,upsampling=True,style=True,noise=True):
