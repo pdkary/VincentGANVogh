@@ -35,10 +35,11 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         return self.build_generator(S,N)
     
     def build_noise_model(self):
-        img_size = prod(self.img_shape)
         out = Dense(self.noise_layer_size,kernel_initializer = 'he_normal')(self.noise_model_input)
         for i in range(self.noise_model_layers-1):
             out = Dense(self.noise_layer_size,kernel_initializer = 'he_normal')(out)
+        
+        img_size = prod(self.img_shape)
         out = Dense(img_size,kernel_initializer = 'he_normal')(out)
         out = Reshape(self.img_shape)(out)
         return out
