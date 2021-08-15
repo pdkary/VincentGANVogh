@@ -35,9 +35,10 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         return self.build_generator(S,N)
     
     def build_noise_model(self):
-        out = Dense(self.noise_layer_size,kernel_initializer = 'he_normal')(self.noise_model_input)
-        for i in range(self.noise_model_layers-1):
+        out = self.noise_model_input
+        for i in range(self.noise_model_layers):
             out = Dense(self.noise_layer_size,kernel_initializer = 'he_normal')(out)
+            out = LeakyReLU(self.noise_relu_alpha)(out)
         
         img_size = prod(self.img_shape)
         out = Dense(img_size,kernel_initializer = 'he_normal')(out)
@@ -45,9 +46,8 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         return out
     
     def build_style_model(self):
-        out = Dense(self.style_layer_size, kernel_initializer = 'he_normal')(self.style_model_input)
-        out = LeakyReLU(0.1)(out)
-        for i in range(self.style_layers-1):
+        out = self.style_model_input
+        for i in range(self.style_layers):
             out = Dense(self.style_latent_size, kernel_initializer = 'he_normal')(out)
             out = LeakyReLU(self.style_relu_alpha)(out)
         return out 

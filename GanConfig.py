@@ -14,11 +14,13 @@ class NoiseModelConfig():
                noise_latent_size,
                noise_layer_size,
                noise_model_layers,
-               noise_kernel_size):
+               noise_kernel_size,
+               noise_relu_alpha):
     self.noise_latent_size = noise_latent_size
     self.noise_layer_size = noise_layer_size
     self.noise_model_layers = noise_model_layers
     self.noise_kernel_size = noise_kernel_size
+    self.noise_relu_alpha = noise_relu_alpha
 
 class GeneratorModelConfig():
   def __init__(self,
