@@ -26,7 +26,9 @@ class GeneratorModelConfig():
                gen_layer_using_style,
                gen_layer_noise,
                gen_relu_alpha,
-               batch_norm_momentum):
+               batch_norm_momentum,
+               gen_loss_function,
+               gen_optimizer):
     self.img_shape = img_shape
     self.gen_constant_shape = gen_constant_shape
     self.gen_kernel_size = gen_kernel_size
@@ -36,6 +38,8 @@ class GeneratorModelConfig():
     self.gen_layer_noise = gen_layer_noise
     self.gen_relu_alpha = gen_relu_alpha
     self.batch_norm_momentum = batch_norm_momentum
+    self.gen_loss_function = gen_loss_function
+    self.gen_optimizer = gen_optimizer
 
 class DiscriminatorModelConfig():
   def __init__(self,
@@ -47,7 +51,9 @@ class DiscriminatorModelConfig():
                disc_relu_alpha,
                dropout_rate,
                minibatch,
-               minibatch_size):
+               minibatch_size,
+               disc_loss_function,
+               disc_optimizer):
     self.img_shape = img_shape
     self.disc_kernel_size = disc_kernel_size
     self.disc_layer_shapes = disc_layer_shapes
@@ -57,13 +63,11 @@ class DiscriminatorModelConfig():
     self.dropout_rate = dropout_rate
     self.minibatch = minibatch
     self.minibatch_size = minibatch_size
+    self.disc_loss_funtion = disc_loss_function
+    self.disc_optimizer = disc_optimizer
 
 class GanTrainingConfig():
   def __init__(self,
-               gen_optimizer,
-               disc_optimizer,
-               disc_loss_function,
-               gen_loss_function,
                gauss_factor,
                batch_size,
                preview_rows,
@@ -73,10 +77,6 @@ class GanTrainingConfig():
                model_name,
                flip_lr,
                load_n_percent):
-    self.gen_optimizer = gen_optimizer
-    self.disc_optimizer = disc_optimizer
-    self.disc_loss_function = disc_loss_function
-    self.gen_loss_function = gen_loss_function
     self.gauss_factor = gauss_factor
     self.batch_size = batch_size
     self.preview_rows = preview_rows
