@@ -33,34 +33,20 @@ class GanTrainer(GanTrainingConfig):
     self.DisModel = self.discriminator.build()
 
     self.img_shape = gen_model_config.img_shape
-    self.noise_image_size = noise_model_config.noise_image_size
-    self.style_latent_size = style_model_config.style_latent_size
     self.preview_margin = 16
     self.preview_size = self.preview_rows*self.preview_cols
 
     self.image_output_path = self.data_path + "/images"
     self.model_output_path = self.data_path + "/models"
     
-    self.training_latent = self.generator.get_constant(self.batch_size)
-    self.preview_latent = self.get_batched_constant(self.preview_size)
-
     print("Preparing Dataset".upper())
     self.images = DataHelper.load_data(self.data_path,self.img_shape,self.image_type,self.flip_lr,self.load_n_percent)
     self.dataset = tf.data.Dataset.from_tensor_slices(self.images).batch(self.batch_size)
     self.dataset_size = len(self.images)
     print("DATASET LOADED")
-
-  #Noise Sample
-  
-  def get_generator_input(self,training=True):
-    batch_size = self.batch_size if training else self.preview_size
-    latent_noise = self.training_latent if training else self.preview_latent
-    return [latent_noise,
-            self.generator.style_noise(batch_size),
-            self.generator.get_noise(batch_size)]
     
   def train_step(self,training_imgs):
-    generator_input = self.get_generator_input()
+    generator_input = self.generator.get_input(self.batch_size)
     with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
       generated_images = self.GenModel(generator_input, training=True)
       real_output = self.DisModel(training_imgs,training=True)
@@ -89,7 +75,7 @@ class GanTrainer(GanTrainingConfig):
       self.gan_plotter.end_batch()
       
       if epoch % printerval == 0:
-        preview_seed = self.get_generator_input(training=False)
+        preview_seed = self.generator.get_input(self.preview_size)
         generated_images = np.array(self.GenModel.predict(preview_seed))
         DataHelper.save_images(epoch,generated_images,self.img_shape,self.preview_rows,self.preview_cols,self.preview_margin,self.image_output_path,self.image_type)
 

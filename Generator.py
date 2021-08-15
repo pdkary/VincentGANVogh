@@ -32,6 +32,11 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         
         self.input = [self.gen_constant_input, self.style_model_input, self.noise_model_input]
     
+    def get_input(self,batch_size):
+        return [self.get_constant(batch_size),
+                self.get_style_noise(batch_size),
+                self.get_noise(batch_size)]
+    
     def get_constant(self,batch_size):
         gc_batch = np.full((batch_size,*self.gen_constant_shape),0.0,dtype=np.float32)
         for i in range(batch_size):
