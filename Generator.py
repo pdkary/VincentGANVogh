@@ -1,4 +1,5 @@
 from keras.layers.convolutional import Cropping2D
+from keras.layers.core import Activation
 from GanConfig import GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
 from keras.layers import UpSampling2D,Conv2D,Dense,Add,Lambda,BatchNormalization,LeakyReLU,Reshape,Input
 import keras.backend as K
@@ -23,7 +24,7 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
 
         self.gen_constant_input = Input(shape=self.gen_constant_shape, name="gen_constant_input")
         self.style_model_input = Input(shape=self.style_latent_size, name="style_model_input")
-        self.noise_model_input = Input(shape=self.noise_latent_size, name="noise_model_input")
+        self.noise_model_input = Input(shape=self.noise_image_size, name="noise_model_input")
         
         self.input = [self.gen_constant_input,
                       self.style_model_input,
@@ -35,18 +36,7 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         return self.build_generator(S,N)
     
     def build_noise_model(self):
-        if self.noise_model_layers == 0:
-            return self.noise_model_input
-        
-        out = self.noise_model_input
-        for i in range(self.noise_model_layers):
-            out = Dense(self.noise_layer_size,kernel_initializer = 'he_normal')(out)
-            out = LeakyReLU(self.noise_relu_alpha)(out)
-        
-        img_size = prod(self.img_shape)
-        out = Dense(img_size,kernel_initializer = 'he_normal')(out)
-        out = Reshape(self.img_shape)(out)
-        return out
+        return Activation('linear')(self.noise_model_input)
     
     def build_style_model(self):
         out = self.style_model_input
