@@ -45,13 +45,13 @@ class GeneratorModelConfig():
   def __init__(self,
                img_shape: Tuple[int,int,int],
                gen_constant_shape: Tuple[int,int,int],
-               gen_layers: List,
+               gen_layers: List[GenLayerConfig],
                non_style_normalization_layer: Layer,
                gen_loss_function: str,
                gen_optimizer: Optimizer):
     self.img_shape = img_shape
     self.gen_constant_shape = gen_constant_shape
-    self.gen_layers = gen_layers,
+    self.gen_layers = gen_layers[0],
     self.non_style_normalization_layer = non_style_normalization_layer
     self.gen_loss_function = gen_loss_function
     self.gen_optimizer = gen_optimizer

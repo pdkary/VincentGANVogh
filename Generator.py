@@ -26,7 +26,6 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         GeneratorModelConfig.__init__(self,**gen_config.__dict__)
         NoiseModelConfig.__init__(self,**noise_config.__dict__)
         StyleModelConfig.__init__(self,**style_config.__dict__)
-        print(self.gen_layers)
 
         self.gen_constant_input = Input(shape=self.gen_constant_shape, name="gen_constant_input")
         self.style_model_input = Input(shape=self.style_latent_size, name="style_model_input")
