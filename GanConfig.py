@@ -45,7 +45,7 @@ class GeneratorModelConfig():
   def __init__(self,
                img_shape: Tuple[int,int,int],
                gen_constant_shape: Tuple[int,int,int],
-               gen_layers: List[GenLayerConfig],
+               gen_layers: List,
                non_style_normalization_layer: Layer,
                gen_loss_function: str,
                gen_optimizer: Optimizer):
