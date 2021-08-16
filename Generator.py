@@ -75,6 +75,7 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
                         noise_model: Functional):
         out = self.gen_constant_input
         for layer_config in self.gen_layers:
+            print(layer_config)
             out = self.generator_block(out,style_model,noise_model,layer_config)
         out = Conv2D(self.img_shape[-1], layer_config.kernel_size, padding='same',activation='sigmoid')(out)
         
@@ -91,7 +92,6 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
                         noise_model: Functional,
                         config: GenLayerConfig):
         out = input_tensor
-        print(config.upsampling)
         out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         for i in range(config.convolutions):
             out = Conv2D(config.filters,config.kernel_size,padding='same', kernel_initializer = 'he_normal')(out)
