@@ -76,7 +76,6 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         out = self.gen_constant_input
         for layer_config in list(self.gen_layers[0])[0]:
             out = self.generator_block(out,style_model,noise_model,layer_config)
-        out = Conv2D(self.img_shape[-1], layer_config.kernel_size, padding='same',activation='sigmoid')(out)
         
         gen_model = Model(inputs=self.input,outputs=out,name="Generator")
         gen_model.compile(optimizer=self.gen_optimizer,
