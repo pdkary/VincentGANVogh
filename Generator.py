@@ -74,6 +74,7 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
                         style_model:Functional,
                         noise_model: Functional):
         out = self.gen_constant_input
+        print(self.gen_layers[0])
         for layer_config in self.gen_layers:
             print(layer_config)
             out = self.generator_block(out,style_model,noise_model,layer_config)
