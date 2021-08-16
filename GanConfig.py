@@ -30,9 +30,9 @@ class GenLayerConfig():
                convolutions:int,
                kernel_size: int,
                activation:Activation,
-               upsampling: bool = True,
-               style: bool = True,
-               noise: bool = True):
+               upsampling = True,
+               style = True,
+               noise = True):
     self.filters = filters
     self.convolutions = convolutions
     self.kernel_size = kernel_size
