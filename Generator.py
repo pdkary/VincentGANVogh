@@ -91,6 +91,7 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
                         noise_model: Functional,
                         config: GenLayerConfig):
         out = input_tensor
+        print(config.upsampling)
         out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         for i in range(config.convolutions):
             out = Conv2D(config.filters,config.kernel_size,padding='same', kernel_initializer = 'he_normal')(out)
