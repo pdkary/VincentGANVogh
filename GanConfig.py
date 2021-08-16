@@ -1,6 +1,3 @@
-from keras.layers import normalization
-
-
 class StyleModelConfig():
   def __init__(self,
                style_latent_size,

@@ -1,6 +1,6 @@
 from GanConfig import DiscriminatorModelConfig
-from MinibatchDiscrimination import MinibatchDiscrimination
-from keras.layers import Dense,Dropout,LeakyReLU,Conv2D,MaxPooling2D,Flatten, Input
+from third_party_layers.MinibatchDiscrimination import MinibatchDiscrimination
+from keras.layers import Dense,Dropout,Conv2D,MaxPooling2D,Flatten,Input
 from keras.models import Model
 
 class Discriminator(DiscriminatorModelConfig):

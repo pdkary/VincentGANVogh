@@ -1,7 +1,7 @@
 from keras.layers.convolutional import Cropping2D
 from keras.layers.core import Activation
 from GanConfig import GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
-from keras.layers import UpSampling2D,Conv2D,Dense,Add,Lambda,LeakyReLU,Input
+from keras.layers import UpSampling2D,Conv2D,Dense,Add,Lambda,Input
 from keras.models import Model
 import keras.backend as K
 import numpy as np
