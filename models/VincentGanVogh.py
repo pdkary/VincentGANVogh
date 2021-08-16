@@ -1,7 +1,11 @@
 from third_party_layers.InstanceNormalization import InstanceNormalization
 from keras.layers import BatchNormalization, LeakyReLU
-from GanConfig import StyleModelConfig,NoiseModelConfig,GeneratorModelConfig,DiscriminatorModelConfig,GanTrainingConfig
+from GanConfig import StyleModelConfig,NoiseModelConfig,GenLayerConfig,GeneratorModelConfig,DiscriminatorModelConfig,GanTrainingConfig
+from trainers.GanTrainer import GanTrainer
 from keras.optimizers import Adam
+
+# from google.colab import drive
+# drive.mount('/content/drive')
  
 style_model_config = StyleModelConfig(
     style_latent_size = 100,
@@ -20,11 +24,14 @@ gen_model_config = GeneratorModelConfig(
     img_shape = (256,256,4),
     gen_constant_shape = (4,4,512),
     gen_kernel_size = 3,
-    gen_layer_shapes=     [ (512,2),(256,2),(128,2),(64,2),(32,2),(16,3),(8,3) ],
-    gen_layer_upsampling= [  False,   True,  True,   True,  True,  True,  True ],
-    gen_layer_using_style=[  True,    True,  True,   True,  True,  True,  True ],
-    gen_layer_noise=      [  True,    True,  True,   True,  True,  True,  True ],
-    convolution_activation = LeakyReLU(0.05),
+    gen_layers = [
+        GenLayerConfig(512,2,LeakyReLU(0.05),upsampling=False),
+        GenLayerConfig(256,2,LeakyReLU(0.05)),
+        GenLayerConfig(128,2,LeakyReLU(0.05)),
+        GenLayerConfig(64, 2,LeakyReLU(0.05)),
+        GenLayerConfig(32, 2,LeakyReLU(0.05)),
+        GenLayerConfig(16, 2,LeakyReLU(0.05)),
+        GenLayerConfig(8,  3,LeakyReLU(0.05))],
     non_style_normalization_layer=BatchNormalization(momentum=0.8),
     gen_loss_function="binary_crossentropy",
     gen_optimizer = Adam(learning_rate=0.002,beta_1=0.5)
@@ -45,3 +52,16 @@ disc_model_config = DiscriminatorModelConfig(
     disc_loss_function="binary_crossentropy",
     disc_optimizer = Adam(learning_rate=0.002,beta_1=0.5)
 )
+ 
+gan_training_config = GanTrainingConfig(
+    batch_size=4,
+    preview_rows=4,
+    preview_cols=6,
+    data_path='/content/drive/MyDrive/Colab/Mons',
+    image_type=".png",
+    model_name='/GANVogh_generator_model_',
+    flip_lr=True,
+    load_n_percent=100
+)
+ 
+# VGV = GanTrainer(gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config)

@@ -18,27 +18,28 @@ class NoiseModelConfig():
     self.noise_kernel_size = noise_kernel_size
     self.gauss_factor = gauss_factor
 
+class GenLayerConfig():
+  def __init__(self,filters,convolutions,activation,upsampling=True,style=True,noise=True):
+    self.filters = filters
+    self.convolutions = convolutions
+    self.activation = activation
+    self.upsampling = upsampling
+    self.style = style
+    self.noise = noise
+    
 class GeneratorModelConfig():
   def __init__(self,
                img_shape,
                gen_constant_shape,
                gen_kernel_size,
-               gen_layer_shapes,
-               gen_layer_upsampling,
-               gen_layer_using_style,
-               gen_layer_noise,
-               convolution_activation,
+               gen_layers,
                non_style_normalization_layer,
                gen_loss_function,
                gen_optimizer):
     self.img_shape = img_shape
     self.gen_constant_shape = gen_constant_shape
     self.gen_kernel_size = gen_kernel_size
-    self.gen_layer_shapes = gen_layer_shapes
-    self.gen_layer_upsampling = gen_layer_upsampling
-    self.gen_layer_using_style = gen_layer_using_style
-    self.gen_layer_noise = gen_layer_noise
-    self.convolution_activation = convolution_activation
+    self.gen_layers = gen_layers,
     self.non_style_normalization_layer = non_style_normalization_layer
     self.gen_loss_function = gen_loss_function
     self.gen_optimizer = gen_optimizer

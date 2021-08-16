@@ -69,8 +69,8 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
     
     def build_generator(self,style_model,noise_model):
         out = self.gen_constant_input
-        for shape,upsampling,noise,style in zip(self.gen_layer_shapes,self.gen_layer_upsampling,self.gen_layer_noise,self.gen_layer_using_style):
-            out = self.generator_block(out,style_model,noise_model,*shape,upsampling=upsampling,style=style,noise=noise)
+        for layer_config in self.gen_layers:
+            out = self.generator_block(out,style_model,noise_model,layer_config)
         out = Conv2D(self.img_shape[-1], self.gen_kernel_size, padding='same',activation='sigmoid')(out)
         
         gen_model = Model(inputs=self.input,outputs=out,name="Generator")
@@ -80,23 +80,23 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         gen_model.summary()
         return gen_model 
 
-    def generator_block(self,input_tensor,style_model,noise_model,filters,convolutions,upsampling=True,style=True,noise=True):
+    def generator_block(self,input_tensor,style_model,noise_model,layer_config):
         out = input_tensor
-        out = UpSampling2D(interpolation='bilinear')(out) if upsampling else out
-        for i in range(convolutions):
-            out = Conv2D(filters,self.gen_kernel_size,padding='same', kernel_initializer = 'he_normal')(out)
-            if noise:
+        out = UpSampling2D(interpolation='bilinear')(out) if layer_config.upsampling else out
+        for i in range(layer_config.convolutions):
+            out = Conv2D(layer_config.filters,self.gen_kernel_size,padding='same', kernel_initializer = 'he_normal')(out)
+            if layer_config.noise:
                 ## crop noise model to size
                 desired_size = out.shape[1]
                 noise_size = noise_model.shape[1]
                 noise_model = Cropping2D((noise_size-desired_size)//2)(noise_model)
-                noise_model = Conv2D(filters,self.noise_kernel_size,padding='same',kernel_initializer='he_normal')(noise_model)
+                noise_model = Conv2D(layer_config.filters,self.noise_kernel_size,padding='same',kernel_initializer='he_normal')(noise_model)
                 out = Add()([out,noise_model])
-            if style:
-                gamma = Dense(filters,bias_initializer='ones')(style_model)
-                beta = Dense(filters,bias_initializer='zeros')(style_model)
+            if layer_config.style:
+                gamma = Dense(layer_config.filters,bias_initializer='ones')(style_model)
+                beta = Dense(layer_config.filters,bias_initializer='zeros')(style_model)
                 out = Lambda(AdaIN)([out,gamma,beta]) 
             else:
                 out = self.non_style_normalization_layer(out)
-            out =  self.convolution_activation(out)
+            out =  self.layer_config.activation(out)
         return out
