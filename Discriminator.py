@@ -39,6 +39,7 @@ class Discriminator(DiscriminatorModelConfig):
         for i in range(config.convolutions):
             out_cb = Conv2D(config.filters,config.kernel_size,padding="same")(out_cb)
             out_cb = config.normalization(out_cb)
+            print(config.activation)
             out_cb = config.activation(out_cb)
         out_cb = MaxPooling2D()(out_cb)
         return out_cb
