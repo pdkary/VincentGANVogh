@@ -1,11 +1,11 @@
 from third_party_layers.InstanceNormalization import InstanceNormalization
 from keras.layers import BatchNormalization, LeakyReLU
-from GanConfig import StyleModelConfig,NoiseModelConfig,GenLayerConfig,GeneratorModelConfig,DiscriminatorModelConfig,GanTrainingConfig
+from GanConfig import DiscConvLayerConfig, DiscDenseLayerConfig, StyleModelConfig,NoiseModelConfig,GenLayerConfig,GeneratorModelConfig,DiscriminatorModelConfig,GanTrainingConfig
 from trainers.GanTrainer import GanTrainer
 from keras.optimizers import Adam
 
-# from google.colab import drive
-# drive.mount('/content/drive')
+from google.colab import drive
+drive.mount('/content/drive')
  
 style_model_config = StyleModelConfig(
     style_latent_size = 100,
@@ -23,15 +23,14 @@ noise_model_config = NoiseModelConfig(
 gen_model_config = GeneratorModelConfig(
     img_shape = (256,256,4),
     gen_constant_shape = (4,4,512),
-    gen_kernel_size = 3,
     gen_layers = [
-        GenLayerConfig(512,2,LeakyReLU(0.05),upsampling=False),
-        GenLayerConfig(256,2,LeakyReLU(0.05)),
-        GenLayerConfig(128,2,LeakyReLU(0.05)),
-        GenLayerConfig(64, 2,LeakyReLU(0.05)),
-        GenLayerConfig(32, 2,LeakyReLU(0.05)),
-        GenLayerConfig(16, 2,LeakyReLU(0.05)),
-        GenLayerConfig(8,  3,LeakyReLU(0.05))],
+        GenLayerConfig(512,2,3,LeakyReLU(0.05),upsampling=False),
+        GenLayerConfig(256,2,3,LeakyReLU(0.05)),
+        GenLayerConfig(128,2,3,LeakyReLU(0.05)),
+        GenLayerConfig(64, 2,3,LeakyReLU(0.05)),
+        GenLayerConfig(32, 2,3,LeakyReLU(0.05)),
+        GenLayerConfig(16, 2,3,LeakyReLU(0.05)),
+        GenLayerConfig(8,  3,3,LeakyReLU(0.05))],
     non_style_normalization_layer=BatchNormalization(momentum=0.8),
     gen_loss_function="binary_crossentropy",
     gen_optimizer = Adam(learning_rate=0.002,beta_1=0.5)
@@ -40,13 +39,16 @@ gen_model_config = GeneratorModelConfig(
 ##VGG-19
 disc_model_config = DiscriminatorModelConfig(
     img_shape = (256,256,4),
-    disc_kernel_size = 3,
-    disc_layer_shapes=[(64,2),(128,2),(256,4),(512,4),(512,4)],
-    disc_dense_sizes=   [4096,4096,1000],
-    disc_layer_dropout= [True,True,True],
-    convolution_activation = LeakyReLU(0.05),
-    normalization_layer=InstanceNormalization(),
-    dropout_rate=0.5,
+    disc_conv_layers=[
+        DiscConvLayerConfig(64, 2,3,LeakyReLU(0.05),InstanceNormalization()),
+        DiscConvLayerConfig(128,2,3,LeakyReLU(0.05),InstanceNormalization()),
+        DiscConvLayerConfig(256,4,3,LeakyReLU(0.05),InstanceNormalization()),
+        DiscConvLayerConfig(512,4,3,LeakyReLU(0.05),InstanceNormalization()),
+        DiscConvLayerConfig(512,4,3,LeakyReLU(0.05),InstanceNormalization())],
+    disc_dense_layers=[
+        DiscDenseLayerConfig(4096,LeakyReLU(0.05),0.5),
+        DiscDenseLayerConfig(4096,LeakyReLU(0.05),0.5),
+        DiscDenseLayerConfig(1000,LeakyReLU(0.05),0.5)],
     minibatch=True,
     minibatch_size=4,
     disc_loss_function="binary_crossentropy",
@@ -64,4 +66,4 @@ gan_training_config = GanTrainingConfig(
     load_n_percent=100
 )
  
-# VGV = GanTrainer(gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config)
+VGV = GanTrainer(gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config)

@@ -1,8 +1,8 @@
 from keras.layers.convolutional import Cropping2D
 from keras.layers.core import Activation
-from GanConfig import GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
+from GanConfig import GenLayerConfig, GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
 from keras.layers import UpSampling2D,Conv2D,Dense,Add,Lambda,Input
-from keras.models import Model
+from keras.models import Functional, Model
 import keras.backend as K
 import numpy as np
 import tensorflow as tf
@@ -19,7 +19,10 @@ def AdaIN(input_arr):
   return y * scale + bias
   
 class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
-    def __init__(self,gen_config,noise_config,style_config):
+    def __init__(self,
+                 gen_config: GeneratorModelConfig,
+                 noise_config: NoiseModelConfig,
+                 style_config: StyleModelConfig):
         GeneratorModelConfig.__init__(self,**gen_config.__dict__)
         NoiseModelConfig.__init__(self,**noise_config.__dict__)
         StyleModelConfig.__init__(self,**style_config.__dict__)
@@ -32,21 +35,21 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         
         self.input = [self.gen_constant_input, self.style_model_input, self.noise_model_input]
     
-    def get_input(self,batch_size):
+    def get_input(self,batch_size:int):
         return [self.get_constant(batch_size),
                 self.get_style_noise(batch_size),
                 self.get_noise(batch_size)]
     
-    def get_constant(self,batch_size):
+    def get_constant(self,batch_size:int):
         gc_batch = np.full((batch_size,*self.gen_constant_shape),0.0,dtype=np.float32)
         for i in range(batch_size):
             gc_batch[i] = self.gen_constant
         return gc_batch
 
-    def get_style_noise(self,batch_size):
+    def get_style_noise(self,batch_size:int):
         return tf.random.normal(shape = (batch_size,self.style_latent_size))
         
-    def get_noise(self,batch_size):
+    def get_noise(self,batch_size:int):
         noise_batch = np.full((batch_size,*self.noise_image_size),0.0,dtype=np.float32)
         for i in range(batch_size):
             noise_batch[i] = tf.random.normal(shape=self.noise_image_size,stddev=self.gauss_factor)
@@ -67,7 +70,9 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
             out = self.style_activation(out)
         return out 
     
-    def build_generator(self,style_model,noise_model):
+    def build_generator(self,
+                        style_model:Functional,
+                        noise_model: Functional):
         out = self.gen_constant_input
         for layer_config in self.gen_layers:
             out = self.generator_block(out,style_model,noise_model,layer_config)
@@ -80,7 +85,11 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         gen_model.summary()
         return gen_model 
 
-    def generator_block(self,input_tensor,style_model,noise_model,layer_config):
+    def generator_block(self,
+                        input_tensor: Functional,
+                        style_model: Functional, 
+                        noise_model: Functional,
+                        layer_config: GenLayerConfig):
         out = input_tensor
         out = UpSampling2D(interpolation='bilinear')(out) if layer_config.upsampling else out
         for i in range(layer_config.convolutions):
