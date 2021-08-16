@@ -1,13 +1,16 @@
+from keras.layers import normalization
+
+
 class StyleModelConfig():
   def __init__(self,
                style_latent_size,
                style_layer_size,
                style_layers,
-               style_relu_alpha):
+               style_activation):
     self.style_latent_size = style_latent_size
     self.style_layer_size = style_layer_size
     self.style_layers = style_layers
-    self.style_relu_alpha = style_relu_alpha
+    self.style_activation = style_activation
 
 class NoiseModelConfig():
   def __init__(self,
@@ -27,8 +30,8 @@ class GeneratorModelConfig():
                gen_layer_upsampling,
                gen_layer_using_style,
                gen_layer_noise,
-               gen_relu_alpha,
-               batch_norm_momentum,
+               convolution_activation,
+               non_style_normalization_layer,
                gen_loss_function,
                gen_optimizer):
     self.img_shape = img_shape
@@ -38,8 +41,8 @@ class GeneratorModelConfig():
     self.gen_layer_upsampling = gen_layer_upsampling
     self.gen_layer_using_style = gen_layer_using_style
     self.gen_layer_noise = gen_layer_noise
-    self.gen_relu_alpha = gen_relu_alpha
-    self.batch_norm_momentum = batch_norm_momentum
+    self.convolution_activation = convolution_activation
+    self.non_style_normalization_layer = non_style_normalization_layer
     self.gen_loss_function = gen_loss_function
     self.gen_optimizer = gen_optimizer
 
@@ -50,7 +53,8 @@ class DiscriminatorModelConfig():
                disc_layer_shapes,
                disc_dense_sizes,
                disc_layer_dropout,
-               disc_relu_alpha,
+               convolution_activation,
+               normalization_layer,
                dropout_rate,
                minibatch,
                minibatch_size,
@@ -61,7 +65,8 @@ class DiscriminatorModelConfig():
     self.disc_layer_shapes = disc_layer_shapes
     self.disc_dense_sizes = disc_dense_sizes
     self.disc_layer_dropout = disc_layer_dropout
-    self.disc_relu_alpha = disc_relu_alpha
+    self.convolution_activation = convolution_activation
+    self.normalization_layer = normalization_layer
     self.dropout_rate = dropout_rate
     self.minibatch = minibatch
     self.minibatch_size = minibatch_size

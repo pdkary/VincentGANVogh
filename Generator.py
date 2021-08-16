@@ -1,7 +1,7 @@
 from keras.layers.convolutional import Cropping2D
 from keras.layers.core import Activation
 from GanConfig import GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
-from keras.layers import UpSampling2D,Conv2D,Dense,Add,Lambda,BatchNormalization,LeakyReLU,Input
+from keras.layers import UpSampling2D,Conv2D,Dense,Add,Lambda,LeakyReLU,Input
 from keras.models import Model
 import keras.backend as K
 import numpy as np
@@ -64,7 +64,7 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         out = self.style_model_input
         for i in range(self.style_layers):
             out = Dense(self.style_latent_size, kernel_initializer = 'he_normal')(out)
-            out = LeakyReLU(self.style_relu_alpha)(out)
+            out = self.style_activation(out)
         return out 
     
     def build_generator(self,style_model,noise_model):
@@ -97,6 +97,6 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
                 beta = Dense(filters,bias_initializer='zeros')(style_model)
                 out = Lambda(AdaIN)([out,gamma,beta]) 
             else:
-                out = BatchNormalization(momentum=self.batch_norm_momentum)(out)
-            out = LeakyReLU(self.gen_relu_alpha)(out)
+                out = self.non_style_normalization_layer(out)
+            out =  self.convolution_activation(out)
         return out
