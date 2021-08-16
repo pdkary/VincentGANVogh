@@ -30,7 +30,7 @@ class Discriminator(DiscriminatorModelConfig):
     
     def disc_dense_block(self,input_tensor: Functional,config: DiscDenseLayerConfig):
         out_db = Dense(config.size, kernel_initializer = 'he_normal')(input_tensor)
-        out_db = Dropout(config.dropout_rate)(out_db) if config.dropout > 0 else out_db
+        out_db = Dropout(config.dropout_rate)(out_db) if config.dropout_rate > 0 else out_db
         out_db = config.activation(out_db)
         return out_db
     
