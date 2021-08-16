@@ -107,5 +107,5 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
                 out = Lambda(AdaIN)([out,gamma,beta]) 
             else:
                 out = self.non_style_normalization_layer(out)
-            out =  self.layer_config.activation(out)
+            out =  config.activation(out)
         return out
