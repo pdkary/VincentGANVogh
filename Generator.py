@@ -89,22 +89,21 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
                         input_tensor: Functional,
                         style_model: Functional, 
                         noise_model: Functional,
-                        layer_config: GenLayerConfig):
+                        config: GenLayerConfig):
         out = input_tensor
-        print(layer_config)
-        out = UpSampling2D(interpolation='bilinear')(out) if layer_config.upsampling else out
-        for i in range(layer_config.convolutions):
-            out = Conv2D(layer_config.filters,self.gen_kernel_size,padding='same', kernel_initializer = 'he_normal')(out)
-            if layer_config.noise:
+        out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
+        for i in range(config.convolutions):
+            out = Conv2D(config.filters,config.kernel_size,padding='same', kernel_initializer = 'he_normal')(out)
+            if config.noise:
                 ## crop noise model to size
                 desired_size = out.shape[1]
                 noise_size = noise_model.shape[1]
                 noise_model = Cropping2D((noise_size-desired_size)//2)(noise_model)
-                noise_model = Conv2D(layer_config.filters,self.noise_kernel_size,padding='same',kernel_initializer='he_normal')(noise_model)
+                noise_model = Conv2D(config.filters,self.noise_kernel_size,padding='same',kernel_initializer='he_normal')(noise_model)
                 out = Add()([out,noise_model])
-            if layer_config.style:
-                gamma = Dense(layer_config.filters,bias_initializer='ones')(style_model)
-                beta = Dense(layer_config.filters,bias_initializer='zeros')(style_model)
+            if config.style:
+                gamma = Dense(config.filters,bias_initializer='ones')(style_model)
+                beta = Dense(config.filters,bias_initializer='zeros')(style_model)
                 out = Lambda(AdaIN)([out,gamma,beta]) 
             else:
                 out = self.non_style_normalization_layer(out)
