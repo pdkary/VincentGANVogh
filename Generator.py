@@ -98,6 +98,7 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
                 desired_size = out.shape[1]
                 noise_size = noise_model.shape[1]
                 noise_model = Cropping2D((noise_size-desired_size)//2)(noise_model)
+                ## convolve to match current size
                 noise_model = Conv2D(config.filters,self.noise_kernel_size,padding='same',kernel_initializer='he_normal')(noise_model)
                 out = Add()([out,noise_model])
             if config.style:
@@ -106,5 +107,5 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
                 out = Lambda(AdaIN)([out,gamma,beta]) 
             else:
                 out = self.non_style_normalization_layer(out)
-            out =  config.activation(out)
+            out =  config.activation_func(**config.activation_args)(out)
         return out

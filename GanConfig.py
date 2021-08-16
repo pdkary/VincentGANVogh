@@ -1,4 +1,4 @@
-from typing import Tuple,List
+from typing import Any, Dict, Tuple,List
 from keras.layers import Activation
 from keras.engine.base_layer import Layer
 from keras.models import Functional
@@ -29,14 +29,16 @@ class GenLayerConfig():
                filters:int,
                convolutions:int,
                kernel_size: int,
-               activation:Activation,
+               activation_func:function,
+               activation_args:Dict[str,Any],
                upsampling = True,
                style = True,
                noise = True):
     self.filters = filters
     self.convolutions = convolutions
     self.kernel_size = kernel_size
-    self.activation = activation
+    self.activation_func = activation_func
+    self.activation_args = activation_args
     self.upsampling = upsampling
     self.style = style
     self.noise = noise
