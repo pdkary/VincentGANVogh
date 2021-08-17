@@ -87,7 +87,7 @@ class DiscDenseLayerConfig():
                activation_config: ActivationConfig,
                dropout_rate: int):
     self.size = size
-    self.activation_config = activation_config,
+    self.activation_config = activation_config
     self.dropout_rate = dropout_rate
 
 class DiscriminatorModelConfig():
