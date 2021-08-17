@@ -106,6 +106,6 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
                 beta = Dense(config.filters,bias_initializer='zeros')(style_model)
                 out = Lambda(AdaIN)([out,gamma,beta]) 
             else:
-                out = self.non_style_normalization_layer(out)
+                out = self.non_style_normalization.get()(out)
             out =  config.activation.get()(out)
         return out

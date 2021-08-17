@@ -33,7 +33,7 @@ gen_model_config = GeneratorModelConfig(
         GenLayerConfig(16,  2, 3, LeakyReLU,    {'alpha':0.05},          True,  True, True ),
         GenLayerConfig(8,   2, 3, LeakyReLU,    {'alpha':0.05},          True,  True, True ),
         GenLayerConfig(3,   1, 3, Activation,   {'activation':'sigmoid'},False, True, False)],
-    non_style_normalization_layer=BatchNormalization(momentum=0.8),
+    non_style_normalization=BatchNormalization(momentum=0.8),
     gen_loss_function="binary_crossentropy",
     gen_optimizer = Adam(learning_rate=5e-3,beta_1=0.0,beta_2=0.99,epsilon=1e-7)
 )
