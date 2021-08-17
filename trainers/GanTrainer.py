@@ -29,7 +29,7 @@ class GanTrainer(GanTrainingConfig):
     self.generator = Generator(gen_model_config,noise_model_config,style_model_config)
     self.discriminator = Discriminator(disc_model_config)
 
-    self.GenModel = self.generator.build()
+    self.GenModel = self.generator.build_generator()
     self.DisModel = self.discriminator.build()
 
     self.img_shape = gen_model_config.img_shape
