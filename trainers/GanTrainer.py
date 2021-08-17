@@ -48,9 +48,9 @@ class GanTrainer(GanTrainingConfig):
   def train_step(self,training_imgs):
     generator_input = self.generator.get_input(self.batch_size)
     with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
-      generated_images = self.GenModel(generator_input, training=True)
-      real_output = self.DisModel(training_imgs,training=True)
-      fake_output = self.DisModel(generated_images,training=True)
+      generated_images = self.GenModel(generator_input, training=False)
+      real_output = self.DisModel(training_imgs,training=False)
+      fake_output = self.DisModel(generated_images,training=False)
       
       g_loss,g_acc = generator_loss(fake_output)
       d_loss,d_acc = discriminator_loss(real_output,fake_output)

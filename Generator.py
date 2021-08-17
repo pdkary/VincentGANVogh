@@ -53,8 +53,10 @@ class Generator(GeneratorModelConfig):
                 out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,padding='same', kernel_initializer = 'he_normal')(out)
             else:
                 out = Conv2D(config.filters,config.kernel_size,config.strides,padding='same', kernel_initializer = 'he_normal')(out)
+            
             if config.noise:
                 out = self.noise_model.add_noise(out,config.filters)
+            
             if config.style:
                 out = self.style_model.AdaIN(out,config.filters)
             else:
