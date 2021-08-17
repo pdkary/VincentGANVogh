@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple,List
+from typing import Any, Callable, Dict, Tuple,List
 from keras.layers import Activation
 from keras.engine.base_layer import Layer
 from keras.models import Functional
@@ -29,7 +29,7 @@ class GenLayerConfig():
                filters:int,
                convolutions:int,
                kernel_size: int,
-               activation_func:function,
+               activation_func:Callable,
                activation_args:Dict[str,Any],
                upsampling = True,
                style = True,
