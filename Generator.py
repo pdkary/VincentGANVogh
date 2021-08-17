@@ -13,8 +13,8 @@ class Generator(GeneratorModelConfig):
                  style_config: StyleModelConfig):
         GeneratorModelConfig.__init__(self,**gen_config.__dict__)
         
-        self.style_model = StyleModel(**style_config.__dict__)
-        self.noise_model = NoiseModel(**noise_config.__dict__)
+        self.style_model = StyleModel(style_config)
+        self.noise_model = NoiseModel(noise_config)
         
         self.gen_constant_input = Input(shape=self.gen_constant_shape, name="gen_constant_input")
         self.gen_constant = tf.random.normal(shape=self.gen_constant_shape)
