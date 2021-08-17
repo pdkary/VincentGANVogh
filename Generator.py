@@ -33,7 +33,7 @@ class Generator(GeneratorModelConfig):
             gc_batch[i] = self.gen_constant
         return gc_batch
     
-    def build_generator(self):
+    def build_generator(self) -> Functional:
         out = self.gen_constant_input
         for layer_config in list(self.gen_layers[0])[0]:
             out = self.generator_block(out,layer_config)

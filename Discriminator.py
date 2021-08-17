@@ -8,7 +8,7 @@ class Discriminator(DiscriminatorModelConfig):
         DiscriminatorModelConfig.__init__(self,**disc_model_config.__dict__)
         self.input = Input(shape=self.img_shape, name="image_input")
         
-    def build(self):
+    def build(self) -> Functional:
         out = self.input
         for layer_config in self.disc_conv_layers:
             out = self.disc_conv_block(out,layer_config) 
