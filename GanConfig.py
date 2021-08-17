@@ -4,24 +4,30 @@ from keras.engine.base_layer import Layer
 from keras.models import Functional
 from keras.optimizers import Optimizer
 
-class ActivationConfig():
+class CallableConfig():
   def __init__(self,
-               activation_func: Callable,
+               callable: Callable,
                args: Dict,
                kwargs: Dict = {}):
-    self.activation_func = activation_func
+    self.callable = callable
     self.args = args
     self.kwargs = kwargs
   
   def get(self):
-    return self.activation_func(**self.args,**self.kwargs)
+    return self.callable(**self.args,**self.kwargs)
+
+class ActivationConfig(CallableConfig):
+  pass
+
+class NormalizationConfig(CallableConfig):
+  pass
 
 class StyleModelConfig():
   def __init__(self,
                style_latent_size: int,
                style_layer_size: int,
                style_layers: int,
-               style_activation: Activation):
+               style_activation: ActivationConfig):
     self.style_latent_size = style_latent_size
     self.style_layer_size = style_layer_size
     self.style_layers = style_layers

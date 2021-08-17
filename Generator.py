@@ -67,7 +67,7 @@ class Generator(GeneratorModelConfig,NoiseModelConfig,StyleModelConfig):
         out = self.style_model_input
         for i in range(self.style_layers):
             out = Dense(self.style_latent_size, kernel_initializer = 'he_normal')(out)
-            out = self.style_activation(out)
+            out = self.style_activation.get()(out)
         return out 
     
     def build_generator(self,
