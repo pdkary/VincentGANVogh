@@ -73,12 +73,12 @@ class DiscConvLayerConfig():
                filters: int,
                convolutions: int,
                kernel_size: int,
-               activation: ActivationConfig,
+               activation_config: ActivationConfig,
                normalization: Functional):
     self.filters = filters
     self.convolutions = convolutions
     self.kernel_size = kernel_size
-    self.activation = activation
+    self.activation_config = activation_config
     self.normalization = normalization
 
 class DiscDenseLayerConfig():
