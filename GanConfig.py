@@ -84,7 +84,7 @@ class DiscConvLayerConfig():
 class DiscDenseLayerConfig():
   def __init__(self,
                size: int,
-               activation: Activation,
+               activation: ActivationConfig,
                dropout_rate: int):
     self.size = size
     self.activation = activation,
