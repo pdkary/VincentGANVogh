@@ -8,7 +8,7 @@ class ActivationConfig():
   def __init__(self,
                activation_func: Callable,
                args: Dict,
-               kwargs: Dict = None):
+               kwargs: Dict = {}):
     self.activation_func = activation_func
     self.args = args
     self.kwargs = kwargs
