@@ -105,10 +105,10 @@ class DiscriminatorModelConfig():
                img_shape: Tuple[int,int,int],
                disc_conv_layers: List[DiscConvLayerConfig],
                disc_dense_layers: List[DiscDenseLayerConfig],
-               minibatch,
-               minibatch_size,
-               disc_loss_function,
-               disc_optimizer):
+               minibatch: int,
+               minibatch_size: int,
+               disc_loss_function: str,
+               disc_optimizer: Optimizer):
     self.img_shape = img_shape
     self.disc_conv_layers = disc_conv_layers
     self.disc_dense_layers = disc_dense_layers
@@ -119,14 +119,14 @@ class DiscriminatorModelConfig():
 
 class GanTrainingConfig():
   def __init__(self,
-               batch_size,
-               preview_rows,
-               preview_cols,
-               data_path,
-               image_type,
-               model_name,
-               flip_lr,
-               load_n_percent):
+               batch_size: int,
+               preview_rows: int,
+               preview_cols: int,
+               data_path: str,
+               image_type: str,
+               model_name: str,
+               flip_lr: bool,
+               load_n_percent: int):
     self.batch_size = batch_size
     self.preview_rows = preview_rows
     self.preview_cols = preview_cols

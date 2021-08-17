@@ -1,4 +1,4 @@
-from GanConfig import GanTrainingConfig
+from GanConfig import DiscriminatorModelConfig, GanTrainingConfig, GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
 from Generator import Generator
 from Discriminator import Discriminator
 from helpers.DataHelper import DataHelper
@@ -24,7 +24,12 @@ def generator_loss(fake_output):
   return loss,acc
 
 class GanTrainer(GanTrainingConfig):
-  def __init__(self,gen_model_config,noise_model_config,style_model_config,disc_model_config,gan_training_config):
+  def __init__(self,
+               gen_model_config:    GeneratorModelConfig,
+               noise_model_config:  NoiseModelConfig,
+               style_model_config:  StyleModelConfig,
+               disc_model_config:   DiscriminatorModelConfig,
+               gan_training_config: GanTrainingConfig):
     GanTrainingConfig.__init__(self,**gan_training_config.__dict__)
     self.generator = Generator(gen_model_config,noise_model_config,style_model_config)
     self.discriminator = Discriminator(disc_model_config)
@@ -44,21 +49,32 @@ class GanTrainer(GanTrainingConfig):
     self.dataset = tf.data.Dataset.from_tensor_slices(self.images).batch(self.batch_size)
     self.dataset_size = len(self.images)
     print("DATASET LOADED")
+  
+  def set_trainable(self, gen_trainable: bool, disc_trainable:bool):
+    self.GenModel.training = gen_trainable
+    for layer in self.GenModel.layers:
+      layer.training = gen_trainable
+    
+    self.DisModel.training = disc_trainable
+    for layer in self.GenModel.layers:
+      layer.training = disc_trainable
     
   def train_step(self,training_imgs):
     generator_input = self.generator.get_input(self.batch_size)
     with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
-      generated_images = self.GenModel(generator_input, training=False)
-      real_output = self.DisModel(training_imgs,training=False)
-      fake_output = self.DisModel(generated_images,training=False)
+      generated_images = self.GenModel(generator_input, training=True)
+      real_output = self.DisModel(training_imgs,training=True)
+      fake_output = self.DisModel(generated_images,training=True)
       
       g_loss,g_acc = generator_loss(fake_output)
       d_loss,d_acc = discriminator_loss(real_output,fake_output)
         
       gradients_of_generator = gen_tape.gradient(g_loss, self.GenModel.trainable_variables)
       gradients_of_discriminator = disc_tape.gradient(d_loss, self.DisModel.trainable_variables)
-  
+
+      self.set_trainable(True,False)
       self.generator.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.GenModel.trainable_variables))
+      self.set_trainable(False,True)
       self.discriminator.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.DisModel.trainable_variables))
   
     return d_loss,d_acc,g_loss,g_acc
