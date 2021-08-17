@@ -19,7 +19,7 @@ class NoiseModel(NoiseModelConfig):
     def add_noise(self, out: Functional, filters: int):
         ## crop noise model to size
         desired_size = out.shape[1]
-        noise_size = self.noise_image_size[1]
+        noise_size = self.noise_model.shape[1]
         noise_model = Cropping2D((noise_size-desired_size)//2)(self.noise_model)
         ## convolve to match current size
         noise_model = Conv2D(filters,self.noise_kernel_size,padding='same',kernel_initializer='he_normal')(self.noise_model)
