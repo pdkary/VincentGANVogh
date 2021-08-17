@@ -53,10 +53,7 @@ class DataHelper():
       for col in range(num_cols):
         r = row * (img_size+preview_margin) + preview_margin
         c = col * (img_size+preview_margin) + preview_margin
-        img = generated_images[image_count]
-        img_min = img.min()
-        img_max = img.max()
-        image_array[r:r+img_size,c:c+img_size] = 255*(img - img_min)/(img_max-img_min)
+        image_array[r:r+img_size,c:c+img_size] = 255*generated_images[image_count]
         image_count += 1
   
     filename = os.path.join(output_path,f"train-{epoch}" + image_type)
