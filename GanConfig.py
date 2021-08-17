@@ -7,7 +7,7 @@ from keras.optimizers import Optimizer
 class CallableConfig():
   def __init__(self,
                callable: Callable,
-               args: Dict,
+               args: Dict = {},
                kwargs: Dict = {}):
     self.callable = callable
     self.args = args
