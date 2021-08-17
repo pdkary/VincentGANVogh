@@ -1,3 +1,4 @@
+from keras.layers.convolutional import Conv2DTranspose
 from NoiseModel import NoiseModel
 from StyleModel import StyleModel
 from GanConfig import GenLayerConfig, GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
@@ -44,13 +45,14 @@ class Generator(GeneratorModelConfig):
         gen_model.summary()
         return gen_model 
 
-    def generator_block(self,
-                        input_tensor: Functional,
-                        config: GenLayerConfig):
+    def generator_block(self,input_tensor: Functional,config: GenLayerConfig):
         out = input_tensor
         out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         for i in range(config.convolutions):
-            out = Conv2D(config.filters,config.kernel_size,padding='same', kernel_initializer = 'he_normal')(out)
+            if config.transpose:
+                out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,padding='same', kernel_initializer = 'he_normal')(out)
+            else:
+                out = Conv2D(config.filters,config.kernel_size,config.strides,padding='same', kernel_initializer = 'he_normal')(out)
             if config.noise:
                 out = self.noise_model.add_noise(out,config.filters)
             if config.style:

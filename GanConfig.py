@@ -48,13 +48,17 @@ class GenLayerConfig():
                convolutions:int,
                kernel_size: int,
                activation: ActivationConfig,
-               upsampling = True,
-               style = True,
-               noise = True):
+               strides:Tuple[int,int] = (1,1),
+               transpose: bool = False,
+               upsampling: bool = True,
+               style: bool = True,
+               noise: bool = True):
     self.filters = filters
     self.convolutions = convolutions
     self.kernel_size = kernel_size
     self.activation = activation
+    self.strides = strides
+    self.transpose = transpose
     self.upsampling = upsampling
     self.style = style
     self.noise = noise
