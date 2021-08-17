@@ -4,6 +4,18 @@ from keras.engine.base_layer import Layer
 from keras.models import Functional
 from keras.optimizers import Optimizer
 
+class ActivationConfig():
+  def __init__(self,
+               activation_func: Callable,
+               args: Dict,
+               kwargs: Dict = None):
+    self.activation_func = activation_func
+    self.args = args
+    self.kwargs = kwargs
+  
+  def get(self):
+    return self.activation_func(**self.args,**self.kwargs)
+
 class StyleModelConfig():
   def __init__(self,
                style_latent_size: int,
@@ -29,16 +41,14 @@ class GenLayerConfig():
                filters:int,
                convolutions:int,
                kernel_size: int,
-               activation_func:Callable,
-               activation_args:Dict[str,Any],
+               activation: ActivationConfig,
                upsampling = True,
                style = True,
                noise = True):
     self.filters = filters
     self.convolutions = convolutions
     self.kernel_size = kernel_size
-    self.activation_func = activation_func
-    self.activation_args = activation_args
+    self.activation = activation
     self.upsampling = upsampling
     self.style = style
     self.noise = noise
@@ -63,7 +73,7 @@ class DiscConvLayerConfig():
                filters: int,
                convolutions: int,
                kernel_size: int,
-               activation: Activation,
+               activation: ActivationConfig,
                normalization: Functional):
     self.filters = filters
     self.convolutions = convolutions
