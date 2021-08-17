@@ -70,7 +70,7 @@ class GanTrainer(GanTrainingConfig):
       
       d_loss,d_acc = discriminator_loss(real_out,fake_out)
       gradients_of_discriminator = disc_tape.gradient(d_loss,self.DisModel.trainable_variables)
-      self.generator.gen_optimizer.apply_gradients(zip(gradients_of_discriminator, self.DisModel.trainable_variables))
+      self.discriminator.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.DisModel.trainable_variables))
     return d_loss,d_acc
     
   
