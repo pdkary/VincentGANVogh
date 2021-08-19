@@ -14,4 +14,6 @@ class AdaptiveAdd(Layer):
         conv_tensor,noise_tensor = inputs
         print(conv_tensor.shape,noise_tensor.shape)
         weights = tf.nn.softmax(self.W, axis=-1)
-        return tf.reduce_sum(conv_tensor + weights*noise_tensor, axis=-1) # (n_batch, n_feat) 
+        out = conv_tensor + weights*noise_tensor
+        print(out.shape)
+        return tf.reduce_sum(out, axis=-1) # (n_batch, n_feat) 
