@@ -1,3 +1,4 @@
+from layers.AdaptiveAdd import AdaptiveAdd
 from keras.models import Functional
 from GanConfig import NoiseModelConfig
 from keras.layers import Input, Activation,Cropping2D,Conv2D,Add
@@ -22,4 +23,4 @@ class NoiseModel(NoiseModelConfig):
         noise_size = self.noise_model.shape[1]
         noise_model = Cropping2D((noise_size-desired_size)//2)(self.noise_model)
         noise_model = Conv2D(filters,self.noise_kernel_size,padding='same',kernel_initializer='he_normal')(noise_model)
-        return Add()([out,noise_model])
+        return AdaptiveAdd()([out,noise_model])
