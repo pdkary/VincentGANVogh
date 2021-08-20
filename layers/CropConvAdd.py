@@ -1,7 +1,7 @@
 from keras.layers import Layer, Activation,Cropping2D,Conv2D
 from keras.models import Functional
 import tensorflow as tf
-from AdaptiveAdd import AdaptiveAdd
+from layers.AdaptiveAdd import AdaptiveAdd
 '''
 inputs: a,b
     - crop b to a 2d size
