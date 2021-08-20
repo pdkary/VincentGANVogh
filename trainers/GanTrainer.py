@@ -75,8 +75,8 @@ class GanTrainer(GanTrainingConfig):
     
   
   def train(self,epochs,batches_per_epoch,printerval):
-    self.dataset = self.dataset.shuffle(self.dataset_size//8)
     for epoch in range(epochs):
+      self.dataset = self.dataset.shuffle(self.dataset_size//8)
       self.gan_plotter.start_batch()
       
       for img_batch in self.dataset.take(batches_per_epoch):
