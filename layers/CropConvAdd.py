@@ -18,7 +18,6 @@ class CropConvAdd(Layer):
     def call(self, inputs):
         a,b = inputs
         a_size,b_size = a.shape[1],b.shape[1]
-        assert (b_size > a_size),"input[1] must be larger than input[2]"
         b = Cropping2D((b_size-a_size)//2)(b)
         b = Conv2D(self.filters,self.kernel_size,padding='same',kernel_initializer='he_normal')(b)
         return AdaptiveAdd()([a,b])
