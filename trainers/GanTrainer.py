@@ -78,7 +78,7 @@ class GanTrainer(GanTrainingConfig):
     for epoch in range(epochs):
       self.gan_plotter.start_batch()
       
-      for img_batch in self.dataset.shuffle(self.dataset_size//8).take(batches_per_epoch):
+      for img_batch in self.dataset.shuffle(self.dataset_size).take(batches_per_epoch):
         bd_loss,bd_acc = self.train_discriminator(img_batch)
         bg_loss,bg_acc = self.train_generator()
         self.gan_plotter.batch_update(bd_loss,bd_acc,bg_loss,bg_acc)
