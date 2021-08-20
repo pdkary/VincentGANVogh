@@ -23,4 +23,4 @@ class NoiseModel(NoiseModelConfig):
         i_size = input_tensor.shape[1]
         noise = Cropping2D((n_size-i_size)//2)(self.model)
         noise = Conv2D(input_tensor.shape[-1],self.kernel_size,padding='same',kernel_initializer='he_normal')(noise)
-        return AdaptiveAdd()[input_tensor,noise]
+        return AdaptiveAdd()([input_tensor,noise])
