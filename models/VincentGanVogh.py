@@ -3,7 +3,6 @@ from third_party_layers.InstanceNormalization import InstanceNormalization
 from keras.layers import BatchNormalization, LeakyReLU
 from GanConfig import DiscConvLayerConfig, DiscDenseLayerConfig, StyleModelConfig,NoiseModelConfig,GenLayerConfig,GeneratorModelConfig,DiscriminatorModelConfig,GanTrainingConfig
 from trainers.GanTrainer import GanTrainer
-from keras.optimizers import Adam
 
 from google.colab import drive
 drive.mount('/content/drive')

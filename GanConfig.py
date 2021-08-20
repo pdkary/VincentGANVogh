@@ -36,10 +36,10 @@ class StyleModelConfig():
 class NoiseModelConfig():
   def __init__(self,
                noise_image_size: Tuple[int,int,int],
-               noise_kernel_size: int,
+               kernel_size: int,
                gauss_factor:float):
     self.noise_image_size = noise_image_size
-    self.noise_kernel_size = noise_kernel_size
+    self.kernel_size = kernel_size
     self.gauss_factor = gauss_factor
 
 class GenLayerConfig():

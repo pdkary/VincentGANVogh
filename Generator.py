@@ -1,8 +1,10 @@
+from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
+from layers.CropConvAdd import CropConvAdd
 from keras.layers.convolutional import Conv2DTranspose
 from NoiseModel import NoiseModel
 from StyleModel import StyleModel
 from GanConfig import GenLayerConfig, GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
-from keras.layers import UpSampling2D,Conv2D,Input
+from keras.layers import UpSampling2D, Conv2D, Input
 from keras.models import Functional, Model
 import numpy as np
 import tensorflow as tf
@@ -16,6 +18,8 @@ class Generator(GeneratorModelConfig):
         
         self.style_model = StyleModel(style_config)
         self.noise_model = NoiseModel(noise_config)
+        self.S = self.style_model.build()
+        self.N = self.noise_model.build()
         
         self.gen_constant_input = Input(shape=self.gen_constant_shape, name="gen_constant_input")
         self.gen_constant = tf.random.normal(shape=self.gen_constant_shape)
@@ -55,10 +59,10 @@ class Generator(GeneratorModelConfig):
                 out = Conv2D(config.filters,config.kernel_size,config.strides,padding='same', kernel_initializer = 'he_normal')(out)
             
             if config.noise:
-                out = self.noise_model.add_noise(out,config.filters)
+                out = CropConvAdd(config.filters,self.noise_model.kernel_size)([out,self.N])
             
             if config.style:
-                out = self.style_model.AdaIN(out,config.filters)
+                out = AdaptiveInstanceNormalization(config.filters)([out,self.S])
             else:
                 out = self.non_style_normalization.get()(out)
             out =  config.activation.get()(out)
