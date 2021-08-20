@@ -3,18 +3,11 @@ import tensorflow as tf
 import keras.backend as K
 
 class AdaptiveInstanceNormalization(Layer):
-    def __init__(self,filters):
+    def __init__(self):
         super(AdaptiveInstanceNormalization, self).__init__()
-        self.filters = filters
 
     def call(self, inputs):
-        input_model,style_model = inputs
-        gamma = Dense(self.filters,bias_initializer='ones')(style_model)
-        beta = Dense(self.filters,bias_initializer='zeros')(style_model)
-        return Lambda(self.AdaIN)([input_model,gamma,beta])
-
-    def AdaIN(self,input_arr):
-        input_tensor, gamma, beta = input_arr
+        input_tensor, gamma, beta = inputs
         mean = K.mean(input_tensor, axis = [1, 2], keepdims = True)
         std = K.std(input_tensor, axis = [1, 2], keepdims = True) + 1e-7
         y = (input_tensor - mean) / std

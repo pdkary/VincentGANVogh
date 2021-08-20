@@ -3,7 +3,7 @@ from keras.layers.convolutional import Conv2DTranspose
 from NoiseModel import NoiseModel
 from StyleModel import StyleModel
 from GanConfig import GenLayerConfig, GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
-from keras.layers import UpSampling2D, Conv2D, Input
+from keras.layers import UpSampling2D, Conv2D, Input, Dense
 from keras.models import Functional, Model
 import numpy as np
 import tensorflow as tf
@@ -60,7 +60,10 @@ class Generator(GeneratorModelConfig):
                 out = self.noise_model.add(out)
             
             if config.style:
-                out = AdaptiveInstanceNormalization(config.filters)([out,self.S])
+                
+                gamma = Dense(config.filters,bias_initializer='ones')(self.S)
+                beta = Dense(config.filters,bias_initializer='zeros')(self.S)
+                out = AdaptiveInstanceNormalization()([out,gamma,beta])
             else:
                 out = self.non_style_normalization.get()(out)
             out =  config.activation.get()(out)
