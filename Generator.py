@@ -57,7 +57,7 @@ class Generator(GeneratorModelConfig):
                 out = Conv2D(config.filters,config.kernel_size,config.strides,padding='same', kernel_initializer = 'he_normal')(out)
             
             if config.noise:
-                out = self.noise_model.add(out,config.filters)
+                out = self.noise_model.add(out)
             
             if config.style:
                 out = AdaptiveInstanceNormalization(config.filters)([out,self.S])
