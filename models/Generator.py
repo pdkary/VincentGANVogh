@@ -9,10 +9,7 @@ from keras.models import Model
 import numpy as np
   
 class Generator(GeneratorModelConfig):
-    def __init__(self,
-                 gen_config: GeneratorModelConfig,
-                 noise_config: NoiseModelConfig,
-                 style_config: StyleModelConfig):
+    def __init__(self,gen_config: GeneratorModelConfig):
         GeneratorModelConfig.__init__(self,**gen_config.__dict__)
         
         self.using_style = np.any([l.style for l in list(self.gen_layers[0])[0]])
@@ -20,11 +17,11 @@ class Generator(GeneratorModelConfig):
         
         self.input = [self.input_model.input] 
         if self.using_style:
-            self.style_model = StyleModel(style_config)
+            self.style_model = StyleModel(self.style_model_config)
             self.input.append(self.style_model.input)
             
         if self.using_noise:
-            self.noise_model = NoiseModel(noise_config)
+            self.noise_model = NoiseModel(self.noise_model_config)
             self.input.append(self.noise_model.input)
     
     def get_input(self,batch_size:int):
@@ -42,7 +39,7 @@ class Generator(GeneratorModelConfig):
         
         gen_model = Model(inputs=self.input,outputs=out,name="Generator")
         gen_model.compile(optimizer=self.gen_optimizer,
-                           loss=self.gen_loss_function,
+                           loss="binary_crossentropy",
                            metrics=['accuracy'])
         gen_model.summary()
         return gen_model 

@@ -25,12 +25,10 @@ def generator_loss(fake_output):
 class GanTrainer(GanTrainingConfig):
   def __init__(self,
                gen_model_config:    GeneratorModelConfig,
-               noise_model_config:  NoiseModelConfig,
-               style_model_config:  StyleModelConfig,
                disc_model_config:   DiscriminatorModelConfig,
                gan_training_config: GanTrainingConfig):
     GanTrainingConfig.__init__(self,**gan_training_config.__dict__)
-    self.generator = Generator(gen_model_config,noise_model_config,style_model_config)
+    self.generator = Generator(gen_model_config)
     self.discriminator = Discriminator(disc_model_config)
 
     self.GenModel = self.generator.build_generator()

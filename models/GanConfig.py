@@ -65,15 +65,17 @@ class GeneratorModelConfig():
   def __init__(self,
                img_shape: Tuple[int,int,int],
                input_model: GeneratorInput,
+               style_model_config: StyleModelConfig,
+               noise_model_config: NoiseModelConfig,
                gen_layers: List[GenLayerConfig],
                non_style_normalization: NormalizationConfig,
-               gen_loss_function: str,
                gen_optimizer: Optimizer):
     self.img_shape = img_shape
     self.input_model = input_model
+    self.style_model_config = style_model_config
+    self.noise_model_config = noise_model_config
     self.gen_layers = gen_layers,
     self.non_style_normalization = non_style_normalization
-    self.gen_loss_function = gen_loss_function
     self.gen_optimizer = gen_optimizer
     
 class DiscConvLayerConfig():
@@ -105,14 +107,12 @@ class DiscriminatorModelConfig():
                disc_dense_layers: List[DiscDenseLayerConfig],
                minibatch: int,
                minibatch_size: int,
-               disc_loss_function: str,
                disc_optimizer: Optimizer):
     self.img_shape = img_shape
     self.disc_conv_layers = disc_conv_layers
     self.disc_dense_layers = disc_dense_layers
     self.minibatch = minibatch
     self.minibatch_size = minibatch_size
-    self.disc_loss_function = disc_loss_function
     self.disc_optimizer = disc_optimizer
 
 class GanTrainingConfig():
