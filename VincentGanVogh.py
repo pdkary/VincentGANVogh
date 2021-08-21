@@ -56,7 +56,6 @@ disc_model_config = DiscriminatorModelConfig(
         DiscDenseLayerConfig(1000, leakyRELU_conv, 0.5)],
     minibatch=True,
     minibatch_size=64,
-    disc_loss_function="binary_crossentropy",
     disc_optimizer = Adam(learning_rate=0.002,beta_1=0.1,beta_2=0.9,epsilon=1e-7)
 )
  
