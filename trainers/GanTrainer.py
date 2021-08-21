@@ -72,7 +72,6 @@ class GanTrainer(GanTrainingConfig):
       self.discriminator.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.DisModel.trainable_variables))
     return d_loss,d_acc
     
-  
   def train(self,epochs,batches_per_epoch,printerval):
     for epoch in range(epochs):
       if self.plot:

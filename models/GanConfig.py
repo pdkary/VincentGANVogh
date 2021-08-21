@@ -1,5 +1,5 @@
 from models.GeneratorInput import GeneratorInput
-from typing import Callable, Dict, Tuple,List
+from typing import Callable, Dict, Tuple, List
 from keras.optimizers import Optimizer
 
 class CallableConfig():

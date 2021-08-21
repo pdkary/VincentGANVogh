@@ -6,6 +6,7 @@ from models.StyleModel import StyleModel
 from models.GanConfig import GenLayerConfig, GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
 from keras.layers import UpSampling2D, Conv2D, Dense
 from keras.models import Model
+import numpy as np
   
 class Generator(GeneratorModelConfig):
     def __init__(self,
@@ -14,15 +15,25 @@ class Generator(GeneratorModelConfig):
                  style_config: StyleModelConfig):
         GeneratorModelConfig.__init__(self,**gen_config.__dict__)
         
-        self.style_model = StyleModel(style_config)
-        self.noise_model = NoiseModel(noise_config)
+        self.using_style = np.any([l.style for l in list(self.gen_layers[0])[0]])
+        self.using_noise = np.any([l.noise for l in list(self.gen_layers[0])[0]])
         
-        self.input = [self.input_model.input, self.style_model.input, self.noise_model.input]
+        self.input = [self.input_model.input] 
+        if self.using_style:
+            self.style_model = StyleModel(style_config)
+            self.input.append(self.style_model.input)
+            
+        if self.using_noise:
+            self.noise_model = NoiseModel(noise_config)
+            self.input.append(self.noise_model.input)
     
     def get_input(self,batch_size:int):
-        return [self.input_model.get_batch(batch_size),
-                self.style_model.get_batch(batch_size),
-                self.noise_model.get_batch(batch_size)]
+        inp = [self.input_model.get_batch(batch_size)]
+        if self.using_style:
+            inp.append(self.style_model.get_batch(batch_size))
+        if self.using_noise:
+            inp.append(self.noise_model.get_batch(batch_size))
+        return inp
     
     def build_generator(self):
         out = self.input_model.model

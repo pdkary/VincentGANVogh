@@ -1,3 +1,4 @@
+from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from models.GeneratorInput import GenConstantInput, GenLatentSpaceInput
 from models.GanConfig import *
 from keras.optimizers import Adam
@@ -12,7 +13,6 @@ instance_norm = NormalizationConfig(InstanceNormalization)
 layer_norm = NormalizationConfig(LayerNormalization)
 batch_norm = NormalizationConfig(BatchNormalization,dict(momentum=0.8))
 
- 
 style_model_config = StyleModelConfig(
     style_latent_size = 100,
     style_layer_size = 128,
@@ -30,13 +30,13 @@ gen_model_config = GeneratorModelConfig(
     img_shape = (256,256,3),
     input_model = GenLatentSpaceInput(100,(4,4,512),128,2),
     gen_layers = [
-        GenLayerConfig(512,  4, 3, leakyRELU_conv, upsampling=False, style=True, noise=True),
-        GenLayerConfig(512,  4, 3, leakyRELU_conv, upsampling=True,  style=True, noise=True),
-        GenLayerConfig(256,  4, 3, leakyRELU_conv, upsampling=True,  style=True, noise=True),
-        GenLayerConfig(128,  3, 3, leakyRELU_conv, upsampling=True,  style=True, noise=True),
-        GenLayerConfig(64,   3, 3, leakyRELU_conv, upsampling=True,  style=True, noise=True),
-        GenLayerConfig(32,   3, 3, leakyRELU_conv, upsampling=True,  style=True, noise=True),
-        GenLayerConfig(16,   2, 3, leakyRELU_conv, upsampling=True,  style=True, noise=True),
+        GenLayerConfig(512,  4, 3, leakyRELU_conv, upsampling=False, style=True, noise=False),
+        GenLayerConfig(512,  4, 3, leakyRELU_conv, upsampling=True,  style=True, noise=False),
+        GenLayerConfig(256,  4, 3, leakyRELU_conv, upsampling=True,  style=True, noise=False),
+        GenLayerConfig(128,  3, 3, leakyRELU_conv, upsampling=True,  style=True, noise=False),
+        GenLayerConfig(64,   3, 3, leakyRELU_conv, upsampling=True,  style=True, noise=False),
+        GenLayerConfig(32,   3, 3, leakyRELU_conv, upsampling=True,  style=True, noise=False),
+        GenLayerConfig(16,   2, 3, leakyRELU_conv, upsampling=True,  style=True, noise=False),
         GenLayerConfig(3,    1, 1, sigmoid,        upsampling=False, style=True, noise=False)],
     non_style_normalization = instance_norm,
     gen_loss_function="binary_crossentropy",
