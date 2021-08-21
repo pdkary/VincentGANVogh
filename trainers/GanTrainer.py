@@ -1,8 +1,7 @@
-from GanConfig import DiscriminatorModelConfig, GanTrainingConfig, GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
-from Generator import Generator
-from Discriminator import Discriminator
+from models.GanConfig import DiscriminatorModelConfig, GanTrainingConfig, GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
+from models.Generator import Generator
+from models.Discriminator import Discriminator
 from helpers.DataHelper import DataHelper
-from helpers.GanPlotter import GanPlotter
 import numpy as np
 import tensorflow as tf
 
@@ -76,25 +75,30 @@ class GanTrainer(GanTrainingConfig):
   
   def train(self,epochs,batches_per_epoch,printerval):
     for epoch in range(epochs):
-      self.gan_plotter.start_batch()
+      if self.plot:
+        self.gan_plotter.start_batch()
       
       for img_batch in self.dataset.shuffle(self.dataset_size).take(batches_per_epoch):
         bd_loss,bd_acc = self.train_discriminator(img_batch)
         bg_loss,bg_acc = self.train_generator()
-        self.gan_plotter.batch_update(bd_loss,bd_acc,bg_loss,bg_acc)
-        
-      self.gan_plotter.end_batch()
+        if self.plot:
+          self.gan_plotter.batch_update(bd_loss,bd_acc,bg_loss,bg_acc)
+      
+      if self.plot: 
+        self.gan_plotter.end_batch()
       
       if epoch % printerval == 0:
         preview_seed = self.generator.get_input(self.preview_size)
         generated_images = np.array(self.GenModel.predict(preview_seed))
         DataHelper.save_images(epoch,generated_images,self.img_shape,self.preview_rows,self.preview_cols,self.preview_margin,self.image_output_path,self.image_type)
 
-      if epoch >= 10:
+      if epoch >= 10 and self.plot:
         self.gan_plotter.log_epoch()
   
   def train_n_eras(self,eras,epochs,batches_per_epoch,printerval,ma_size):
-    self.gan_plotter = GanPlotter(moving_average_size=ma_size)
+    if self.plot:
+      from helpers.GanPlotter import GanPlotter
+      self.gan_plotter = GanPlotter(moving_average_size=ma_size)
     for i in range(eras):
       self.train(epochs,batches_per_epoch,printerval)
       filename = self.model_name + "%d"%((i+1)*epochs)

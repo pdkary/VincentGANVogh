@@ -1,7 +1,7 @@
 from layers.AdaptiveAdd import AdaptiveAdd
 from keras.layers.convolutional import Cropping2D
 from keras.layers.core import Activation
-from GanConfig import NoiseModelConfig
+from models.GanConfig import NoiseModelConfig
 from keras.layers import Input,Cropping2D,Conv2D
 import numpy as np
 import tensorflow as tf
@@ -12,7 +12,7 @@ class NoiseModel(NoiseModelConfig):
         self.input = Input(shape=self.noise_image_size, name="noise_model_input")
         self.model = Activation('linear')(self.input)
         
-    def get_noise(self,batch_size:int):
+    def get_batch(self,batch_size:int):
         noise_batch = np.full((batch_size,*self.noise_image_size),0.0,dtype=np.float32)
         for i in range(batch_size):
             noise_batch[i] = tf.random.normal(shape=self.noise_image_size,stddev=self.gauss_factor)

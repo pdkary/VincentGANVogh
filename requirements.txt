@@ -3,3 +3,4 @@ tensorflow
 matplotlib
 pillow
 jupyterplot
+keras
