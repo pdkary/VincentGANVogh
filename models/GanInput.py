@@ -59,7 +59,7 @@ class RealImageInput(GanInput):
     
     def get_batch(self, batch_size, batches=1):
         self.dataset = self.dataset.shuffle(self.dataset_size)
-        unbatched_data = self.datset.take(batch_size*batches)
+        unbatched_data = self.dataset.take(batch_size*batches)
         return list(unbatched_data.batch(batch_size))
    
         
