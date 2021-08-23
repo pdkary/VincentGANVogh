@@ -62,9 +62,8 @@ class RealImageInput(GanInput):
     
     def get_batch(self,training=True):
         if training:
-            d = self.train_dataset.shuffle(self.dataset_size)
+            return self.train_dataset.shuffle(self.dataset_size).take(1)
         else:
-            d = self.preview_dataset.shuffle(self.dataset_size)
-        return list(d.take(1))
+            return self.preview_dataset.shuffle(self.dataset_size).take(1)
    
         
