@@ -1,5 +1,5 @@
+from config.GeneratorConfig import StyleModelConfig
 from keras.layers import Input
-from models.GanConfig import StyleModelConfig
 from keras.layers import Dense
 import tensorflow as tf
 

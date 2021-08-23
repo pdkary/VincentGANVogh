@@ -1,13 +1,13 @@
-from models.GeneratorInput import GenConstantInput
-from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
-from keras.layers.convolutional import Conv2DTranspose
-from models.NoiseModel import NoiseModel
-from models.StyleModel import StyleModel
-from models.GanConfig import GenLayerConfig, GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
-from keras.layers import UpSampling2D, Conv2D, Dense
-from keras.models import Model
 import numpy as np
-  
+from config.GeneratorConfig import GeneratorModelConfig, GenLayerConfig
+from keras.layers import Conv2D, Dense, UpSampling2D
+from keras.layers.convolutional import Conv2DTranspose
+from keras.models import Model
+from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
+from models.Generator.NoiseModel import NoiseModel
+from models.Generator.StyleModel import StyleModel
+
+
 class Generator(GeneratorModelConfig):
     def __init__(self,gen_config: GeneratorModelConfig):
         GeneratorModelConfig.__init__(self,**gen_config.__dict__)

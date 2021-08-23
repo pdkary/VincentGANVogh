@@ -1,4 +1,4 @@
-from models.GanConfig import DiscConvLayerConfig, DiscDenseLayerConfig, DiscriminatorModelConfig
+from config.DiscriminatorConfig import DiscConvLayerConfig, DiscDenseLayerConfig, DiscriminatorModelConfig
 from third_party_layers.MinibatchDiscrimination import MinibatchDiscrimination
 from keras.layers import Dense,Dropout,Conv2D,MaxPooling2D,Flatten,Input
 from keras.models import Model
@@ -6,7 +6,7 @@ from keras.models import Model
 class Discriminator(DiscriminatorModelConfig):
     def __init__(self,disc_model_config: DiscriminatorModelConfig):
         DiscriminatorModelConfig.__init__(self,**disc_model_config.__dict__)
-        self.input = Input(shape=self.img_shape, name="image_input")
+        self.input = Input(shape=self.img_shape,name="discriminator")
         
     def build(self):
         out = self.input

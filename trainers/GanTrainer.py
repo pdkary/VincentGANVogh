@@ -1,7 +1,9 @@
-from models.GanConfig import DiscriminatorModelConfig, GanTrainingConfig, GeneratorModelConfig, NoiseModelConfig, StyleModelConfig
-from models.Generator import Generator
+from models.GanInput import RealImageInput
+from config.TrainingConfig import DataConfig, GanTrainingConfig
+from config.DiscriminatorConfig import DiscriminatorModelConfig
+from config.GeneratorConfig import GeneratorModelConfig
+from models.Generator.Generator import Generator
 from models.Discriminator import Discriminator
-from helpers.DataHelper import DataHelper
 import numpy as np
 import tensorflow as tf
 
@@ -26,26 +28,18 @@ class GanTrainer(GanTrainingConfig):
   def __init__(self,
                gen_model_config:    GeneratorModelConfig,
                disc_model_config:   DiscriminatorModelConfig,
-               gan_training_config: GanTrainingConfig):
+               gan_training_config: GanTrainingConfig,
+               data_config:         DataConfig):
     GanTrainingConfig.__init__(self,**gan_training_config.__dict__)
-    self.generator = Generator(gen_model_config)
-    self.discriminator = Discriminator(disc_model_config)
+    self.generator: Generator = Generator(gen_model_config)
+    self.discriminator: Discriminator = Discriminator(disc_model_config)
+    self.image_source: RealImageInput = RealImageInput(data_config)
 
     self.GenModel = self.generator.build_generator()
     self.DisModel = self.discriminator.build()
-
-    self.img_shape = gen_model_config.img_shape
-    self.preview_margin = 16
-    self.preview_size = self.preview_rows*self.preview_cols
-
-    self.image_output_path = self.data_path + "/images"
-    self.model_output_path = self.data_path + "/models"
+    self.model_output_path = data_config.data_path + "/models"
     
-    print("Preparing Dataset".upper())
-    self.images = DataHelper.load_data(self.data_path,self.img_shape,self.image_type,self.flip_lr,self.load_n_percent)
-    self.dataset = tf.data.Dataset.from_tensor_slices(self.images).batch(self.batch_size)
-    self.dataset_size = len(self.images)
-    print("DATASET LOADED")
+    self.image_source.load()
       
   def train_generator(self):
     generator_input = self.generator.get_input(self.batch_size)
@@ -58,11 +52,11 @@ class GanTrainer(GanTrainingConfig):
       self.generator.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.GenModel.trainable_variables))
     return g_loss,g_acc
 
-  def train_discriminator(self,training_imgs):
+  def train_discriminator(self,training_images):
     generator_input = self.generator.get_input(self.batch_size)
     with tf.GradientTape() as disc_tape:
       generated_images = self.GenModel(generator_input,training=False)
-      real_out = self.DisModel(training_imgs,training=True)
+      real_out = self.DisModel(training_images,training=True)
       fake_out = self.DisModel(generated_images,training=True)
       
       d_loss,d_acc = discriminator_loss(real_out,fake_out)
@@ -75,7 +69,7 @@ class GanTrainer(GanTrainingConfig):
       if self.plot:
         self.gan_plotter.start_batch()
       
-      for img_batch in self.dataset.shuffle(self.dataset_size).take(batches_per_epoch):
+      for img_batch in self.image_source.get_batch(self.batch_size,batches_per_epoch):
         bd_loss,bd_acc = self.train_discriminator(img_batch)
         bg_loss,bg_acc = self.train_generator()
         if self.plot:
@@ -85,9 +79,9 @@ class GanTrainer(GanTrainingConfig):
         self.gan_plotter.end_batch()
       
       if epoch % printerval == 0:
-        preview_seed = self.generator.get_input(self.preview_size)
+        preview_seed = self.generator.get_input(self.image_source.preview_size)
         generated_images = np.array(self.GenModel.predict(preview_seed))
-        DataHelper.save_images(epoch,generated_images,self.img_shape,self.preview_rows,self.preview_cols,self.preview_margin,self.image_output_path,self.image_type)
+        self.image_source.save(epoch,generated_images)
 
       if epoch >= 10 and self.plot:
         self.gan_plotter.log_epoch()
@@ -98,5 +92,5 @@ class GanTrainer(GanTrainingConfig):
       self.gan_plotter = GanPlotter(moving_average_size=ma_size)
     for i in range(eras):
       self.train(epochs,batches_per_epoch,printerval)
-      filename = self.model_name + "%d"%((i+1)*epochs)
+      filename = self.image_source.data_helper.model_name + "%d"%((i+1)*epochs)
       self.GenModel.save(self.model_output_path + filename)
