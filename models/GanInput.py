@@ -61,9 +61,7 @@ class RealImageInput(GanInput):
         self.data_helper.save_images(epoch,images)
     
     def get_batch(self,training=True):
-        if training:
-            return list(self.train_dataset.shuffle(self.dataset_size).take(1).as_numpy_iterator())
-        else:
-            return list(self.preview_dataset.shuffle(self.dataset_size).take(1).as_numpy_iterator())
+        d = self.train_dataset if training else self.preview_dataset
+        return np.array(d.shuffle(self.dataset_size).take(1))
    
         
