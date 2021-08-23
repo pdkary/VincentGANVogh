@@ -45,6 +45,7 @@ class RealImageInput(GanInput):
         super().__init__(data_config.image_shape,name="real_image_input")
         self.data_helper = DataHelper(data_config)
         self.preview_size = data_config.preview_cols*data_config.preview_rows
+        self.model = Activation('linear')(self.input)
     
     def load(self):
         print("Preparing Dataset".upper())

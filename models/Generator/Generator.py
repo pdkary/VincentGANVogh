@@ -1,3 +1,4 @@
+from models.GanInput import RealImageInput
 import numpy as np
 from config.GeneratorConfig import GeneratorModelConfig, GenLayerConfig
 from keras.layers import Conv2D, Dense, UpSampling2D
@@ -15,7 +16,10 @@ class Generator(GeneratorModelConfig):
         self.using_style = np.any([l.style for l in list(self.gen_layers[0])[0]])
         self.using_noise = np.any([l.noise for l in list(self.gen_layers[0])[0]])
         
-        self.input = [self.input_model.input] 
+        self.input = [self.input_model.input]
+        if isinstance(self.input,RealImageInput):
+            self.input.load()
+             
         if self.using_style:
             self.style_model = StyleModel(self.style_model_config)
             self.input.append(self.style_model.input)
