@@ -17,8 +17,8 @@ class Generator(GeneratorModelConfig):
         self.using_noise = np.any([l.noise for l in list(self.gen_layers[0])[0]])
         
         self.input = [self.input_model.input]
-        if isinstance(self.input,RealImageInput):
-            self.input.load()
+        if isinstance(self.input_model,RealImageInput):
+            self.input_model.load()
              
         if self.using_style:
             self.style_model = StyleModel(self.style_model_config)
