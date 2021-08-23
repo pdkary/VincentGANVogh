@@ -58,6 +58,8 @@ class RealImageInput(GanInput):
         self.data_helper.save_images(epoch,images)
     
     def get_batch(self, batch_size, batches=1):
-        return self.dataset.batch(batch_size).shuffle(self.dataset_size).take(batches)
+        self.dataset = self.dataset.shuffle(self.dataset_size)
+        batch_data = self.dataset.batch(batch_size)
+        return list(batch_data.take(batches))
    
         
