@@ -42,7 +42,7 @@ class GanTrainer(GanTrainingConfig):
     self.DisModel = self.discriminator.build()
     self.model_output_path = data_config.data_path + "/models"
     
-    self.image_source.load()
+    self.image_source.load(self.batch_size)
       
   def train_generator(self):
     generator_input = self.generator.get_input(self.batch_size)
