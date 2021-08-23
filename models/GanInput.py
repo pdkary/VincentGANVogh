@@ -47,10 +47,10 @@ class RealImageInput(GanInput):
         self.data_helper = DataHelper(data_config)
         self.preview_size = data_config.preview_cols*data_config.preview_rows
     
-    def load(self):
+    def load(self,batch_size):
         print("Preparing Dataset".upper())
         self.images = self.data_helper.load_data()
-        self.dataset = tf.data.Dataset.from_tensor_slices(self.images)
+        self.dataset = tf.data.Dataset.from_tensor_slices(self.images).batch(batch_size)
         self.dataset_size = len(self.images)
         print("DATASET LOADED")
     
@@ -59,7 +59,6 @@ class RealImageInput(GanInput):
     
     def get_batch(self, batch_size, batches=1):
         self.dataset = self.dataset.shuffle(self.dataset_size)
-        batch_data = self.dataset.batch(batch_size)
-        return list(batch_data.take(batches))
+        return list(self.dataset.take(batches))
    
         
