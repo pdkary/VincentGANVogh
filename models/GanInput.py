@@ -13,7 +13,6 @@ class GanInput(ABC):
         self.input_shape = input_shape
         self.input = Input(shape=input_shape,dtype=tf.float32,name=name)
         self.model = Activation('linear')(self.input)
-
         
     def get_batch(self,batch_size,batches=1):
         pass
