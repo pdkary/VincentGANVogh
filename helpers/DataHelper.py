@@ -1,64 +1,76 @@
+from config.TrainingConfig import DataConfig
 import os
 import glob
 from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 
-class DataHelper():
-  @staticmethod
-  def load_data(folder,image_shape,image_type,flip_lr=True,load_n_percent=100):
-    img_rows,img_cols,channels = image_shape
-    glob_glob = folder + "/*" + image_type
-    images = glob.glob(glob_glob)
-    print("LOADING FROM %s"%(glob_glob))
-    print("LOADING %d IMAGES"%len(images))
-    x = []
-    num_images = len(images)
-    for n,i in enumerate(images):
-      if 100*n/num_images >= load_n_percent:
-        break
-      img = Image.open(i)
-      if channels == 4:
-        img = img.convert('RGBA')
-      elif channels == 3:
-        img = img.convert('RGB')
-      elif channels == 1:
-        img = img.convert('L')
-      img = img.resize(size=(img_rows,img_cols),resample=Image.ANTIALIAS)
-      img = np.array(img).astype('float32')
-      img = img/255
-      x.append(img)
-      if flip_lr:
-        x.append(np.fliplr(img))
-      
-    print("LOADED %d IMAGES"%len(x))
-    i = np.random.randint(0,len(x)-1,size=1)[0]
-    print("SHOWING IMAGE: ",i)
-    displayed_img = x[i]
-    img_min = displayed_img.min()
-    img_max = displayed_img.max()
-    displayed_img = (displayed_img-img_min)/(img_max - img_min)
-    plt.imshow(displayed_img)
-    return x
 
-  @staticmethod
-  def save_images(epoch,generated_images,img_shape,num_rows,num_cols,preview_margin,output_path,image_type):
-    image_count = 0
-    img_size = img_shape[1]
-    channels = img_shape[-1]
-    preview_height = num_rows*img_size + (num_cols + 1)*preview_margin
-    preview_cols = num_cols*img_size + (num_cols + 1)*preview_margin
-    image_array = np.full((preview_height, preview_cols, channels), 255, dtype=np.uint8)
-    for row in range(num_rows):
-      for col in range(num_cols):
-        r = row * (img_size+preview_margin) + preview_margin
-        c = col * (img_size+preview_margin) + preview_margin
-        image_array[r:r+img_size,c:c+img_size] = 255*generated_images[image_count]
-        image_count += 1
-  
-    filename = os.path.join(output_path,f"train-{epoch}" + image_type)
-    if channels == 1:
-      im = Image.fromarray(image_array[0],mode='L')
-    else:
-      im = Image.fromarray(image_array)
-    im.save(filename)
+class DataHelper(DataConfig):
+    def __init__(self, data_config: DataConfig):
+        super().__init__(**data_config.__dict__)
+        self.image_output_path = self.data_path + "/images"
+
+    def load_data(self):
+        img_rows, img_cols, channels = self.image_shape
+        glob_glob = self.data_path + "/*" + self.image_type
+        images = glob.glob(glob_glob)
+        print("LOADING FROM %s" % (glob_glob))
+        print("LOADING %d IMAGES" % len(images))
+        x = []
+        num_images = len(images)
+        for n, i in enumerate(images):
+            if 100*n/num_images >= self.load_n_percent:
+                break
+            img = Image.open(i)
+            if channels == 4:
+                img = img.convert('RGBA')
+            elif channels == 3:
+                img = img.convert('RGB')
+            elif channels == 1:
+                img = img.convert('L')
+            img = img.resize(size=(img_rows, img_cols),
+                             resample=Image.ANTIALIAS)
+            img = np.array(img).astype('float32')
+            img = img/255
+            x.append(img)
+            if self.flip_lr:
+                x.append(np.fliplr(img))
+
+        print("LOADED %d IMAGES" % len(x))
+        i = np.random.randint(0, len(x)-1, size=1)[0]
+        print("SHOWING IMAGE: ", i)
+        displayed_img = x[i]
+        img_min = displayed_img.min()
+        img_max = displayed_img.max()
+        displayed_img = (displayed_img-img_min)/(img_max - img_min)
+        plt.imshow(displayed_img)
+        return x
+
+    def save_images(self, epoch, generated_images):
+        image_count = 0
+        img_size = self.image_shape[1]
+        channels = self.image_shape[-1]
+        preview_height = self.preview_rows*img_size + \
+            (self.preview_cols + 1)*self.preview_margin
+        preview_cols = self.preview_cols*img_size + \
+            (self.preview_cols + 1)*self.preview_margin
+        image_array = np.full(
+            (preview_height, preview_cols, channels), 255, dtype=np.uint8)
+        for row in range(self.preview_rows):
+            for col in range(self.preview_cols):
+                r = row * (img_size+self.preview_margin) + self.preview_margin
+                c = col * (img_size+self.preview_margin) + self.preview_margin
+                img = generated_images[image_count]
+                img_min = np.min(img)
+                img_max = np.max(img)
+                image_array[r:r+img_size, c:c+img_size] = 255 * \
+                    (img - img_min)/(img_max - img_min + 1e-5)
+                image_count += 1
+
+        filename = os.path.join(self.image_output_path, f"train-{epoch}" + self.image_type)
+        if channels == 1:
+            im = Image.fromarray(image_array[0], mode='L')
+        else:
+            im = Image.fromarray(image_array)
+        im.save(filename)

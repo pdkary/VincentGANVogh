@@ -7,7 +7,7 @@ class AdaptiveAdd(Layer):
         self.W = self.add_weight(
             shape=(1,1),
             dtype=tf.float32,
-            initializer='uniform',
+            initializer='zeros',
             trainable=True)
 
     def call(self, inputs):
