@@ -70,7 +70,8 @@ class GanTrainer(GanTrainingConfig):
       if self.plot:
         self.gan_plotter.start_batch()
       
-      for img_batch in self.image_source.get_batch(training=True):
+      for i in range(batches_per_epoch):
+        img_batch = self.image_source.get_batch()
         bd_loss,bd_acc = self.train_discriminator(img_batch)
         bg_loss,bg_acc = self.train_generator()
         if self.plot:

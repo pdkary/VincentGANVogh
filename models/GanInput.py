@@ -63,6 +63,10 @@ class RealImageInput(GanInput):
     def get_batch(self,training=True):
         d = self.train_dataset if training else self.preview_dataset
         d = d.shuffle(self.dataset_size)
-        return next(iter(d))
+        d_iterator = iter(d)
+        batch = next(d_iterator)
+        while batch.shape[0] != self.data_helper.batch_size:
+          batch = next(d_iterator)
+        return batch
    
         
