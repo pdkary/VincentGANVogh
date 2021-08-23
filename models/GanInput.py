@@ -12,6 +12,8 @@ class GanInput(ABC):
     def __init__(self,input_shape,name="gan_input"):
         self.input_shape = input_shape
         self.input = Input(shape=input_shape,dtype=tf.float32,name=name)
+        self.model = Activation('linear')(self.input)
+
         
     def get_batch(self,batch_size,batches=1):
         pass
@@ -45,7 +47,6 @@ class RealImageInput(GanInput):
         super().__init__(data_config.image_shape,name="real_image_input")
         self.data_helper = DataHelper(data_config)
         self.preview_size = data_config.preview_cols*data_config.preview_rows
-        self.model = Activation('linear')(self.input)
     
     def load(self):
         print("Preparing Dataset".upper())
