@@ -65,6 +65,6 @@ class RealImageInput(GanInput):
             d = self.train_dataset.shuffle(self.dataset_size)
         else:
             d = self.preview_dataset.shuffle(self.dataset_size)
-        return d.take(1)
+        return list(d.take(1))
    
         
