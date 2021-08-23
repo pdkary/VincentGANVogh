@@ -1,12 +1,15 @@
 from config.TrainingConfig import DataConfig, GanTrainingConfig
 from config.DiscriminatorConfig import *
-from models.GanInput import GenLatentSpaceInput, RealImageInput
+from models.GanInput import RealImageInput
 from config.GeneratorConfig import *
 from config.CallableConfig import *
-from keras.optimizers import Adam
+from keras.optimizer_v2.adam import Adam
 from third_party_layers.InstanceNormalization import InstanceNormalization
 from keras.layers import BatchNormalization, LeakyReLU, Activation
 from trainers.GanTrainer import GanTrainer
+
+from google.colab import drive
+drive.mount('/content/drive')
 
 leakyRELU_style = ActivationConfig(LeakyReLU,dict(alpha=0.1))
 leakyRELU_conv = ActivationConfig(LeakyReLU,dict(alpha=0.05))
@@ -18,25 +21,27 @@ style_data_config = DataConfig(
     data_path='/content/drive/MyDrive/Colab/VanGogh',    
     image_type=".jpg",
     image_shape=(256,256,3),
+    batch_size=4,
     model_name='/GANVogh_generator_model_',
     flip_lr=True,
-    load_n_percent=100,
+    load_n_percent=8,
     preview_rows=4,
     preview_cols=6,
     preview_margin=16
-),
+)
 
 image_data_config = DataConfig(
     data_path='/content/drive/MyDrive/Colab/AnimalFaces/dog',    
     image_type=".jpg",
     image_shape=(256,256,3),
+    batch_size=4,
     model_name='/GANVogh_dog_generator_model_',
     flip_lr=True,
-    load_n_percent=10,
+    load_n_percent=1,
     preview_rows=4,
     preview_cols=6,
     preview_margin=16
-),
+)
  
 gen_model_config = GeneratorModelConfig(
     img_shape = (256,256,3),
@@ -54,11 +59,11 @@ gen_model_config = GeneratorModelConfig(
         gauss_factor = 1),
     
     gen_layers = [
-        GenLayerConfig(128,  3, 3, leakyRELU_conv, upsampling=False,  style=True, noise=True),
-        GenLayerConfig(64,   3, 3, leakyRELU_conv, upsampling=False,  style=True, noise=True),
-        GenLayerConfig(32,   3, 3, leakyRELU_conv, upsampling=False,  style=True, noise=True),
-        GenLayerConfig(16,   2, 3, leakyRELU_conv, upsampling=False,  style=True, noise=True),
-        GenLayerConfig(3,    1, 1, sigmoid,        upsampling=False,  style=True, noise=True)],
+        GenLayerConfig(128,  3, 3, leakyRELU_conv, upsampling=False,  style=True, noise=False),
+        GenLayerConfig(64,   3, 3, leakyRELU_conv, upsampling=False,  style=True, noise=False),
+        GenLayerConfig(32,   3, 3, leakyRELU_conv, upsampling=False,  style=True, noise=False),
+        GenLayerConfig(16,   2, 3, leakyRELU_conv, upsampling=False,  style=True, noise=False),
+        GenLayerConfig(3,    1, 1, sigmoid,        upsampling=False,  style=True, noise=False)],
     non_style_normalization = batch_norm,
     gen_optimizer = Adam(learning_rate=5e-4,beta_1=0.1,beta_2=0.9,epsilon=1e-7)
 )
@@ -68,6 +73,7 @@ gen_model_config = GeneratorModelConfig(
 disc_model_config = DiscriminatorModelConfig(
     img_shape = (256,256,3),
     disc_conv_layers=[
+        DiscConvLayerConfig(64,  2, 3, leakyRELU_conv, instance_norm),
         DiscConvLayerConfig(64,  2, 3, leakyRELU_conv, instance_norm),
         DiscConvLayerConfig(128, 2, 3, leakyRELU_conv, instance_norm),
         DiscConvLayerConfig(256, 4, 3, leakyRELU_conv, instance_norm),
@@ -83,9 +89,7 @@ disc_model_config = DiscriminatorModelConfig(
 )
  
 gan_training_config = GanTrainingConfig(
-    batch_size=4,
-    plot=False
+    plot=True
 )
 
 VGV = GanTrainer(gen_model_config,disc_model_config,gan_training_config,style_data_config)
-VGV.train_n_eras(eras=1,epochs=10,batches_per_epoch=1,printerval=2,ma_size=1)
