@@ -35,14 +35,11 @@ class GanTrainer(GanTrainingConfig):
     self.discriminator: Discriminator = Discriminator(disc_model_config)
     self.image_source: RealImageInput = RealImageInput(data_config)
 
-    if isinstance(gen_model_config.input_model,RealImageInput):
-      self.generator.input_model.load(self.batch_size)
-
     self.GenModel = self.generator.build_generator()
     self.DisModel = self.discriminator.build()
     self.model_output_path = data_config.data_path + "/models"
     
-    self.image_source.load(self.batch_size)
+    self.image_source.load()
       
   def train_generator(self):
     generator_input = self.generator.get_input(self.batch_size)
