@@ -61,12 +61,12 @@ class RealImageInput(GanInput):
         self.data_helper.save_images(epoch,images)
     
     def get_batch(self,training=True):
+        batch_size = self.data_helper.batch_size if training else self.preview_size
         d = self.train_dataset if training else self.preview_dataset
         d = d.shuffle(self.dataset_size)
         d_iterator = iter(d)
         batch = next(d_iterator)
-        while batch.shape[0] != self.data_helper.batch_size:
+        while batch.shape[0] != batch_size:
           batch = next(d_iterator)
         return batch
    
-        
