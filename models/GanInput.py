@@ -65,9 +65,7 @@ class RealImageInput(GanInput):
         d = d.shuffle(self.dataset_size)
         b = []
         for i,x in enumerate(d):
-            b.append(x)
-            if i > 1:
-                break
-        return b
+            if i == 0:
+                return x
    
         
