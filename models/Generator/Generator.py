@@ -8,16 +8,17 @@ from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from models.Generator.NoiseModel import NoiseModel
 from models.Generator.StyleModel import StyleModel
 
-
 class Generator(GeneratorModelConfig):
-    def __init__(self,gen_config: GeneratorModelConfig):
+    def __init__(self,gen_config: GeneratorModelConfig,batch_size: int, preview_size: int):
         GeneratorModelConfig.__init__(self,**gen_config.__dict__)
-        
+        self.batch_size = batch_size
+        self.preview_size = preview_size
         self.using_style = np.any([l.style for l in list(self.gen_layers[0])[0]])
         self.using_noise = np.any([l.noise for l in list(self.gen_layers[0])[0]])
+        self.using_image_input = isinstance(self.input_model,RealImageInput)
         
         self.input = [self.input_model.input]
-        if isinstance(self.input_model,RealImageInput):
+        if self.using_image_input:
             self.input_model.load()
              
         if self.using_style:
@@ -28,8 +29,13 @@ class Generator(GeneratorModelConfig):
             self.noise_model = NoiseModel(self.noise_model_config)
             self.input.append(self.noise_model.input)
     
-    def get_input(self,batch_size:int):
-        inp = [self.input_model.get_batch(batch_size)]
+    def get_input(self,training=True):
+        batch_size = self.batch_size if training else self.preview_size
+        if self.using_image_input:
+            inp = [self.input_model.get_batch(training)]
+        else:
+            inp = [self.input_model.get_batch(batch_size)]
+            
         if self.using_style:
             inp.append(self.style_model.get_batch(batch_size))
         if self.using_noise:

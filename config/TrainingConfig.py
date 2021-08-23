@@ -4,6 +4,7 @@ class DataConfig():
                  data_path: str,
                  image_type: str,
                  image_shape: Tuple[int,int,int],
+                 batch_size: int,
                  model_name: str,
                  flip_lr: bool,
                  load_n_percent: bool,
@@ -13,6 +14,7 @@ class DataConfig():
         self.data_path = data_path
         self.image_type = image_type
         self.image_shape = image_shape
+        self.batch_size = batch_size
         self.model_name = model_name
         self.flip_lr = flip_lr
         self.load_n_percent = load_n_percent
@@ -21,8 +23,5 @@ class DataConfig():
         self.preview_margin = preview_margin
 
 class GanTrainingConfig():
-  def __init__(self,
-               batch_size: int,  
-               plot: bool):
-    self.batch_size = batch_size
+  def __init__(self,plot: bool):
     self.plot = plot

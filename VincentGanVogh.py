@@ -63,7 +63,6 @@ disc_model_config = DiscriminatorModelConfig(
 )
  
 gan_training_config = GanTrainingConfig(
-    batch_size=4,
     plot=False
 )
 
@@ -71,13 +70,14 @@ data_config = DataConfig(
     data_path='test_images',
     image_type=".png",
     image_shape=(256,256,3),
+    batch_size=4,
     model_name='/GANVogh_generator_model_',
     flip_lr=True,
     load_n_percent=10,
     preview_rows=4,
     preview_cols=6,
     preview_margin=16
-),
+)
 
 
 VGV = GanTrainer(gen_model_config,disc_model_config,gan_training_config,data_config)

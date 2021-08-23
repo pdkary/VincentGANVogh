@@ -1,3 +1,4 @@
+from tensorflow._api.v2 import data
 from helpers.DataHelper import DataHelper
 from config.TrainingConfig import DataConfig
 from typing import Tuple
@@ -14,7 +15,7 @@ class GanInput(ABC):
         self.input = Input(shape=input_shape,dtype=tf.float32,name=name)
         self.model = Activation('linear')(self.input)
         
-    def get_batch(self,batch_size,batches=1):
+    def get_batch(self,batch_size,training=True):
         pass
 
 class GenConstantInput(GanInput):
@@ -23,7 +24,7 @@ class GenConstantInput(GanInput):
         self.constant = tf.constant(tf.random.normal(shape=input_shape,dtype=tf.float32))
         self.model = Activation('linear')(self.input)
     
-    def get_batch(self, batch_size,batches=1):
+    def get_batch(self, batch_size,training=True):
         gc_batch = np.full((batch_size,*self.input_shape),0.0,dtype=np.float32)
         for i in range(batch_size):
             gc_batch[i] = self.constant
@@ -38,7 +39,7 @@ class GenLatentSpaceInput(GanInput):
         self.model = Dense(prod(output_shape))(self.model)
         self.model = Reshape(output_shape)(self.model)
     
-    def get_batch(self, batch_size, batches=1):
+    def get_batch(self, batch_size,training=True):
         return tf.random.normal(shape=(batch_size,self.input_shape))
 
 class RealImageInput(GanInput):
@@ -50,16 +51,20 @@ class RealImageInput(GanInput):
     def load(self):
         print("Preparing Dataset".upper())
         self.images = self.data_helper.load_data()
-        self.dataset = tf.data.Dataset.from_tensor_slices(self.images)
+        dataset = tf.data.Dataset.from_tensor_slices(self.images)
+        self.train_dataset = dataset.batch(self.data_helper.batch_size)
+        self.preview_dataset = dataset.batch(self.preview_size)
         self.dataset_size = len(self.images)
         print("DATASET LOADED")
     
     def save(self,epoch,images):
         self.data_helper.save_images(epoch,images)
     
-    def get_batch(self, batch_size, batches=1):
-        self.dataset = self.dataset.shuffle(self.dataset_size)
-        unbatched_data = self.dataset.take(batch_size*batches)
-        return list(unbatched_data.batch(batch_size))
+    def get_batch(self,training=True):
+        if training:
+            d = self.train_dataset.shuffle(self.dataset_size)
+        else:
+            d = self.preview_dataset.shuffle(self.dataset_size)
+        return d.take(1)
    
         

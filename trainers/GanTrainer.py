@@ -31,7 +31,8 @@ class GanTrainer(GanTrainingConfig):
                gan_training_config: GanTrainingConfig,
                data_config:         DataConfig):
     GanTrainingConfig.__init__(self,**gan_training_config.__dict__)
-    self.generator: Generator = Generator(gen_model_config)
+    self.preview_size = data_config.preview_cols*data_config.preview_rows
+    self.generator: Generator = Generator(gen_model_config,data_config.batch_size,self.preview_size)
     self.discriminator: Discriminator = Discriminator(disc_model_config)
     self.image_source: RealImageInput = RealImageInput(data_config)
 
@@ -42,7 +43,7 @@ class GanTrainer(GanTrainingConfig):
     self.image_source.load()
       
   def train_generator(self):
-    generator_input = self.generator.get_input(self.batch_size)
+    generator_input = self.generator.get_input()
     with tf.GradientTape() as gen_tape:
       generated_images = self.GenModel(generator_input,training=True)
       discriminated_gens = self.DisModel(generated_images,training=False)
@@ -53,7 +54,7 @@ class GanTrainer(GanTrainingConfig):
     return g_loss,g_acc
 
   def train_discriminator(self,training_images):
-    generator_input = self.generator.get_input(self.batch_size)
+    generator_input = self.generator.get_input()
     with tf.GradientTape() as disc_tape:
       generated_images = self.GenModel(generator_input,training=False)
       real_out = self.DisModel(training_images,training=True)
@@ -69,7 +70,7 @@ class GanTrainer(GanTrainingConfig):
       if self.plot:
         self.gan_plotter.start_batch()
       
-      for img_batch in self.image_source.get_batch(self.batch_size,batches_per_epoch):
+      for img_batch in self.image_source.get_batch(training=True):
         bd_loss,bd_acc = self.train_discriminator(img_batch)
         bg_loss,bg_acc = self.train_generator()
         if self.plot:
@@ -79,7 +80,7 @@ class GanTrainer(GanTrainingConfig):
         self.gan_plotter.end_batch()
       
       if epoch % printerval == 0:
-        preview_seed = self.generator.get_input(self.image_source.preview_size)
+        preview_seed = self.generator.get_input(training=False)
         generated_images = np.array(self.GenModel.predict(preview_seed))
         self.image_source.save(epoch,generated_images)
 
