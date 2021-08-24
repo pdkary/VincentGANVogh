@@ -33,8 +33,8 @@ class GanTrainer(GanTrainingConfig):
                gan_training_config: GanTrainingConfig,
                data_configs:         List[DataConfig]):
     GanTrainingConfig.__init__(self,**gan_training_config.__dict__)
-    self.preview_size = max([d.preview_cols*d.preview_rows for d in data_configs])
-    self.batch_size = median([d.batch_size for d in data_configs])
+    self.preview_size = int(max([d.preview_cols*d.preview_rows for d in data_configs]))
+    self.batch_size = int(median([d.batch_size for d in data_configs]))
     self.generator: Generator = Generator(gen_model_config,self.batch_size,self.preview_size)
     self.discriminator: Discriminator = Discriminator(disc_model_config)
     self.image_sources: List[RealImageInput] = [RealImageInput(d) for d in data_configs]
