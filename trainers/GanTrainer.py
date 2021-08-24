@@ -63,7 +63,7 @@ class GanTrainer(GanTrainingConfig):
 
   def train_discriminator(self,training_images):
     generator_input = self.generator.get_input()
-    while(training_images.shape[1] < self.GenModel.input_shape[1]):
+    while(training_images.shape[1] < self.discriminator.img_shape[1]):
       training_images = UpSampling2D()(training_images)
       
     with tf.GradientTape() as disc_tape:
