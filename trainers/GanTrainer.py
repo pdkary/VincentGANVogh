@@ -1,4 +1,5 @@
 from typing import List
+from keras.layers.convolutional import UpSampling2D
 from numpy.lib.function_base import median
 from models.GanInput import RealImageInput
 from config.TrainingConfig import DataConfig, GanTrainingConfig
@@ -62,6 +63,9 @@ class GanTrainer(GanTrainingConfig):
 
   def train_discriminator(self,training_images):
     generator_input = self.generator.get_input()
+    while(training_images.shape[1] < self.GenModel.input_shape[1]):
+      training_images = UpSampling2D()(training_images)
+      
     with tf.GradientTape() as disc_tape:
       generated_images = self.GenModel(generator_input,training=False)
       real_out = self.DisModel(training_images,training=True)
