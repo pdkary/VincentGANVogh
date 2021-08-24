@@ -38,6 +38,9 @@ class GanTrainer(GanTrainingConfig):
     self.generator: Generator = Generator(gen_model_config,self.batch_size,self.preview_size)
     self.discriminator: Discriminator = Discriminator(disc_model_config)
     self.image_sources: List[RealImageInput] = [RealImageInput(d) for d in data_configs]
+    
+    if self.generator.using_image_input:
+      self.image_sources.append(self.generator.input_model)
 
     self.GenModel = self.generator.build_generator()
     self.DisModel = self.discriminator.build()
