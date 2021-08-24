@@ -48,8 +48,6 @@ class GanTrainer(GanTrainingConfig):
     self.GenModel = self.generator.build_generator()
     self.DisModel = self.discriminator.build()
     self.model_output_path = data_configs[0].data_path + "/models"
-    
-    
       
   def train_generator(self):
     generator_input = self.generator.get_input()

@@ -13,5 +13,5 @@ class StyleModel(StyleModelConfig):
             self.model = self.style_activation.get()(self.model)
     
     def get_batch(self,batch_size:int):
-        return tf.random.normal(shape = (batch_size,self.style_latent_size))
+        return tf.random.normal(shape = (batch_size,self.style_latent_size),dtype=tf.float32)
         
