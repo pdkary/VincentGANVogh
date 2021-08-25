@@ -19,7 +19,6 @@ class Discriminator(DiscriminatorModelConfig):
         
         for layer_config in self.disc_dense_layers:
             out = self.disc_dense_block(out,layer_config)
-        out = Dense(1,activation="sigmoid", kernel_initializer = 'he_normal')(out)
         
         disc_model = Model(inputs=self.input,outputs=out,name="Discriminator")
         disc_model.compile(optimizer=self.disc_optimizer,

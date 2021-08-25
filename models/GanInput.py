@@ -1,3 +1,4 @@
+from config.CallableConfig import ActivationConfig
 from tensorflow._api.v2 import data
 from helpers.DataHelper import DataHelper
 from config.TrainingConfig import DataConfig
@@ -31,12 +32,14 @@ class GenConstantInput(GanInput):
         return gc_batch
         
 class GenLatentSpaceInput(GanInput):
-    def __init__(self, input_shape: int,output_shape:Tuple,layer_size,layers):
+    def __init__(self, input_shape: int,output_shape:Tuple,layer_size,layers, activation: ActivationConfig):
         super().__init__(input_shape,name="gen_latent_space_input")
         self.model = self.input
         for i in range(layers):
-            self.model = Dense(layer_size,kernel_initializer="he_normal",activation="sigmoid")(self.model)
-        self.model = Dense(prod(output_shape),kernel_initializer="he_normal",activation="sigmoid")(self.model)
+            self.model = Dense(layer_size,kernel_initializer="he_normal")(self.model)
+            self.model = activation.get()(self.model)
+        self.model = Dense(prod(output_shape),kernel_initializer="he_normal")(self.model)
+        self.model = activation.get()(self.model)
         self.model = Reshape(output_shape)(self.model)
     
     def get_batch(self, batch_size,training=True):
