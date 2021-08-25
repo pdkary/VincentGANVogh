@@ -1,3 +1,4 @@
+from helpers.GanValidator import GanValidator
 from config.TrainingConfig import DataConfig, GanTrainingConfig
 from config.DiscriminatorConfig import *
 from models.GanInput import GenLatentSpaceInput
@@ -39,7 +40,7 @@ gen_model_config = GeneratorModelConfig(
         GenLayerConfig(16,   2, 3, leakyRELU_conv, upsampling=True,  style=True, noise=False),
         GenLayerConfig(3,    1, 1, sigmoid,        upsampling=False, style=True, noise=False)],
     
-    non_style_normalization = batch_norm,
+    normalization = batch_norm,
     gen_optimizer = Adam(learning_rate=5e-4,beta_1=0.1,beta_2=0.9,epsilon=1e-7)
 )
  
@@ -79,6 +80,9 @@ data_config = DataConfig(
     preview_margin=16
 )
 
-
-VGV = GanTrainer(gen_model_config,disc_model_config,gan_training_config,data_config)
-VGV.train_n_eras(eras=1,epochs=10,batches_per_epoch=1,printerval=2,ma_size=1)
+validator = GanValidator()
+print(validator.validate_gen_sizes(gen_model_config))
+print(validator.validate_style(gen_model_config))
+print(validator.validate_noise(gen_model_config))
+# VGV = GanTrainer(gen_model_config,disc_model_config,gan_training_config,[data_config])
+# VGV.train_n_eras(eras=1,epochs=10,batches_per_epoch=1,printerval=2,ma_size=1)

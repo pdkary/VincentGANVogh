@@ -71,6 +71,6 @@ class Generator(GeneratorModelConfig):
                 beta = Dense(config.filters,bias_initializer='zeros')(self.style_model.model)
                 out = AdaptiveInstanceNormalization()([out,gamma,beta])
             else:
-                out = self.non_style_normalization.get()(out)
+                out = self.normalization.get()(out)
             out =  config.activation.get()(out)
         return out

@@ -1,5 +1,4 @@
 from models.GanInput import GanInput
-from typing import List, Tuple
 from keras.optimizers import Optimizer
 from config.CallableConfig import ActivationConfig, NormalizationConfig
 
@@ -16,9 +15,9 @@ class StyleModelConfig():
 
 class NoiseModelConfig():
   def __init__(self,
-               noise_image_size: Tuple[int,int,int],
+               noise_image_size: tuple[int,int,int],
                kernel_size: int,
-               gauss_factor:float):
+               gauss_factor:float = 1.0):
     self.noise_image_size = noise_image_size
     self.kernel_size = kernel_size
     self.gauss_factor = gauss_factor
@@ -29,11 +28,11 @@ class GenLayerConfig():
                convolutions:int,
                kernel_size: int,
                activation: ActivationConfig,
-               strides:Tuple[int,int] = (1,1),
+               strides:tuple[int,int] = (1,1),
                transpose: bool = False,
-               upsampling: bool = True,
-               style: bool = True,
-               noise: bool = True):
+               upsampling: bool = False,
+               style: bool = False,
+               noise: bool = False):
     self.filters = filters
     self.convolutions = convolutions
     self.kernel_size = kernel_size
@@ -46,17 +45,17 @@ class GenLayerConfig():
     
 class GeneratorModelConfig():
   def __init__(self,
-               img_shape: Tuple[int,int,int],
+               img_shape: tuple[int,int,int],
                input_model: GanInput,
-               style_model_config: StyleModelConfig,
-               noise_model_config: NoiseModelConfig,
-               gen_layers: List[GenLayerConfig],
-               non_style_normalization: NormalizationConfig,
-               gen_optimizer: Optimizer):
+               gen_layers: list[GenLayerConfig],
+               gen_optimizer: Optimizer,
+               style_model_config: StyleModelConfig = None,
+               noise_model_config: NoiseModelConfig = None,
+               normalization: NormalizationConfig = None):
     self.img_shape = img_shape
     self.input_model = input_model
+    self.gen_layers = gen_layers,
+    self.gen_optimizer = gen_optimizer
     self.style_model_config = style_model_config
     self.noise_model_config = noise_model_config
-    self.gen_layers = gen_layers,
-    self.non_style_normalization = non_style_normalization
-    self.gen_optimizer = gen_optimizer
+    self.normalization = normalization

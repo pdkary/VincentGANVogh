@@ -64,7 +64,7 @@ gen_model_config = GeneratorModelConfig(
         GenLayerConfig(32,   3, 3, leakyRELU_conv, upsampling=False,  style=True, noise=False),
         GenLayerConfig(16,   2, 3, leakyRELU_conv, upsampling=False,  style=True, noise=False),
         GenLayerConfig(3,    1, 1, sigmoid,        upsampling=False,  style=True, noise=False)],
-    non_style_normalization = batch_norm,
+    normalization = batch_norm,
     gen_optimizer = Adam(learning_rate=5e-4,beta_1=0.1,beta_2=0.9,epsilon=1e-7)
 )
  

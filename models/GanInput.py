@@ -10,7 +10,7 @@ import numpy as np
 from abc import ABC
 
 class GanInput(ABC):
-    def __init__(self,input_shape,name="gan_input"):
+    def __init__(self,input_shape: Tuple[int,int,int],name="gan_input"):
         self.input_shape = input_shape
         self.input = Input(shape=input_shape,dtype=tf.float32,name=name)
         self.model = Activation('linear')(self.input)
