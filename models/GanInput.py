@@ -35,8 +35,8 @@ class GenLatentSpaceInput(GanInput):
         super().__init__(input_shape,name="gen_latent_space_input")
         self.model = self.input
         for i in range(layers):
-            self.model = Dense(layer_size)(self.model)
-        self.model = Dense(prod(output_shape))(self.model)
+            self.model = Dense(layer_size,kernel_initializer="he_normal")(self.model)
+        self.model = Dense(prod(output_shape),kernel_initializer="he_normal")(self.model)
         self.model = Reshape(output_shape)(self.model)
     
     def get_batch(self, batch_size,training=True):
