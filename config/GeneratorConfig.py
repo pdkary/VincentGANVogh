@@ -1,3 +1,4 @@
+from typing import Tuple
 from models.GanInput import GanInput
 from keras.optimizers import Optimizer
 from config.CallableConfig import ActivationConfig, NormalizationConfig
@@ -15,7 +16,7 @@ class StyleModelConfig():
 
 class NoiseModelConfig():
   def __init__(self,
-               noise_image_size: tuple[int,int,int],
+               noise_image_size: Tuple[int,int,int],
                kernel_size: int,
                gauss_factor: float):
     self.noise_image_size = noise_image_size
@@ -28,7 +29,7 @@ class GenLayerConfig():
                convolutions:int,
                kernel_size: int,
                activation: ActivationConfig,
-               strides:tuple[int,int] = (1,1),
+               strides:Tuple[int,int] = (1,1),
                transpose: bool = False,
                upsampling: bool = False,
                style: bool = False,
@@ -45,7 +46,7 @@ class GenLayerConfig():
     
 class GeneratorModelConfig():
   def __init__(self,
-               img_shape: tuple[int,int,int],
+               img_shape: Tuple[int,int,int],
                input_model: GanInput,
                gen_layers: list[GenLayerConfig],
                gen_optimizer: Optimizer,
