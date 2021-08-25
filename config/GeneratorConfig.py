@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import List, Tuple
 from models.GanInput import GanInput
 from keras.optimizers import Optimizer
 from config.CallableConfig import ActivationConfig, NormalizationConfig
@@ -48,7 +48,7 @@ class GeneratorModelConfig():
   def __init__(self,
                img_shape: Tuple[int,int,int],
                input_model: GanInput,
-               gen_layers: list[GenLayerConfig],
+               gen_layers: List[GenLayerConfig],
                gen_optimizer: Optimizer,
                style_model_config: StyleModelConfig,
                noise_model_config: NoiseModelConfig,
