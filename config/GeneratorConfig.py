@@ -17,7 +17,7 @@ class NoiseModelConfig():
   def __init__(self,
                noise_image_size: tuple[int,int,int],
                kernel_size: int,
-               gauss_factor:float = 1.0):
+               gauss_factor: float):
     self.noise_image_size = noise_image_size
     self.kernel_size = kernel_size
     self.gauss_factor = gauss_factor
