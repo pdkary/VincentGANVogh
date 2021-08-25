@@ -50,9 +50,9 @@ class GeneratorModelConfig():
                input_model: GanInput,
                gen_layers: List[GenLayerConfig],
                gen_optimizer: Optimizer,
-               style_model_config: StyleModelConfig,
-               noise_model_config: NoiseModelConfig,
-               normalization: NormalizationConfig):
+               style_model_config: StyleModelConfig = None,
+               noise_model_config: NoiseModelConfig = None,
+               normalization: NormalizationConfig = None):
     self.img_shape = img_shape
     self.input_model = input_model
     self.gen_layers = gen_layers,
