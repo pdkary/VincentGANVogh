@@ -9,7 +9,6 @@ class GanValidator():
         
         upsample_factor = 2**sum([x.upsampling for x in gen_config.gen_layers[0]])
         output_channels = gen_config.gen_layers[0][-1].filters
-        print(input_shape,expected_output_shape,upsample_factor, output_channels)
         xm = expected_output_shape[0] == input_shape[0]*upsample_factor
         ym = expected_output_shape[1] == input_shape[1]*upsample_factor
         zm = expected_output_shape[2] == output_channels
@@ -29,5 +28,11 @@ class GanValidator():
         all_style = np.all([l.style for l in gen_config.gen_layers[0]])
         has_non_style_norm = gen_config.normalization is not None
         return all_style or has_non_style_norm
+    
+    def validate_generator(self,gen_config: GeneratorModelConfig) ->  bool:
+        size_pass = self.validate_gen_sizes(gen_config)
+        style_pass = self.validate_style(gen_config)
+        noise_pass = self.validate_noise(gen_config)
+        return size_pass and style_pass and noise_pass
         
         
