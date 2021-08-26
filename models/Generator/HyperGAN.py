@@ -21,6 +21,26 @@ class HyperGAN(HyperModel):
         super().__init__(name=name, tunable=tunable)
         self.batch_size = batch_size
         self.preview_size = preview_size
+        
+        self.disc_model_config = DiscriminatorModelConfig(
+                img_shape = (64,64,3),
+                disc_conv_layers=[
+                    DiscConvLayerConfig(64,  2, 3, sigmoid, instance_norm),
+                    DiscConvLayerConfig(128, 2, 3, sigmoid, instance_norm),
+                    DiscConvLayerConfig(256, 3, 3, sigmoid, instance_norm),
+                    DiscConvLayerConfig(512, 3, 3, sigmoid, instance_norm)],
+                disc_dense_layers=[
+                    DiscDenseLayerConfig(4096, leakyRELU_dense, 0.5),
+                    DiscDenseLayerConfig(4096, leakyRELU_dense, 0.5),
+                    DiscDenseLayerConfig(1000, leakyRELU_dense, 0.5),
+                    DiscDenseLayerConfig(1,    sigmoid, 0.5)],
+                minibatch=True,
+                minibatch_size=32,
+                disc_optimizer = Adam(learning_rate=0.002,beta_1=0.0,beta_2=0.99,epsilon=1e-8)
+        )
+        
+        self.D = Discriminator(self.disc_model_config)
+        self.discriminator = self.D.build()
     
     def build(self,hp):
         learning_rate = hp.Float("learning_rate", 1e-6, 1e-2)
@@ -37,11 +57,8 @@ class HyperGAN(HyperModel):
         layer_4_filters = hp.Int("layer_4_filters", 1, 512, step=32)
 
         convolutional_relu_alpha = hp.Float("conv_relu_alpha", 0.0, 1.0,step=0.03)
-        dense_relu_alpha = hp.Float("dense_relu_alpha", 0.0, 1.0, step=0.03)
 
-        leakyRELU_conv = ActivationConfig(LeakyReLU, dict(alpha=convolutional_relu_alpha))
-        leakyRELU_dense = ActivationConfig(LeakyReLU, dict(alpha=dense_relu_alpha))
-        sigmoid = ActivationConfig(Activation, dict(activation="sigmoid"))
+        lr_conv = ActivationConfig(LeakyReLU, dict(alpha=convolutional_relu_alpha))
 
         batch_norm_momentum = hp.Float("batch_norm_momentum", 0.0, 1.0,step=0.05)
 
@@ -57,36 +74,17 @@ class HyperGAN(HyperModel):
             img_shape=image_shape,
             input_model=GenLatentSpaceInput(latent_space_size, (4, 4, 512), 100, 0, leakyRELU_dense),
             gen_layers=[
-                GenLayerConfig(layer_1_filters,  convolutions_per_layer, kernel_size, leakyRELU_conv, upsampling=True),
-                GenLayerConfig(layer_2_filters,  convolutions_per_layer, kernel_size, leakyRELU_conv, upsampling=True),
-                GenLayerConfig(layer_3_filters,  convolutions_per_layer, kernel_size, leakyRELU_conv, upsampling=True),
-                GenLayerConfig(layer_4_filters,  convolutions_per_layer, kernel_size, leakyRELU_conv, upsampling=True),
+                GenLayerConfig(layer_1_filters,  convolutions_per_layer, kernel_size, lr_conv, upsampling=True),
+                GenLayerConfig(layer_2_filters,  convolutions_per_layer, kernel_size, lr_conv, upsampling=True),
+                GenLayerConfig(layer_3_filters,  convolutions_per_layer, kernel_size, lr_conv, upsampling=True),
+                GenLayerConfig(layer_4_filters,  convolutions_per_layer, kernel_size, lr_conv, upsampling=True),
                 GenLayerConfig(3,    1, 1, sigmoid,   upsampling=False)],
             gen_optimizer=Adam(learning_rate=learning_rate, beta_1=beta_1,beta_2=beta_2, epsilon=1e-7),
             normalization=self.norm_dict[normalization]
         )
         
-        disc_model_config = DiscriminatorModelConfig(
-                img_shape = (64,64,3),
-                disc_conv_layers=[
-                    DiscConvLayerConfig(64,  2, 3, sigmoid, self.norm_dict["batch_norm"]),
-                    DiscConvLayerConfig(128, 2, 3, sigmoid, self.norm_dict["batch_norm"]),
-                    DiscConvLayerConfig(256, 3, 3, sigmoid, self.norm_dict["batch_norm"]),
-                    DiscConvLayerConfig(512, 3, 3, sigmoid, self.norm_dict["batch_norm"])],
-                disc_dense_layers=[
-                    DiscDenseLayerConfig(4096, leakyRELU_dense, 0.5),
-                    DiscDenseLayerConfig(4096, leakyRELU_dense, 0.5),
-                    DiscDenseLayerConfig(1000, leakyRELU_dense, 0.5),
-                    DiscDenseLayerConfig(1,    sigmoid, 0.5)],
-                minibatch=True,
-                minibatch_size=32,
-                disc_optimizer = Adam(learning_rate=0.002,beta_1=0.0,beta_2=0.99,epsilon=1e-8)
-        )
         self.G = Generator(gen_model_config,self.batch_size,self.preview_size)
         self.generator = self.G.build()
-        
-        self.D = Discriminator(disc_model_config)
-        self.discriminator = self.D.build()
         
         out = self.discriminator(self.G.functional_model)
         gen_model = Model(inputs=self.G.input,outputs=out,name="Generator")
