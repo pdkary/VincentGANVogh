@@ -40,7 +40,7 @@ class GanTrainer(GanTrainingConfig):
       fake_label = self.gen_label*tf.ones_like(fake_out)
       
       loss = cross_entropy(fake_label,fake_out)
-      acc = 1 - sum(abs(fake_label - fake_out))/len(fake_label)
+      acc = self.gen_label - sum(abs(fake_label - fake_out))/len(fake_label)
       
       gradients_of_generator = gen_tape.gradient(loss,self.GenModel.trainable_variables)
       self.generator.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.GenModel.trainable_variables))
@@ -59,8 +59,8 @@ class GanTrainer(GanTrainingConfig):
       real_loss = cross_entropy(real_label, real_out)
       fake_loss = cross_entropy(fake_label, fake_out)
       
-      real_acc = 1 - sum(abs(real_label - real_out))/len(real_label)
-      fake_acc = 1 - sum(abs(fake_label - fake_out))/len(fake_label)
+      real_acc = self.disc_labels[0] - sum(abs(real_label - real_out))/len(real_label)
+      fake_acc = self.disc_labels[1] - sum(abs(fake_label - fake_out))/len(fake_label)
       
       loss = (real_loss + fake_loss)/2
       acc = (real_acc + fake_acc)/2
