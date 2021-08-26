@@ -41,14 +41,11 @@ class GanTrainer(GanTrainingConfig):
       
       fake_error = abs(fake_label - fake_out)
       loss = cross_entropy(fake_label,fake_out)
-      if self.gen_label == 0:
-        acc = 1 - np.average(fake_out)
-      else:
-        acc = 1 - sum(fake_error)/sum(fake_label)
+      g_avg = np.average(fake_out)
       
       gradients_of_generator = gen_tape.gradient(loss,self.GenModel.trainable_variables)
       self.generator.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.GenModel.trainable_variables))
-    return loss,acc
+    return loss,g_avg
 
   def train_discriminator(self,training_images):
     generator_input = self.generator.get_input()
@@ -60,28 +57,15 @@ class GanTrainer(GanTrainingConfig):
       real_label = self.disc_labels[0]*tf.ones_like(real_out)
       fake_label = self.disc_labels[1]*tf.ones_like(fake_out)
       
-      real_error = abs(real_label - real_out)
-      fake_error = abs(fake_label - fake_out)
       real_loss = cross_entropy(real_label, real_out)
       fake_loss = cross_entropy(fake_label, fake_out)
       
-      if self.disc_labels[0] == 0:
-        real_acc = 1 - np.average(real_out)
-      else:
-        real_acc = 1 - sum(real_error)/sum(real_label)
-        
-      
-      if self.disc_labels[1] == 0:
-        fake_acc = 1 - np.average(fake_out)
-      else:
-        real_acc = 1 - sum(fake_error)/sum(fake_label)
-      
       loss = (real_loss + fake_loss)/2
-      acc = (real_acc + fake_acc)/2
-      
+      d_avg = np.average(real_out)
+      g_avg = np.average(fake_out)      
       gradients_of_discriminator = disc_tape.gradient(loss,self.DisModel.trainable_variables)
       self.discriminator.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.DisModel.trainable_variables))
-    return loss,acc
+    return loss,d_avg,g_avg
     
   def train(self,epochs,batches_per_epoch,printerval):
     for epoch in range(epochs):
@@ -91,10 +75,10 @@ class GanTrainer(GanTrainingConfig):
       for i in range(batches_per_epoch):
         for source in self.image_sources:
           img_batch = source.get_batch()
-          bd_loss,bd_acc = self.train_discriminator(img_batch)
-          bg_loss,bg_acc = self.train_generator()
+          bd_loss,bd_avg,bg_avg = self.train_discriminator(img_batch)
+          bg_loss,bg_avg = self.train_generator()
           if self.plot:
-            self.gan_plotter.batch_update(bd_loss,bd_acc,bg_loss,bg_acc)
+            self.gan_plotter.batch_update(bd_loss,bd_avg,bg_avg,bg_loss,bg_avg)
       
       if self.plot: 
         self.gan_plotter.end_batch()
