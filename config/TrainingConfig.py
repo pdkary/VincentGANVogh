@@ -25,8 +25,8 @@ class DataConfig():
 class GanTrainingConfig():
   def __init__(self,
                plot: bool,
-               real_label: float,
-               fake_label: float):
+               disc_labels: Tuple[float,float],
+               gen_label: float):
     self.plot = plot
-    self.real_label = real_label
-    self.fake_label = fake_label
+    self.disc_labels = disc_labels
+    self.gen_label = gen_label
