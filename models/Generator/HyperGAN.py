@@ -45,7 +45,7 @@ class HyperGenerator(HyperModel):
         beta_1 = hp.Float("beta_1", 0.0, 0.99)
         beta_2 = hp.Float("beta_2", 0.0, 0.99)
 
-        latent_space_size = hp.Int("latent_space_size", 10, 500,step=10)
+        latent_space_size = 100
         kernel_size = hp.Choice("kernel_size", [1, 3, 5, 7])
         convolutions_per_layer = hp.Int("convolutions_per_layer", 1, 5)
 
