@@ -56,4 +56,4 @@ class GanPlotter:
         d_d_label,d_g_label,g_g_label = np.mean(d_d_label_ma_buffer), np.mean(d_g_label_ma_buffer), np.mean(g_g_label_ma_buffer)
         time_ma = np.mean(time_ma_buffer)
         
-        self.progress_plot.update([[self.d_loss,d_loss_ma],[self.d_davg,d_g_label],[self.g_loss,g_loss_ma],[self.g_gavg,g_g_label],[self.epoch_elapsed,time_ma]])
+        self.progress_plot.update([[self.d_loss,d_loss_ma],[self.d_davg,d_d_label],[self.d_gavg,d_g_label],[self.g_loss,g_loss_ma],[self.g_gavg,g_g_label],[self.epoch_elapsed,time_ma]])
