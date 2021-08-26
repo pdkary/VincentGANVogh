@@ -35,9 +35,9 @@ class HyperDiscriminator(HyperModel):
         return self.Dmodel
     
 class HyperGAN(HyperModel):
-    def __init__(self, name, tunable,hyper_discriminator,batch_size, preview_size):
+    def __init__(self, name, tunable,batch_size, preview_size):
         super().__init__(name=name, tunable=tunable)
-        self.hyper_descriminator = hyper_discriminator
+        self.hyper_descriminator = HyperDiscriminator("adv_discriminator",False)
         self.batch_size = batch_size
         self.preview_size = preview_size
     
