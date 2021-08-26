@@ -1,6 +1,3 @@
-
-
-
 import numpy as np
 import tensorflow as tf
 from models.GanInput import RealImageInput
@@ -8,8 +5,7 @@ from typing import List
 from keras_tuner import BayesianOptimization
 from numpy.lib.function_base import median
 from config.TrainingConfig import DataConfig, GanTrainingConfig
-from models.Generator.HyperGAN import HyperDiscriminator, HyperGAN, HyperGenerator
-
+from models.Generator.HyperGAN import HyperDiscriminator, HyperGAN
 
 class GanOptimizer(GanTrainingConfig):
     def __init__(self,
