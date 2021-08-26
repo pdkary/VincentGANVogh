@@ -1,6 +1,6 @@
 from config.CallableConfig import ActivationConfig, NormalizationConfig
 from typing import Tuple, List
-from keras.optimizers import Optimizer
+from tensorflow.keras.optimizers import Optimizer
     
 class DiscConvLayerConfig():
   def __init__(self,

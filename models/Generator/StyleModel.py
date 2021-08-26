@@ -1,7 +1,7 @@
-from keras.regularizers import L2
+from tensorflow.keras.regularizers import L2
 from config.GeneratorConfig import StyleModelConfig
-from keras.layers import Input
-from keras.layers import Dense
+from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import Dense
 import tensorflow as tf
 
 class StyleModel(StyleModelConfig):

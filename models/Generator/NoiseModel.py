@@ -1,9 +1,7 @@
-from keras.regularizers import L2
+from tensorflow.keras.regularizers import L2
 from config.GeneratorConfig import NoiseModelConfig
 from layers.AdaptiveAdd import AdaptiveAdd
-from keras.layers.convolutional import Cropping2D
-from keras.layers.core import Activation
-from keras.layers import Input,Cropping2D,Conv2D
+from tensorflow.keras.layers import Cropping2D, Activation, Input, Cropping2D, Conv2D
 import numpy as np
 import tensorflow as tf
 

@@ -4,9 +4,9 @@ from config.DiscriminatorConfig import *
 from models.GanInput import GenLatentSpaceInput
 from config.GeneratorConfig import *
 from config.CallableConfig import *
-from keras.optimizer_v2.adam import Adam
+from tensorflow.keras.optimizer_v2.adam import Adam
 from third_party_layers.InstanceNormalization import InstanceNormalization
-from keras.layers import BatchNormalization, LeakyReLU, Activation
+from tensorflow.keras.layers import BatchNormalization, LeakyReLU, Activation
 from trainers.GanTrainer import GanTrainer
 
 leakyRELU_style = ActivationConfig(LeakyReLU,dict(alpha=0.1))

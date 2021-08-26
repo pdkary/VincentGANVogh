@@ -1,4 +1,4 @@
-from keras.engine import input_layer
+from tensorflow.keras.engine import input_layer
 import numpy as np
 from config.GeneratorConfig import GeneratorModelConfig
 

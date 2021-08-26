@@ -1,4 +1,4 @@
-from keras.layers import Layer, Dense, Lambda
+from tensorflow.keras.layers import Layer, Dense, Lambda
 import tensorflow as tf
 import keras.backend as K
 

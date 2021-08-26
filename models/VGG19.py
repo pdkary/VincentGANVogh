@@ -1,6 +1,5 @@
-from keras.layers.core import Activation
 from config.DiscriminatorConfig import DiscriminatorModelConfig, DiscConvLayerConfig,DiscDenseLayerConfig, ActivationConfig, NormalizationConfig
-from keras.optimizer_v2.adam import Adam
+from tensorflow.keras.optimizers import Adam
 
 def get_vgg19(conv_activation:ActivationConfig,
               dense_activation:ActivationConfig,

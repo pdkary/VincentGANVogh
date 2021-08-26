@@ -3,8 +3,8 @@ from config.TrainingConfig import DataConfig, GanTrainingConfig
 from models.GanInput import GenLatentSpaceInput
 from config.GeneratorConfig import *
 from config.CallableConfig import *
-from keras.optimizers import Adam
-from keras.layers import BatchNormalization, LeakyReLU, Activation
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.layers import BatchNormalization, LeakyReLU, Activation
 from trainers.GanTrainer import GanTrainer
 
 from models.VGG19 import vgg19_config

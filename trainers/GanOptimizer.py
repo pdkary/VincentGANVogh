@@ -23,21 +23,23 @@ class GanOptimizer(GanTrainingConfig):
             objective="accuracy",
             max_trials=5)
 
-    def tune_on_batch(self,epoch):
+    def tune_on_batch(self,batch_id,epochs=20,print=False):
         gen_input = self.hyper_gan.G.get_input()
-        gen_images = self.hyper_gan.Gmodel(gen_input,training=False)
         real_images = self.image_source.get_batch()
         
-        self.gen_tuner.search(gen_input,tf.ones_like(shape=(self.batch_size)),epochs=5)
-        self.hyper_gan.discriminator.fit(real_images,tf.ones(shape=(self.batch_size)),epochs=5)
-        self.hyper_gan.discriminator.fit(gen_images,tf.zeros(shape=(self.batch_size)),epochs=5)
+        gen_images = self.hyper_gan.generator(gen_input,training=False)
         
-        preview_seed = self.hyper_gan.G.get_input(training=False)
-        generated_images = np.array(self.hyper_gan.Gmodel.predict(preview_seed))
-        self.image_source.save(epoch,generated_images)
+        self.gen_tuner.search(gen_input,tf.ones(shape=(self.batch_size)),epochs=epochs)
+        self.hyper_gan.discriminator.fit(real_images,tf.ones(shape=(self.batch_size)),epochs=epochs)
+        self.hyper_gan.discriminator.fit(gen_images,tf.zeros(shape=(self.batch_size)),epochs=epochs)
+        
+        if print:
+            preview_seed = self.hyper_gan.G.get_input(training=False)
+            generated_images = np.array(self.hyper_gan.generator.predict(preview_seed))
+            self.image_source.save(batch_id,generated_images)
     
-    def tune_n_batches(self,n):
+    def tune_n_batches(self,n,epochs,printerval=10):
         for i in range(n):
-            self.tune_on_batch(i)
+            self.tune_on_batch(i,epochs,i%printerval==0)
         filename = self.image_source.data_helper.model_name + "%d"%((i+1)*n)
-        self.hyper_gan.Gmodel.save(self.model_output_path + filename)
+        self.hyper_gan.generator.save(self.model_output_path + filename)

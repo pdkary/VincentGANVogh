@@ -1,6 +1,6 @@
 from GanConfig import ActivationConfig
 from typing import List, Tuple
-from keras.layers import Layer,Input,Conv2D
+from tensorflow.keras.layers import Layer,Input,Conv2D
 import tensorflow as tf
 from tensorflow.python.ops.gen_nn_ops import Conv2D
 

@@ -1,5 +1,5 @@
 from typing import List
-from keras.layers.convolutional import UpSampling2D
+from tensorflow.keras.layers.convolutional import UpSampling2D
 from numpy.lib.function_base import median
 from models.GanInput import RealImageInput
 from config.TrainingConfig import DataConfig, GanTrainingConfig
@@ -25,7 +25,7 @@ class GanTrainer(GanTrainingConfig):
     self.discriminator: Discriminator = Discriminator(disc_model_config)
     self.image_sources: List[RealImageInput] = [RealImageInput(d) for d in data_configs]
     
-    self.GenModel = self.generator.build_generator()
+    self.GenModel = self.generator.build()
     self.DisModel = self.discriminator.build()
     self.model_output_path = data_configs[0].data_path + "/models"
     

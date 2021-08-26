@@ -1,8 +1,8 @@
-from keras.regularizers import L2
+from tensorflow.keras.regularizers import L2
 from config.DiscriminatorConfig import DiscConvLayerConfig, DiscDenseLayerConfig, DiscriminatorModelConfig
 from third_party_layers.MinibatchDiscrimination import MinibatchDiscrimination
-from keras.layers import Dense,Dropout,Conv2D,MaxPooling2D,Flatten,Input
-from keras.models import Model
+from tensorflow.keras.layers import Dense,Dropout,Conv2D,MaxPooling2D,Flatten,Input
+from tensorflow.keras.models import Model
 
 class Discriminator(DiscriminatorModelConfig):
     def __init__(self,disc_model_config: DiscriminatorModelConfig):
@@ -21,6 +21,7 @@ class Discriminator(DiscriminatorModelConfig):
         for layer_config in self.disc_dense_layers:
             out = self.disc_dense_block(out,layer_config)
         
+        self.functional_model = out
         disc_model = Model(inputs=self.input,outputs=out,name="Discriminator")
         disc_model.compile(optimizer=self.disc_optimizer,
                            loss="binary_crossentropy",

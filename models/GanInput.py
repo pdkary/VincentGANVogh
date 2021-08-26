@@ -1,12 +1,10 @@
-from keras.regularizers import L2
 from config.CallableConfig import ActivationConfig
-from tensorflow._api.v2 import data
+from tensorflow.keras.regularizers import L2
 from helpers.DataHelper import DataHelper
 from config.TrainingConfig import DataConfig
 from typing import Tuple
-from keras.backend import prod
-from keras.layers import Input, Dense
-from keras.layers.core import Activation, Reshape
+from tensorflow.keras.backend import prod
+from tensorflow.keras.layers import Input, Dense, Activation, Reshape
 import tensorflow as tf
 import numpy as np
 from abc import ABC

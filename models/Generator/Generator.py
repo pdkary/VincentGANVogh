@@ -1,10 +1,9 @@
-from keras.regularizers import L2
+from tensorflow.keras.regularizers import L2
 from models.GanInput import RealImageInput
 import numpy as np
 from config.GeneratorConfig import GeneratorModelConfig, GenLayerConfig
-from keras.layers import Conv2D, Dense, UpSampling2D
-from keras.layers.convolutional import Conv2DTranspose
-from keras.models import Model
+from tensorflow.keras.layers import Conv2D, Dense, UpSampling2D, Conv2DTranspose
+from tensorflow.keras.models import Model
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from models.Generator.NoiseModel import NoiseModel
 from models.Generator.StyleModel import StyleModel
@@ -43,17 +42,18 @@ class Generator(GeneratorModelConfig):
             inp.append(self.noise_model.get_batch(batch_size))
         return inp
     
-    def build_generator(self):
+    def build(self):
         out = self.input_model.model
         for layer_config in list(self.gen_layers[0])[0]:
             out = self.generator_block(out,layer_config)
-        
+        self.functional_model = out
         gen_model = Model(inputs=self.input,outputs=out,name="Generator")
         gen_model.compile(optimizer=self.gen_optimizer,
                            loss="binary_crossentropy",
                            metrics=['accuracy'])
         gen_model.summary()
-        return gen_model 
+        return gen_model
+
 
     def generator_block(self,input_tensor,config: GenLayerConfig):
         out = input_tensor

@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from models.GanInput import GanInput
-from keras.optimizers import Optimizer
+from tensorflow.keras.optimizers import Optimizer
 from config.CallableConfig import ActivationConfig, NormalizationConfig
 
 class StyleModelConfig():
