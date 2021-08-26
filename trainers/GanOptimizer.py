@@ -25,12 +25,12 @@ class GanOptimizer(GanTrainingConfig):
         
         self.gen_tuner = BayesianOptimization(
             self.generator,
-            objective="val_accuracy",
+            objective="accuracy",
             max_trials=5)
         
         self.disc_tuner = BayesianOptimization(
             self.discriminator,
-            objective="val_accuracy",
+            objective="accuracy",
             max_trials=5)
 
     def tune(self):
@@ -39,6 +39,6 @@ class GanOptimizer(GanTrainingConfig):
         real_images = self.image_source.get_batch()
         
         self.gen_tuner.search(gen_input,real_images,epochs=2)
-        # self.disc_tuner.search(real_images,tf.ones(shape=(self.batch_size)),epochs=2)
-        # self.disc_tuner.search(gen_images,tf.zeros(shape=(self.batch_size)),epochs=2)
+        self.disc_tuner.search(real_images,tf.ones(shape=(self.batch_size)),epochs=2)
+        self.disc_tuner.search(gen_images,tf.zeros(shape=(self.batch_size)),epochs=2)
         
