@@ -12,21 +12,6 @@ import tensorflow as tf
 
 cross_entropy = tf.keras.losses.BinaryCrossentropy()
 
-def discriminator_loss(real_output, fake_output):
-  real_loss = cross_entropy(tf.ones_like(real_output), real_output)
-  real_acc = np.average(real_output)
-  fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
-  fake_acc = 1 - np.average(fake_output)
-  total_loss = real_loss + fake_loss
-  total_acc = (real_acc + fake_acc)/2
-  return total_loss,total_acc
- 
-def generator_loss(fake_output):
-  ones = tf.ones_like(fake_output)
-  loss = cross_entropy(ones,fake_output)
-  acc = np.average(fake_output)
-  return loss,acc
-
 class GanTrainer(GanTrainingConfig):
   def __init__(self,
                gen_model_config:    GeneratorModelConfig,
@@ -46,18 +31,20 @@ class GanTrainer(GanTrainingConfig):
     
     for source in self.image_sources:
       source.load()
-
       
   def train_generator(self):
     generator_input = self.generator.get_input()
     with tf.GradientTape() as gen_tape:
       generated_images = self.GenModel(generator_input,training=True)
-      discriminated_gens = self.DisModel(generated_images,training=False)
+      fake_out = self.DisModel(generated_images,training=False)
+      fake_labels = self.fake_label*tf.ones_like(fake_out)
       
-      g_loss,g_acc = generator_loss(discriminated_gens)
-      gradients_of_generator = gen_tape.gradient(g_loss,self.GenModel.trainable_variables)
+      loss = cross_entropy(fake_labels,fake_out)
+      acc = np.average(fake_out)
+      
+      gradients_of_generator = gen_tape.gradient(loss,self.GenModel.trainable_variables)
       self.generator.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.GenModel.trainable_variables))
-    return g_loss,g_acc
+    return loss,acc
 
   def train_discriminator(self,training_images):
     generator_input = self.generator.get_input()
@@ -66,11 +53,20 @@ class GanTrainer(GanTrainingConfig):
       generated_images = self.GenModel(generator_input,training=False)
       real_out = self.DisModel(training_images,training=True)
       fake_out = self.DisModel(generated_images,training=True)
+      real_label = self.real_label*tf.ones_like(real_out)
+      fake_label = self.fake_label*tf.ones_like(fake_out)
       
-      d_loss,d_acc = discriminator_loss(real_out,fake_out)
-      gradients_of_discriminator = disc_tape.gradient(d_loss,self.DisModel.trainable_variables)
+      real_loss = cross_entropy(real_label, real_out)
+      fake_loss = cross_entropy(fake_label, fake_out)
+      
+      real_acc = np.average(real_out)
+      fake_acc = 1 - np.average(fake_out)
+      loss = (real_loss + fake_loss)/2
+      acc = (real_acc + fake_acc)/2
+      
+      gradients_of_discriminator = disc_tape.gradient(loss,self.DisModel.trainable_variables)
       self.discriminator.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.DisModel.trainable_variables))
-    return d_loss,d_acc
+    return loss,acc
     
   def train(self,epochs,batches_per_epoch,printerval):
     for epoch in range(epochs):

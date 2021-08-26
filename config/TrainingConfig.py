@@ -23,5 +23,10 @@ class DataConfig():
         self.preview_margin = preview_margin
 
 class GanTrainingConfig():
-  def __init__(self,plot: bool):
+  def __init__(self,
+               plot: bool,
+               real_label: float,
+               fake_label: float):
     self.plot = plot
+    self.real_label = real_label
+    self.fake_label = fake_label
