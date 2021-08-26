@@ -59,19 +59,21 @@ class GanTrainer(GanTrainingConfig):
       real_label = self.disc_labels[0]*tf.ones_like(real_out)
       fake_label = self.disc_labels[1]*tf.ones_like(fake_out)
       
+      real_error = abs(real_label - real_out)
+      fake_error = abs(fake_label - fake_out)
       real_loss = cross_entropy(real_label, real_out)
       fake_loss = cross_entropy(fake_label, fake_out)
       
       if self.disc_labels[0] == 0:
         real_acc = 1 - np.average(real_out)
       else:
-        real_acc = 1 - sum(abs(real_label - real_out))/(self.disc_labels[0]*len(real_label))
+        real_acc = 1 - sum(real_error)/sum(real_label)
         
       
       if self.disc_labels[1] == 0:
         fake_acc = 1 - np.average(fake_out)
       else:
-        real_acc = 1 - sum(abs(fake_label - fake_out))/(self.disc_labels[1]*len(fake_label))
+        real_acc = 1 - sum(fake_error)/sum(fake_label)
       
       loss = (real_loss + fake_loss)/2
       acc = (real_acc + fake_acc)/2
