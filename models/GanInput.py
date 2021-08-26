@@ -1,3 +1,4 @@
+from keras.regularizers import L2
 from config.CallableConfig import ActivationConfig
 from tensorflow._api.v2 import data
 from helpers.DataHelper import DataHelper
