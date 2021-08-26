@@ -19,7 +19,7 @@ class GanOptimizer(GanTrainingConfig):
         self.discriminator = HyperDiscriminator("hyper_discriminator",True)
         self.batch_size = data_config.batch_size
         self.preview_size = data_config.preview_cols*data_config.preview_rows
-        self.generator = HyperGenerator("hyper_generator",True,4,24)
+        self.generator = HyperGenerator("hyper_generator",True,self.batch_size,self.preview_size)
         self.image_source: RealImageInput = RealImageInput(data_config)
         self.image_source.load()
         self.model_output_path = data_config.data_path + "/models"
