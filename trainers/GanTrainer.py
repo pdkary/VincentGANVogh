@@ -39,11 +39,12 @@ class GanTrainer(GanTrainingConfig):
       fake_out = self.DisModel(generated_images,training=False)
       fake_label = self.gen_label*tf.ones_like(fake_out)
       
+      fake_error = abs(fake_label - fake_out)
       loss = cross_entropy(fake_label,fake_out)
       if self.gen_label == 0:
         acc = 1 - np.average(fake_out)
       else:
-        acc = 1 - sum(abs(fake_label - fake_out))/(self.gen_label*len(fake_label))
+        acc = 1 - sum(fake_error)/sum(fake_label)
       
       gradients_of_generator = gen_tape.gradient(loss,self.GenModel.trainable_variables)
       self.generator.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.GenModel.trainable_variables))
