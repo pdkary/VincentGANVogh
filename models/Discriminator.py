@@ -1,3 +1,4 @@
+from keras.regularizers import L2
 from config.DiscriminatorConfig import DiscConvLayerConfig, DiscDenseLayerConfig, DiscriminatorModelConfig
 from third_party_layers.MinibatchDiscrimination import MinibatchDiscrimination
 from keras.layers import Dense,Dropout,Conv2D,MaxPooling2D,Flatten,Input
@@ -36,7 +37,7 @@ class Discriminator(DiscriminatorModelConfig):
     def disc_conv_block(self,input_tensor,config: DiscConvLayerConfig):
         out_cb = input_tensor
         for i in range(config.convolutions):
-            out_cb = Conv2D(config.filters,config.kernel_size,padding="same")(out_cb)
+            out_cb = Conv2D(config.filters,config.kernel_size,padding="same",kernel_regularizer=L2(), kernel_initializer="he_normal",)(out_cb)
             out_cb = config.normalization.get()(out_cb)
             out_cb = config.activation_config.get()(out_cb)
         out_cb = MaxPooling2D()(out_cb)

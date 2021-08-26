@@ -1,3 +1,4 @@
+from keras.regularizers import L2
 from models.GanInput import RealImageInput
 import numpy as np
 from config.GeneratorConfig import GeneratorModelConfig, GenLayerConfig
@@ -59,9 +60,9 @@ class Generator(GeneratorModelConfig):
         out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         for i in range(config.convolutions):
             if config.transpose:
-                out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,padding='same', kernel_initializer = 'he_normal')(out)
+                out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,padding='same',kernel_regularizer=L2(), kernel_initializer = 'he_normal')(out)
             else:
-                out = Conv2D(config.filters,config.kernel_size,config.strides,padding='same', kernel_initializer = 'he_normal')(out)
+                out = Conv2D(config.filters,config.kernel_size,config.strides,padding='same',kernel_regularizer=L2(), kernel_initializer = 'he_normal')(out)
             
             if config.noise:
                 out = self.noise_model.add(out)
