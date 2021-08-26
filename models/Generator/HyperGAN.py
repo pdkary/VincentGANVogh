@@ -9,35 +9,15 @@ from keras.layers import BatchNormalization, Activation, LeakyReLU
 from config.CallableConfig import ActivationConfig, NormalizationConfig
 from keras_tuner import HyperModel
 
-class HyperDiscriminator(HyperModel):
-    def __init__(self, name, tunable):
-        super().__init__(name=name, tunable=tunable)
-        
-    def build(self, hp):
-        convolutional_relu_alpha = hp.Float("conv_relu_alpha", 0.0, 1.0,step=0.03)
-        dense_relu_alpha = hp.Float("dense_relu_alpha", 0.0, 1.0, step=0.03)
-
-        leakyRELU_conv = ActivationConfig(LeakyReLU, dict(alpha=convolutional_relu_alpha))
-        leakyRELU_dense = ActivationConfig(LeakyReLU, dict(alpha=dense_relu_alpha))
-        sigmoid = ActivationConfig(Activation, dict(activation="sigmoid"))
-
-        batch_norm_momentum = hp.Float("batch_norm_momentum", 0.0, 1.0,step=0.05)
-
-        self.norm_dict = {
-            "batch_norm": NormalizationConfig(BatchNormalization, dict(momentum=batch_norm_momentum)),
-            "instance_norm": NormalizationConfig(InstanceNormalization)
-        }
-        normalization = hp.Choice("normalization", ["batch_norm", "instance_norm"])
-        
-        disc_model_config = get_vgg19(leakyRELU_conv, leakyRELU_dense, sigmoid, self.norm_dict[normalization])
-        self.D = Discriminator(disc_model_config)
-        self.Dmodel = self.D.build()
-        return self.Dmodel
+leakyRELU_conv = ActivationConfig(LeakyReLU, dict(alpha=0.05))
+leakyRELU_dense = ActivationConfig(LeakyReLU, dict(alpha=0.1))
+sigmoid = ActivationConfig(Activation, dict(activation="sigmoid"))
+instance_norm = NormalizationConfig(InstanceNormalization)
     
 class HyperGAN(HyperModel):
     def __init__(self, name, tunable,batch_size, preview_size):
         super().__init__(name=name, tunable=tunable)
-        self.hyper_descriminator = HyperDiscriminator("adv_discriminator",False)
+        self.discriminator = Discriminator(get_vgg19(leakyRELU_conv,leakyRELU_dense,sigmoid,instance_norm)).build()
         self.batch_size = batch_size
         self.preview_size = preview_size
     
@@ -91,5 +71,4 @@ class HyperGAN(HyperModel):
         self.G = Generator(gen_model_config,self.batch_size,self.preview_size)
         self.Gmodel = self.G.build_generator()
         
-        Dmodel = self.hyper_descriminator.build(hp)
-        return Dmodel(self.Gmodel)
+        return self.discriminator(self.Gmodel)
