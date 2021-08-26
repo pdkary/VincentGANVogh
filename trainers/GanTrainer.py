@@ -59,8 +59,8 @@ class GanTrainer(GanTrainingConfig):
       real_loss = cross_entropy(real_label, real_out)
       fake_loss = cross_entropy(fake_label, fake_out)
       
-      real_acc = np.average(real_out)
-      fake_acc = 1 - np.average(fake_out)
+      real_acc = (self.disc_labels[0] - np.average(real_out))/(self.disc_labels[0] + 1e-7)
+      fake_acc = (self.disc_labels[1] - np.average(fake_out))/(self.disc_labels[1] + 1e-7)
       loss = (real_loss + fake_loss)/2
       acc = (real_acc + fake_acc)/2
       
