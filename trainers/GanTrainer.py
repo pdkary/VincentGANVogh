@@ -37,10 +37,10 @@ class GanTrainer(GanTrainingConfig):
     with tf.GradientTape() as gen_tape:
       generated_images = self.GenModel(generator_input,training=True)
       fake_out = self.DisModel(generated_images,training=False)
-      fake_labels = self.gen_label*tf.ones_like(fake_out)
+      fake_label = self.gen_label*tf.ones_like(fake_out)
       
-      loss = cross_entropy(fake_labels,fake_out)
-      acc = np.average(fake_out)
+      loss = cross_entropy(fake_label,fake_out)
+      acc = sum(abs(fake_label - fake_out))/len(fake_label)
       
       gradients_of_generator = gen_tape.gradient(loss,self.GenModel.trainable_variables)
       self.generator.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.GenModel.trainable_variables))
@@ -59,8 +59,9 @@ class GanTrainer(GanTrainingConfig):
       real_loss = cross_entropy(real_label, real_out)
       fake_loss = cross_entropy(fake_label, fake_out)
       
-      real_acc = (self.disc_labels[0] - np.average(real_out))/(self.disc_labels[0] + 1e-7)
-      fake_acc = (self.disc_labels[1] - np.average(fake_out))/(self.disc_labels[1] + 1e-7)
+      real_acc = sum(abs(real_label - real_out))/len(real_label)
+      fake_acc = sum(abs(real_label - real_out))/len(real_label)
+      
       loss = (real_loss + fake_loss)/2
       acc = (real_acc + fake_acc)/2
       
