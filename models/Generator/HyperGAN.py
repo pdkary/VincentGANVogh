@@ -5,11 +5,10 @@ from keras.optimizer_v2.adam import Adam
 from models.GanInput import GenLatentSpaceInput
 from config.GeneratorConfig import GenLayerConfig, GeneratorModelConfig
 from third_party_layers.InstanceNormalization import InstanceNormalization
-from keras.layers.advanced_activations import LeakyReLU
-from keras.layers.core import Activation
-from keras.layers.normalization import BatchNormalization
+from keras.layers import BatchNormalization, Activation, LeakyReLU
 from config.CallableConfig import ActivationConfig, NormalizationConfig
 from keras_tuner import HyperModel
+
 class HyperDiscriminator(HyperModel):
     def __init__(self, name, tunable):
         super().__init__(name=name, tunable=tunable)
