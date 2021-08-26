@@ -85,8 +85,9 @@ class HyperGAN(HyperModel):
         
         self.G = Generator(gen_model_config,self.batch_size,self.preview_size)
         self.generator = self.G.build()
-        
-        out = self.discriminator(self.G.functional_model)
+        D = self.discriminator
+        D.trainable = False
+        out = D(self.G.functional_model)
         gen_model = Model(inputs=self.G.input,outputs=out,name="Generator")
         gen_model.compile(optimizer=self.G.gen_optimizer,
                            loss="binary_crossentropy",
