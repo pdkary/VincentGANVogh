@@ -8,7 +8,7 @@ from typing import List
 from keras_tuner import BayesianOptimization
 from numpy.lib.function_base import median
 from config.TrainingConfig import DataConfig, GanTrainingConfig
-from models.Generator.HyperGAN import HyperDiscriminator, HyperGenerator
+from models.Generator.HyperGAN import HyperDiscriminator, HyperGAN, HyperGenerator
 
 
 class GanOptimizer(GanTrainingConfig):
@@ -19,7 +19,7 @@ class GanOptimizer(GanTrainingConfig):
         self.discriminator = HyperDiscriminator("hyper_discriminator",True)
         self.batch_size = data_config.batch_size
         self.preview_size = data_config.preview_cols*data_config.preview_rows
-        self.generator = HyperGenerator("hyper_generator",True,self.batch_size,self.preview_size)
+        self.generator = HyperGAN("hyper_generator",True,self.discriminator,self.batch_size,self.preview_size)
         self.image_source: RealImageInput = RealImageInput(data_config)
         self.image_source.load()
         self.model_output_path = data_config.data_path + "/models"
@@ -39,7 +39,7 @@ class GanOptimizer(GanTrainingConfig):
         gen_images = self.generator.Gmodel(gen_input,training=False)
         real_images = self.image_source.get_batch()
         
-        self.gen_tuner.search(gen_input,real_images,epochs=5)
+        self.gen_tuner.search(gen_input,tf.ones_like(shape=(self.batch_size)),epochs=5)
         self.disc_tuner.search(real_images,tf.ones(shape=(self.batch_size)),epochs=5)
         self.disc_tuner.search(gen_images,tf.zeros(shape=(self.batch_size)),epochs=5)
         

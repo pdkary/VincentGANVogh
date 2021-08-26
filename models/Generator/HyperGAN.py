@@ -34,9 +34,10 @@ class HyperDiscriminator(HyperModel):
         self.Dmodel = self.D.build()
         return self.Dmodel
     
-class HyperGenerator(HyperModel):
-    def __init__(self, name, tunable,batch_size, preview_size):
+class HyperGAN(HyperModel):
+    def __init__(self, name, tunable,hyper_discriminator,batch_size, preview_size):
         super().__init__(name=name, tunable=tunable)
+        self.hyper_descriminator = hyper_discriminator
         self.batch_size = batch_size
         self.preview_size = preview_size
     
@@ -89,4 +90,6 @@ class HyperGenerator(HyperModel):
         )
         self.G = Generator(gen_model_config,self.batch_size,self.preview_size)
         self.Gmodel = self.G.build_generator()
-        return self.Gmodel
+        
+        Dmodel = self.hyper_descriminator.build(hp)
+        return Dmodel(self.Gmodel)
