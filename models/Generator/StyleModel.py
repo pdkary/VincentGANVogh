@@ -1,3 +1,4 @@
+from keras.regularizers import L2
 from config.GeneratorConfig import StyleModelConfig
 from keras.layers import Input
 from keras.layers import Dense
@@ -9,7 +10,7 @@ class StyleModel(StyleModelConfig):
         self.input = Input(shape=self.style_latent_size, name="style_model_input")
         self.model = self.input
         for i in range(self.style_layers):
-            self.model = Dense(self.style_latent_size, kernel_initializer = 'he_normal')(self.model)
+            self.model = Dense(self.style_latent_size, kernel_regularizer=L2(), kernel_initializer = 'he_normal')(self.model)
             self.model = self.style_activation.get()(self.model)
     
     def get_batch(self,batch_size:int):
