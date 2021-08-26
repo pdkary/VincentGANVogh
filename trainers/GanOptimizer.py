@@ -35,10 +35,10 @@ class GanOptimizer(GanTrainingConfig):
 
     def tune(self):
         gen_input = self.generator.G.get_input()
-        gen_images = self.generator.G(gen_input,training=False)
+        gen_images = self.generator.Gmodel(gen_input,training=False)
         
-        disc_gens = self.discriminator.D(gen_images,training=False)
-        disc_reals = self.discriminator.D(self.image_source.get_batch())
+        disc_gens = self.discriminator.Dmodel(gen_images,training=False)
+        disc_reals = self.discriminator.Dmodel(self.image_source.get_batch())
         
         self.gen_tuner.search(tf.ones_like(disc_gens),disc_gens,epochs=2)
         self.disc_tuner.search(tf.ones_like(disc_reals),disc_reals,epochs=2)

@@ -31,7 +31,8 @@ class HyperDiscriminator(HyperModel):
         
         disc_model_config = get_vgg19(leakyRELU_conv, leakyRELU_dense, sigmoid, self.norm_dict[normalization])
         self.D = Discriminator(disc_model_config)
-        return self.D.build()
+        self.Dmodel = self.D.build()
+        return self.Dmodel
     
 class HyperGenerator(HyperModel):
     def __init__(self, name, tunable,batch_size, preview_size):
@@ -87,4 +88,5 @@ class HyperGenerator(HyperModel):
             normalization=self.norm_dict[normalization]
         )
         self.G = Generator(gen_model_config,self.batch_size,self.preview_size)
-        return self.G.build_generator()
+        self.Gmodel = self.G.build_generator()
+        return self.Gmodel
