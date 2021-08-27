@@ -1,7 +1,7 @@
 from config.TrainingConfig import DataConfig
 import os
 import glob
-from PIL import Image
+from PIL import Image, ImageOps
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -56,10 +56,10 @@ class DataHelper(DataConfig):
         channels = self.image_shape[-1]
         preview_height = self.preview_rows*img_size + \
             (self.preview_cols + 1)*self.preview_margin
-        preview_cols = self.preview_cols*img_size + \
+        preview_width = self.preview_cols*img_size + \
             (self.preview_cols + 1)*self.preview_margin
         image_array = np.full(
-            (preview_height, preview_cols, channels), 255, dtype=np.uint8)
+            (preview_height, preview_width, channels), 255, dtype=np.uint8)
         for row in range(self.preview_rows):
             for col in range(self.preview_cols):
                 r = row * (img_size+self.preview_margin) + self.preview_margin
@@ -67,13 +67,13 @@ class DataHelper(DataConfig):
                 img = generated_images[image_count]
                 img_min = np.min(img)
                 img_max = np.max(img)
-                image_array[r:r+img_size, c:c+img_size] = 255 * \
-                    (img - img_min)/(img_max - img_min + 1e-5)
+                scaled_img = (img - img_min)/(img_max - img_min + 1e-5)
+                image_array[r:r+img_size, c:c+img_size] = scaled_img
                 image_count += 1
 
         filename = os.path.join(self.image_output_path, f"train-{epoch}" + self.image_type)
+        img_array = (255*image_array).astype(np.uint8)
         if channels == 1:
-            im = Image.fromarray(image_array[0], mode='L')
-        else:
-            im = Image.fromarray(image_array)
+            img_array = np.reshape(img_array,newshape=(preview_height,preview_width))
+        im = Image.fromarray(img_array)
         im.save(filename)
