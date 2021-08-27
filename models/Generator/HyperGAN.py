@@ -43,11 +43,6 @@ class HyperGAN(HyperModel):
         self.discriminator = self.D.build()
     
     def build(self,hp):
-        learning_rate = hp.Float("learning_rate", 1e-6, 1e-2)
-        beta_1 = hp.Float("beta_1", 0.0, 0.99)
-        beta_2 = hp.Float("beta_2", 0.0, 0.99)
-
-        latent_space_size = 100
         kernel_size = hp.Choice("kernel_size", [1, 3, 5, 7])
         convolutions_per_layer = hp.Int("convolutions_per_layer", 1, 5)
         
@@ -68,18 +63,16 @@ class HyperGAN(HyperModel):
         }
         normalization = hp.Choice("normalization", ["batch_norm", "instance_norm"])
 
-        image_shape = (256, 256, 3)
-
         gen_model_config = GeneratorModelConfig(
-            img_shape=image_shape,
-            input_model=GenLatentSpaceInput(latent_space_size, (4, 4, 512), 100, 0, leakyRELU_dense),
+            img_shape=(64,64,3),
+            input_model=GenLatentSpaceInput(100, (4, 4, 512), 100, 0, leakyRELU_dense),
             gen_layers=[
                 GenLayerConfig(layer_1_filters,  convolutions_per_layer, kernel_size, lr_conv, upsampling=True),
                 GenLayerConfig(layer_2_filters,  convolutions_per_layer, kernel_size, lr_conv, upsampling=True),
                 GenLayerConfig(layer_3_filters,  convolutions_per_layer, kernel_size, lr_conv, upsampling=True),
                 GenLayerConfig(layer_4_filters,  convolutions_per_layer, kernel_size, lr_conv, upsampling=True),
                 GenLayerConfig(3,    1, 1, sigmoid,   upsampling=False)],
-            gen_optimizer=Adam(learning_rate=learning_rate, beta_1=beta_1,beta_2=beta_2, epsilon=1e-7),
+            gen_optimizer=Adam(learning_rate=0.002, beta_1=0.0,beta_2=0.99, epsilon=1e-7),
             normalization=self.norm_dict[normalization]
         )
         
