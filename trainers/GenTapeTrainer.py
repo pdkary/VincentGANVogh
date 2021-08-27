@@ -33,7 +33,7 @@ class GenTapeTrainer(GanTrainingConfig):
     generator_input = self.G.get_input()
     with tf.GradientTape() as gen_tape:
       generated_images = self.generator(generator_input,training=True)
-      fake_out = self.discriminator.predict(generated_images)
+      fake_out = self.discriminator(generated_images,training=False)
       fake_label = self.gen_label*tf.ones_like(fake_out)
       
       loss = self.G.loss_function(fake_label,fake_out)
@@ -47,7 +47,7 @@ class GenTapeTrainer(GanTrainingConfig):
     generator_input = self.G.get_input()
     
     with tf.GradientTape() as disc_tape:
-      generated_images = self.generator.predict(generator_input)
+      generated_images = self.generator(generator_input,training=False)
       real_out = self.discriminator(training_images,training=True)
       fake_out = self.discriminator(generated_images,training=True)
       real_label = self.disc_labels[0]*tf.ones_like(real_out)
