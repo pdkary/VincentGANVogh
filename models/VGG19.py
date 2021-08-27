@@ -2,12 +2,13 @@ from tensorflow.python.keras.losses import BinaryCrossentropy
 from config.DiscriminatorConfig import DiscriminatorModelConfig, DiscConvLayerConfig,DiscDenseLayerConfig, ActivationConfig, NormalizationConfig
 from tensorflow.keras.optimizers import Adam
 
-def get_vgg19(conv_activation:ActivationConfig,
+def get_vgg19(input_channels:int,
+              conv_activation:ActivationConfig,
               dense_activation:ActivationConfig,
               final_activation:ActivationConfig,
               normalization:NormalizationConfig):
     return DiscriminatorModelConfig(
-        img_shape = (256,256,3),
+        img_shape = (256,256,input_channels),
         disc_conv_layers=[
             DiscConvLayerConfig(64,  2, 3, conv_activation, normalization),
             DiscConvLayerConfig(128, 2, 3, conv_activation, normalization),

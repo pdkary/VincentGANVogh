@@ -29,10 +29,13 @@ class DataHelper(DataConfig):
                 img = img.convert('RGB')
             elif channels == 1:
                 img = img.convert('L')
-            img = img.resize(size=(img_rows, img_cols),
-                             resample=Image.ANTIALIAS)
+                # 
+                
+            img = img.resize(size=(img_rows, img_cols),resample=Image.ANTIALIAS)
             img = np.array(img).astype('float32')
             img = img/255
+            if channels == 1:
+                img = np.expand_dims(img,axis=-1)
             x.append(img)
             if self.flip_lr:
                 x.append(np.fliplr(img))
