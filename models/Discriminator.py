@@ -24,7 +24,7 @@ class Discriminator(DiscriminatorModelConfig):
         self.functional_model = out
         disc_model = Model(inputs=self.input,outputs=out,name="Discriminator")
         disc_model.compile(optimizer=self.disc_optimizer,
-                           loss="binary_crossentropy",
+                           loss=self.loss_function,
                            metrics=['accuracy'])
         disc_model.summary()
         return disc_model

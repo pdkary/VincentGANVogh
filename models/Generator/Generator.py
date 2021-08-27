@@ -49,7 +49,7 @@ class Generator(GeneratorModelConfig):
         self.functional_model = out
         gen_model = Model(inputs=self.input,outputs=out,name="Generator")
         gen_model.compile(optimizer=self.gen_optimizer,
-                           loss="binary_crossentropy",
+                           loss=self.loss_function,
                            metrics=['accuracy'])
         if print_summary:
             gen_model.summary()

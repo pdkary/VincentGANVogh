@@ -1,3 +1,4 @@
+from tensorflow.python.keras.losses import BinaryCrossentropy
 from config.DiscriminatorConfig import DiscriminatorModelConfig, DiscConvLayerConfig,DiscDenseLayerConfig, ActivationConfig, NormalizationConfig
 from tensorflow.keras.optimizers import Adam
 
@@ -20,5 +21,6 @@ def get_vgg19(conv_activation:ActivationConfig,
             DiscDenseLayerConfig(1,    final_activation, 0.5)],
         minibatch=True,
         minibatch_size=32,
-        disc_optimizer = Adam(learning_rate=0.002,beta_1=0.0,beta_2=0.99,epsilon=1e-8))
+        disc_optimizer = Adam(learning_rate=0.002,beta_1=0.0,beta_2=0.99,epsilon=1e-8),
+        loss_function=BinaryCrossentropy())
     
