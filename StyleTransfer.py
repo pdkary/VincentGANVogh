@@ -3,10 +3,10 @@ from config.DiscriminatorConfig import *
 from models.GanInput import RealImageInput
 from config.GeneratorConfig import *
 from config.CallableConfig import *
-from tensorflow.keras.optimizer_v2.adam import Adam
+from tensorflow.keras.optimizers import Adam
 from third_party_layers.InstanceNormalization import InstanceNormalization
 from tensorflow.keras.layers import BatchNormalization, LeakyReLU, Activation
-from trainers.GanTrainer import GanTrainer
+from trainers.GenTapeTrainer import GenTapeTrainer
 
 from google.colab import drive
 drive.mount('/content/drive')
@@ -92,4 +92,4 @@ gan_training_config = GanTrainingConfig(
     plot=True
 )
 
-VGV = GanTrainer(gen_model_config,disc_model_config,gan_training_config,style_data_config)
+VGV = GenTapeTrainer(gen_model_config,disc_model_config,gan_training_config,style_data_config)

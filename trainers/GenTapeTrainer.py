@@ -1,5 +1,4 @@
 from typing import List
-from tensorflow.keras.layers.convolutional import UpSampling2D
 from numpy.lib.function_base import median
 from models.GanInput import RealImageInput
 from config.TrainingConfig import DataConfig, GanTrainingConfig
@@ -12,7 +11,7 @@ import tensorflow as tf
 
 cross_entropy = tf.keras.losses.BinaryCrossentropy()
 
-class GanTrainer(GanTrainingConfig):
+class GenTapeTrainer(GanTrainingConfig):
   def __init__(self,
                gen_model_config:    GeneratorModelConfig,
                disc_model_config:   DiscriminatorModelConfig,
@@ -39,7 +38,6 @@ class GanTrainer(GanTrainingConfig):
       fake_out = self.DisModel(generated_images,training=False)
       fake_label = self.gen_label*tf.ones_like(fake_out)
       
-      fake_error = abs(fake_label - fake_out)
       loss = cross_entropy(fake_label,fake_out)
       g_avg = np.average(fake_out)
       
