@@ -1,3 +1,4 @@
+from trainers.GenTapeTrainer import GenTapeTrainer
 from helpers.GanValidator import GanValidator
 from config.TrainingConfig import DataConfig, GanTrainingConfig
 from models.GanInput import GenLatentSpaceInput
@@ -5,7 +6,6 @@ from config.GeneratorConfig import *
 from config.CallableConfig import *
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import BatchNormalization, LeakyReLU, Activation
-from trainers.GanTrainer import GanTrainer
 
 from models.VGG19 import vgg19_config
 
@@ -53,6 +53,6 @@ noise_pass = validator.validate_noise(gen_model_config)
 all_pass = size_pass and style_pass and noise_pass
 
 if all_pass:
-    VGV = GanTrainer(gen_model_config,vgg19_config,gan_training_config,[data_config])
+    VGV = GenTapeTrainer(gen_model_config,vgg19_config,gan_training_config,[data_config])
 if all_pass:
     VGV.train_n_eras(eras=1,epochs=10,batches_per_epoch=1,printerval=2,ma_size=1)

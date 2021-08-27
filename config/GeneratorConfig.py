@@ -2,6 +2,7 @@ from typing import List, Tuple
 from models.GanInput import GanInput
 from tensorflow.keras.optimizers import Optimizer
 from config.CallableConfig import ActivationConfig, NormalizationConfig
+from tensorflow.keras.losses import Loss
 
 class StyleModelConfig():
   def __init__(self,
@@ -50,6 +51,7 @@ class GeneratorModelConfig():
                input_model: GanInput,
                gen_layers: List[GenLayerConfig],
                gen_optimizer: Optimizer,
+               loss_function: Loss,
                style_model_config: StyleModelConfig = None,
                noise_model_config: NoiseModelConfig = None,
                normalization: NormalizationConfig = None):
@@ -57,6 +59,7 @@ class GeneratorModelConfig():
     self.input_model = input_model
     self.gen_layers = gen_layers,
     self.gen_optimizer = gen_optimizer
+    self.loss_function = loss_function
     self.style_model_config = style_model_config
     self.noise_model_config = noise_model_config
     self.normalization = normalization

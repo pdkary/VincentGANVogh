@@ -1,6 +1,7 @@
-from config.CallableConfig import ActivationConfig, NormalizationConfig
 from typing import Tuple, List
+from config.CallableConfig import ActivationConfig, NormalizationConfig
 from tensorflow.keras.optimizers import Optimizer
+from tensorflow.keras.losses import Loss
     
 class DiscConvLayerConfig():
   def __init__(self,
@@ -31,10 +32,12 @@ class DiscriminatorModelConfig():
                disc_dense_layers: List[DiscDenseLayerConfig],
                minibatch: int,
                minibatch_size: int,
-               disc_optimizer: Optimizer):
+               disc_optimizer: Optimizer,
+               loss_function: Loss):
     self.img_shape = img_shape
     self.disc_conv_layers = disc_conv_layers
     self.disc_dense_layers = disc_dense_layers
     self.minibatch = minibatch
     self.minibatch_size = minibatch_size
     self.disc_optimizer = disc_optimizer
+    self.loss_function = loss_function
