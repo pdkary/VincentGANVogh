@@ -55,16 +55,20 @@ class DataHelper(DataConfig):
         img_size = self.image_shape[1]
         channels = self.image_shape[-1]
         preview_height = self.preview_rows*img_size + \
-            (self.preview_cols + 1)*self.preview_margin
+            (self.preview_rows + 1)*self.preview_margin
         preview_width = self.preview_cols*img_size + \
             (self.preview_cols + 1)*self.preview_margin
-        image_array = np.full(
-            (preview_height, preview_width, channels), 255, dtype=np.uint8)
+        if channels ==1:
+            image_array = np.full((preview_height, preview_width), 255, dtype=np.uint8)
+        else:
+            image_array = np.full((preview_height, preview_width, channels), 255, dtype=np.uint8)
         for row in range(self.preview_rows):
             for col in range(self.preview_cols):
                 r = row * (img_size+self.preview_margin) + self.preview_margin
                 c = col * (img_size+self.preview_margin) + self.preview_margin
                 img = generated_images[image_count]
+                if channels == 1:
+                    img = np.reshape(img,newshape=(img_size,img_size))
                 img_min = np.min(img)
                 img_max = np.max(img)
                 scaled_img = (img - img_min)/(img_max - img_min + 1e-5)
@@ -72,8 +76,5 @@ class DataHelper(DataConfig):
                 image_count += 1
 
         filename = os.path.join(self.image_output_path, f"train-{epoch}" + self.image_type)
-        img_array = (255*image_array).astype(np.uint8)
-        if channels == 1:
-            img_array = np.reshape(img_array,newshape=(preview_height,preview_width))
-        im = Image.fromarray(img_array)
+        im = Image.fromarray(image_array.astype(np.uint8))
         im.save(filename)

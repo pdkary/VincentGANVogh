@@ -63,8 +63,8 @@ data_config = DataConfig(
     model_name='/simplegan_generator_model_',
     flip_lr=False,
     load_n_percent=10,
-    preview_rows=2,
-    preview_cols=2,
+    preview_rows=5,
+    preview_cols=4,
     preview_margin=16
 )
  
