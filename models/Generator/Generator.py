@@ -47,7 +47,7 @@ class Generator(GeneratorModelConfig):
         for layer_config in list(self.gen_layers[0])[0]:
             out = self.generator_block(out,layer_config)
         self.functional_model = out
-        gen_model = Model(inputs=self.input,outputs=out,name="Generator")
+        gen_model = Model(inputs=self.input,outputs=out,name="generator")
         gen_model.compile(optimizer=self.gen_optimizer,
                            loss=self.loss_function,
                            metrics=['accuracy'])

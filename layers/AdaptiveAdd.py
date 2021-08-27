@@ -8,7 +8,8 @@ class AdaptiveAdd(Layer):
             shape=(1,1),
             dtype=tf.float32,
             initializer='zeros',
-            trainable=True)
+            trainable=True,
+            name="noise_coefficient")
 
     def call(self, inputs):
         conv_tensor,noise_tensor = inputs

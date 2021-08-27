@@ -94,4 +94,5 @@ class GenTapeTrainer(GanTrainingConfig):
     for i in range(eras):
       self.train(epochs,batches_per_epoch,printerval)
       filename = self.image_sources[0].data_helper.model_name + "%d"%((i+1)*epochs)
+      print(self.model_output_path + filename)
       self.generator.save(self.model_output_path + filename)

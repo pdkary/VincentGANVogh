@@ -59,20 +59,20 @@ data_config = DataConfig(
     data_path='test_images',   
     image_type=".png",
     image_shape=(256,256,1),
-    batch_size=4,
+    batch_size=1,
     model_name='/simplegan_generator_model_',
     flip_lr=False,
     load_n_percent=10,
-    preview_rows=4,
-    preview_cols=6,
+    preview_rows=2,
+    preview_cols=2,
     preview_margin=16
 )
  
 VGV = GenTapeTrainer(gen_model_config,disc_model_config,gan_training_config,[data_config])
 
 #TRAINING
-ERAS = 100
-EPOCHS = 5000
+ERAS = 1
+EPOCHS = 1
 BATCHES_PER_EPOCH = 1
 PRINT_EVERY = 10
 MOVING_AVERAGE_SIZE = 20
