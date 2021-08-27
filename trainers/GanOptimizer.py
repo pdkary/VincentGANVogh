@@ -23,17 +23,20 @@ class GanOptimizer(GanTrainingConfig):
             objective="accuracy",
             max_trials=5)
 
-    def tune_on_batch(self,batch_id,epochs=20,print=False):
+    def tune_on_batch(self,batch_id,epochs=20,save_images=False):
         gen_input = self.hyper_gan.G.get_input()
         real_images = self.image_source.get_batch()
         
         gen_images = self.hyper_gan.generator(gen_input,training=False)
         
+        print("="*100 + "     GENERATOR TRAINING      " + "="*100)
         self.gen_tuner.search(gen_input,tf.ones(shape=(self.batch_size)),epochs=epochs)
+        print("="*100 + "     DISCRIMINATOR TRAINING      " + "="*100)
         self.hyper_gan.discriminator.fit(real_images,tf.ones(shape=(self.batch_size)),epochs=epochs)
         self.hyper_gan.discriminator.fit(gen_images,tf.zeros(shape=(self.batch_size)),epochs=epochs)
         
-        if print:
+        if save_images:
+            print("="*100 + "     SAVING IMAGES      " + "="*100)
             preview_seed = self.hyper_gan.G.get_input(training=False)
             generated_images = np.array(self.hyper_gan.generator.predict(preview_seed))
             self.image_source.save(batch_id,generated_images)

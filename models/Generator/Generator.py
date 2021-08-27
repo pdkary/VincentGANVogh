@@ -42,7 +42,7 @@ class Generator(GeneratorModelConfig):
             inp.append(self.noise_model.get_batch(batch_size))
         return inp
     
-    def build(self):
+    def build(self,print_summary=True):
         out = self.input_model.model
         for layer_config in list(self.gen_layers[0])[0]:
             out = self.generator_block(out,layer_config)
@@ -51,7 +51,8 @@ class Generator(GeneratorModelConfig):
         gen_model.compile(optimizer=self.gen_optimizer,
                            loss="binary_crossentropy",
                            metrics=['accuracy'])
-        gen_model.summary()
+        if print_summary:
+            gen_model.summary()
         return gen_model
 
 
