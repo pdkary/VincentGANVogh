@@ -1,5 +1,6 @@
 from tensorflow.keras.layers import Layer
 import tensorflow as tf
+import tensorflow.keras.backend as K
 
 class AdaptiveAdd(Layer):
     def __init__(self):
@@ -9,10 +10,11 @@ class AdaptiveAdd(Layer):
             dtype=tf.float32,
             initializer='zeros',
             trainable=True,
-            name="noise_coefficient")
+            name="add_coefficient")
 
     def call(self, inputs):
         conv_tensor,noise_tensor = inputs
-        weights = tf.nn.softmax(self.W, axis=-1)
+        noise_tensor = (noise_tensor - K.mean(noise_tensor))/K.std(noise_tensor)
+        weights = tf.nn.sigmoid(self.W, axis=-1)
         out = conv_tensor + weights*noise_tensor
         return out
