@@ -15,6 +15,6 @@ class AdaptiveAdd(Layer):
     def call(self, inputs):
         conv_tensor,noise_tensor = inputs
         noise_tensor = (noise_tensor - K.mean(noise_tensor))/K.std(noise_tensor)
-        weights = tf.nn.sigmoid(self.W, axis=-1)
+        weights = tf.nn.sigmoid(self.W)
         out = conv_tensor + weights*noise_tensor
         return out
