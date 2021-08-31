@@ -7,7 +7,8 @@ def get_vgg19(input_channels:int,
               dense_activation:ActivationConfig,
               final_activation:ActivationConfig,
               normalization:NormalizationConfig,
-              optimizer: Optimizer):
+              optimizer: Optimizer,
+              minibatch_size:int = 32):
     return DiscriminatorModelConfig(
         img_shape = (256,256,input_channels),
         disc_conv_layers=[
@@ -22,7 +23,7 @@ def get_vgg19(input_channels:int,
             DiscDenseLayerConfig(1000, dense_activation, 0.5),
             DiscDenseLayerConfig(1,    final_activation, 0.5)],
         minibatch=True,
-        minibatch_size=32,
+        minibatch_size=minibatch_size,
         disc_optimizer = optimizer,
         loss_function=BinaryCrossentropy())
     

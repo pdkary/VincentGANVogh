@@ -45,15 +45,15 @@ class GanPlotter:
         self.g_g_label_ma_buffer.append(self.g_gavg)
         self.time_ma_buffer.append(self.epoch_elapsed)
         
-        d_loss_ma_buffer = self.d_loss_ma_buffer[1:] if len(self.d_loss_ma_buffer) >= self.moving_average_size else self.d_loss_ma_buffer
-        g_loss_ma_buffer = self.g_loss_ma_buffer[1:] if len(self.g_loss_ma_buffer) >= self.moving_average_size else self.g_loss_ma_buffer
-        d_d_label_ma_buffer = self.d_d_label_ma_buffer[1:] if len(self.d_d_label_ma_buffer) >= self.moving_average_size else self.d_d_label_ma_buffer
-        d_g_label_ma_buffer = self.d_g_label_ma_buffer[1:] if len(self.d_g_label_ma_buffer) >= self.moving_average_size else self.d_g_label_ma_buffer
-        g_g_label_ma_buffer = self.g_g_label_ma_buffer[1:] if len(self.g_g_label_ma_buffer) >= self.moving_average_size else self.g_g_label_ma_buffer
-        time_ma_buffer = self.time_ma_buffer[1:] if len(self.time_ma_buffer) >= self.moving_average_size else self.time_ma_buffer
+        self.d_loss_ma_buffer = self.d_loss_ma_buffer[1:] if len(self.d_loss_ma_buffer) >= self.moving_average_size else self.d_loss_ma_buffer
+        self.g_loss_ma_buffer = self.g_loss_ma_buffer[1:] if len(self.g_loss_ma_buffer) >= self.moving_average_size else self.g_loss_ma_buffer
+        self.d_d_label_ma_buffer = self.d_d_label_ma_buffer[1:] if len(self.d_d_label_ma_buffer) >= self.moving_average_size else self.d_d_label_ma_buffer
+        self.d_g_label_ma_buffer = self.d_g_label_ma_buffer[1:] if len(self.d_g_label_ma_buffer) >= self.moving_average_size else self.d_g_label_ma_buffer
+        self.g_g_label_ma_buffer = self.g_g_label_ma_buffer[1:] if len(self.g_g_label_ma_buffer) >= self.moving_average_size else self.g_g_label_ma_buffer
+        self.time_ma_buffer = self.time_ma_buffer[1:] if len(self.time_ma_buffer) >= self.moving_average_size else self.time_ma_buffer
 
-        d_loss_ma,g_loss_ma = np.mean(d_loss_ma_buffer),np.mean(g_loss_ma_buffer)
-        d_d_label,d_g_label,g_g_label = np.mean(d_d_label_ma_buffer), np.mean(d_g_label_ma_buffer), np.mean(g_g_label_ma_buffer)
-        time_ma = np.mean(time_ma_buffer)
+        d_loss_ma,g_loss_ma = np.mean(self.d_loss_ma_buffer),np.mean(self.g_loss_ma_buffer)
+        d_d_label,d_g_label,g_g_label = np.mean(self.d_d_label_ma_buffer), np.mean(self.d_g_label_ma_buffer), np.mean(self.g_g_label_ma_buffer)
+        time_ma = np.mean(self.time_ma_buffer)
         
         self.progress_plot.update([[self.d_loss,d_loss_ma],[self.d_davg,d_d_label],[self.d_gavg,d_g_label],[self.g_loss,g_loss_ma],[self.g_gavg,g_g_label],[self.epoch_elapsed,time_ma]])
