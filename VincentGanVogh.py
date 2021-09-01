@@ -29,7 +29,7 @@ gen_model_config = GeneratorModelConfig(
     noise_model_config = NoiseModelConfig(
         noise_image_size = (256,256,1),
         kernel_size = 1,
-        gauss_factor = 1),
+        max_std_dev = 1),
     
     gen_layers = [
         GenLayerConfig(512,  4, 3, leakyRELU_conv, upsampling=False, style=False, noise=False),

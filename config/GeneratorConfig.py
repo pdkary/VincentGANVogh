@@ -19,10 +19,10 @@ class NoiseModelConfig():
   def __init__(self,
                noise_image_size: Tuple[int,int,int],
                kernel_size: int,
-               gauss_factor: float):
+               max_std_dev: float):
     self.noise_image_size = noise_image_size
     self.kernel_size = kernel_size
-    self.gauss_factor = gauss_factor
+    self.max_std_dev = max_std_dev
 
 class GenLayerConfig():
   def __init__(self,

@@ -14,7 +14,7 @@ class NoiseModel(NoiseModelConfig):
     def get_batch(self,batch_size:int):
         noise_batch = np.full((batch_size,*self.noise_image_size),0.0,dtype=np.float32)
         for i in range(batch_size):
-            noise_batch[i] = tf.random.normal(shape=self.noise_image_size,stddev=self.gauss_factor)
+            noise_batch[i] = tf.random.normal(shape=self.noise_image_size,stddev=self.max_std_dev)
         return noise_batch
 
     def add(self,input_tensor):

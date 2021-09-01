@@ -5,16 +5,17 @@ from tensorflow.keras.layers import Cropping2D, Activation, Input, Cropping2D, C
 import numpy as np
 import tensorflow as tf
 
-class NoiseModel(NoiseModelConfig):
+class ConstantNoiseModel(NoiseModelConfig):
     def __init__(self,noise_config):
         super().__init__(**noise_config.__dict__)
         self.input = Input(shape=self.noise_image_size, name="noise_model_input")
+        self.constant = tf.random.normal(shape=self.noise_image_size,stddev=self.max_std_dev)
         self.model = Activation('linear')(self.input)
         
     def get_batch(self,batch_size:int):
         noise_batch = np.full((batch_size,*self.noise_image_size),0.0,dtype=np.float32)
         for i in range(batch_size):
-            noise_batch[i] = tf.random.normal(shape=self.noise_image_size,stddev=self.gauss_factor)
+            noise_batch[i] = self.constant
         return noise_batch
 
     def add(self,input_tensor):
