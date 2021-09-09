@@ -63,7 +63,7 @@ class Generator(GeneratorModelConfig):
             if config.transpose and i == 0:
                 out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,padding='same',kernel_regularizer=L2(), kernel_initializer = 'he_normal')(out)
             else:
-                out = Conv2D(config.filters,config.kernel_size,config.strides,padding='same',kernel_regularizer=L2(), kernel_initializer = 'he_normal')(out)
+                out = Conv2D(config.filters,config.kernel_size,padding='same',kernel_regularizer=L2(), kernel_initializer = 'he_normal')(out)
             
             if config.noise:
                 out = self.noise_model.add(out)
