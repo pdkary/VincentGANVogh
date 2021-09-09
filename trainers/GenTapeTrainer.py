@@ -4,7 +4,7 @@ from models.GanInput import RealImageInput
 from config.TrainingConfig import DataConfig, GanTrainingConfig
 from config.DiscriminatorConfig import DiscriminatorModelConfig
 from config.GeneratorConfig import GeneratorModelConfig
-from models.Generator.Generator import Generator
+from models.Generator import Generator
 from models.Discriminator import Discriminator
 import numpy as np
 import tensorflow as tf

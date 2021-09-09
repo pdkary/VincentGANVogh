@@ -2,7 +2,7 @@ from tensorflow.keras.models import Model
 from config.DiscriminatorConfig import DiscConvLayerConfig, DiscDenseLayerConfig, DiscriminatorModelConfig
 from models.Discriminator import Discriminator
 from models.VGG19 import get_vgg19
-from models.Generator.Generator import Generator
+from models.Generator import Generator
 from tensorflow.keras.optimizers import Adam
 from models.GanInput import GenLatentSpaceInput
 from config.GeneratorConfig import GenLayerConfig, GeneratorModelConfig

@@ -5,8 +5,8 @@ from config.GeneratorConfig import GeneratorModelConfig, GenLayerConfig
 from tensorflow.keras.layers import Conv2D, Dense, UpSampling2D, Conv2DTranspose
 from tensorflow.keras.models import Model
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
-from models.Generator.NoiseModel import NoiseModel
-from models.Generator.StyleModel import StyleModel
+from models.NoiseModel import NoiseModel
+from models.StyleModel import StyleModel
 
 class Generator(GeneratorModelConfig):
     def __init__(self,gen_config: GeneratorModelConfig,batch_size: int, preview_size: int):
@@ -60,7 +60,7 @@ class Generator(GeneratorModelConfig):
         out = input_tensor
         out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         for i in range(config.convolutions):
-            if config.transpose:
+            if config.transpose and i == 0:
                 out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,padding='same',kernel_regularizer=L2(), kernel_initializer = 'he_normal')(out)
             else:
                 out = Conv2D(config.filters,config.kernel_size,config.strides,padding='same',kernel_regularizer=L2(), kernel_initializer = 'he_normal')(out)

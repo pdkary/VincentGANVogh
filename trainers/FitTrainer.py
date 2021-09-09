@@ -3,7 +3,7 @@ import numpy as np
 
 import tensorflow as tf
 from tensorflow.keras.models import Model
-from models.Generator.Generator import Generator
+from models.Generator import Generator
 from models.Discriminator import Discriminator
 from models.GanInput import RealImageInput
 from numpy.lib.function_base import median
