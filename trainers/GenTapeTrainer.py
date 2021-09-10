@@ -36,7 +36,7 @@ class GenTapeTrainer(GanTrainingConfig):
       fake_out = np.zeros(shape=(self.disc_batch_size,*self.G.img_shape))
       
       for i in range(self.batch_ratio):
-        fake_out[i*d,i*d+d] = self.discriminator(generated_images[i*d:i*d+d],training=False)
+        fake_out[i*d:i*d+d] = self.discriminator(generated_images[i*d:i*d+d],training=False)
       
       fake_label = self.gen_label*tf.ones_like(fake_out)
       loss = self.G.loss_function(fake_label,fake_out)
