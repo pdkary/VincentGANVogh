@@ -33,7 +33,7 @@ class GenTapeTrainer(GanTrainingConfig):
     generator_input = self.G.get_input(g)
     with tf.GradientTape() as gen_tape:
       generated_images = self.generator(generator_input,training=True)
-      fake_out = np.zeros(shape=(self.disc_batch_size,*self.G.img_shape))
+      fake_out = np.zeros(shape=(self.gen_batch_size,1))
       
       for i in range(self.batch_ratio):
         fake_out[i*d:i*d+d] = self.discriminator(generated_images[i*d:i*d+d],training=False)
