@@ -19,6 +19,7 @@ class GenTapeTrainer(GanTrainingConfig):
     self.D: Discriminator = Discriminator(disc_model_config)
     self.image_sources: List[RealImageInput] = [RealImageInput(d) for d in data_configs]
     self.batch_ratio = self.gen_batch_size // self.disc_batch_size
+    self.preview_size = self.preview_cols*self.preview_rows
     
     self.generator = self.G.build()
     self.discriminator = self.D.build()
@@ -33,10 +34,14 @@ class GenTapeTrainer(GanTrainingConfig):
     generator_input = self.G.get_input(g)
     with tf.GradientTape() as gen_tape:
       generated_images = self.generator(generator_input,training=True)
-      fake_out = np.zeros(shape=(self.gen_batch_size,1))
-      
+      fake_out = None
+
       for i in range(self.batch_ratio):
-        fake_out[i*d:i*d+d] = self.discriminator(generated_images[i*d:i*d+d],training=False)
+        disc_batch = generated_images[i*d:i*d+d]
+        if fake_out is None:
+          fake_out = self.discriminator(disc_batch,training=False)
+        else:
+          fake_out = tf.concat([fake_out,self.discriminator(disc_batch,training=False)])
       
       fake_label = self.gen_label*tf.ones_like(fake_out)
       loss = self.G.loss_function(fake_label,fake_out)
@@ -85,7 +90,7 @@ class GenTapeTrainer(GanTrainingConfig):
       if epoch % printerval == 0:
         preview_seed = self.G.get_input(self.preview_size)
         generated_images = np.array(self.generator.predict(preview_seed))
-        self.image_sources[0].save(epoch,generated_images)
+        self.image_sources[0].save(epoch,generated_images,self.preview_rows,self.preview_cols,self.preview_margin)
 
       if epoch >= 10 and self.plot:
         self.gan_plotter.log_epoch()

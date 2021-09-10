@@ -56,8 +56,8 @@ class RealImageInput(GanInput):
         self.dataset_size = len(self.images)
         print("DATASET LOADED")
     
-    def save(self,epoch,images):
-        self.data_helper.save_images(epoch,images)
+    def save(self,epoch,images,preview_rows,preview_cols,preview_margin):
+        self.data_helper.save_images(epoch,images,preview_rows,preview_cols,preview_margin)
     
     def get_batch(self,batch_size):
         d = self.dataset.shuffle(self.dataset_size).batch(batch_size)

@@ -50,22 +50,21 @@ class DataHelper(DataConfig):
         plt.imshow(displayed_img)
         return x
 
-    def save_images(self, epoch, generated_images):
+    def save_images(self, epoch, generated_images,preview_rows,preview_cols,preview_margin):
         image_count = 0
         img_size = self.image_shape[1]
         channels = self.image_shape[-1]
-        preview_height = self.preview_rows*img_size + \
-            (self.preview_rows + 1)*self.preview_margin
-        preview_width = self.preview_cols*img_size + \
-            (self.preview_cols + 1)*self.preview_margin
+        preview_height = preview_rows*img_size + (preview_rows + 1)*preview_margin
+        preview_width = preview_cols*img_size + (preview_cols + 1)*preview_margin
+        
         if channels ==1:
             image_array = np.full((preview_height, preview_width), 255, dtype=np.uint8)
         else:
             image_array = np.full((preview_height, preview_width, channels), 255, dtype=np.uint8)
-        for row in range(self.preview_rows):
-            for col in range(self.preview_cols):
-                r = row * (img_size+self.preview_margin) + self.preview_margin
-                c = col * (img_size+self.preview_margin) + self.preview_margin
+        for row in range(preview_rows):
+            for col in range(preview_cols):
+                r = row * (img_size+preview_margin) + preview_margin
+                c = col * (img_size+preview_margin) + preview_margin
                 img = generated_images[image_count]
                 if channels == 1:
                     img = np.reshape(img,newshape=(img_size,img_size))
