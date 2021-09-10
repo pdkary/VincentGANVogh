@@ -7,6 +7,7 @@ from tensorflow.keras.models import Model
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from models.NoiseModel import NoiseModel
 from models.StyleModel import StyleModel
+from models.ImageNoiseModel import ImageNoiseModel
 
 class Generator(GeneratorModelConfig):
     def __init__(self,gen_config: GeneratorModelConfig):
