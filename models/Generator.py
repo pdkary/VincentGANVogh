@@ -24,7 +24,10 @@ class Generator(GeneratorModelConfig):
             self.input.append(self.style_model.input)
             
         if self.using_noise:
-            self.noise_model = NoiseModel(self.noise_model_config)
+            if isinstance(self.noise_model_config,ImageNoiseModel):
+                self.noise_model = self.noise_model_config
+            else:
+                self.noise_model = NoiseModel(self.noise_model_config)
             self.input.append(self.noise_model.input)
     
     def get_input(self,batch_size):
