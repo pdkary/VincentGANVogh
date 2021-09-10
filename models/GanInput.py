@@ -15,7 +15,7 @@ class GanInput(ABC):
         self.input = Input(shape=input_shape,dtype=tf.float32,name=name)
         self.model = Activation('linear')(self.input)
         
-    def get_batch(self,batch_size,training=True):
+    def get_batch(self,batch_size):
         pass
 
 class GenConstantInput(GanInput):
@@ -24,7 +24,7 @@ class GenConstantInput(GanInput):
         self.constant = tf.constant(tf.random.normal(shape=input_shape,dtype=tf.float32))
         self.model = Activation('linear')(self.input)
     
-    def get_batch(self, batch_size,training=True):
+    def get_batch(self, batch_size):
         gc_batch = np.full((batch_size,*self.input_shape),0.0,dtype=np.float32)
         for i in range(batch_size):
             gc_batch[i] = self.constant
@@ -41,7 +41,7 @@ class GenLatentSpaceInput(GanInput):
         self.model = activation.get()(self.model)
         self.model = Reshape(output_shape)(self.model)
     
-    def get_batch(self, batch_size,training=True):
+    def get_batch(self, batch_size):
         return tf.random.normal(shape=(batch_size,self.input_shape))
 
 class RealImageInput(GanInput):
@@ -53,19 +53,15 @@ class RealImageInput(GanInput):
     def load(self):
         print("Preparing Dataset".upper())
         self.images = self.data_helper.load_data()
-        dataset = tf.data.Dataset.from_tensor_slices(self.images)
-        self.train_dataset = dataset.batch(self.data_helper.batch_size)
-        self.preview_dataset = dataset.batch(self.preview_size)
+        self.dataset = tf.data.Dataset.from_tensor_slices(self.images)
         self.dataset_size = len(self.images)
         print("DATASET LOADED")
     
     def save(self,epoch,images):
         self.data_helper.save_images(epoch,images)
     
-    def get_batch(self,training=True):
-        batch_size = self.data_helper.batch_size if training else self.preview_size
-        d = self.train_dataset if training else self.preview_dataset
-        d = d.shuffle(self.dataset_size)
+    def get_batch(self,batch_size):
+        d = self.dataset.shuffle(self.dataset_size).batch(batch_size)
         d_iterator = iter(d)
         batch = next(d_iterator)
         while batch.shape[0] != batch_size:

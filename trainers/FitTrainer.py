@@ -41,7 +41,7 @@ class FitTrainer(GanTrainingConfig):
         self.image_source.load()
     
     def train_on_batch(self,batch_id,epochs=20,save_images=False):
-        gen_input = self.G.get_input()
+        gen_input = self.G.get_input(self.batch_size)
         real_images = self.image_source.get_batch()
         gen_images = self.generator(gen_input,training=False)
         
@@ -53,7 +53,7 @@ class FitTrainer(GanTrainingConfig):
         
         if save_images:
             print("="*100 + "     SAVING IMAGES      " + "="*100)
-            preview_seed = self.G.get_input(training=False)
+            preview_seed = self.G.get_input(self.preview_size)
             generated_images = np.array(self.generator.predict(preview_seed))
             self.image_source.save(batch_id,generated_images)
             
