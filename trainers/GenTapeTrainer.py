@@ -41,7 +41,7 @@ class GenTapeTrainer(GanTrainingConfig):
         if fake_out is None:
           fake_out = self.discriminator(disc_batch,training=False)
         else:
-          fake_out = tf.concat([fake_out,self.discriminator(disc_batch,training=False)])
+          fake_out = tf.concat([fake_out,self.discriminator(disc_batch,training=False)],axis=0)
       
       fake_label = self.gen_label*tf.ones_like(fake_out)
       loss = self.G.loss_function(fake_label,fake_out)
