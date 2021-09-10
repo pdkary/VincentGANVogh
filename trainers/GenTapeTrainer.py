@@ -76,8 +76,8 @@ class GenTapeTrainer(GanTrainingConfig):
       
       for i in range(batches_per_epoch):
         for source in self.image_sources:
-          img_batch = source.get_batch(self.batch_size)
-          bd_loss,bd_avg,bg_avg = self.train_discriminator(img_batch)
+          disc_batch = source.get_batch(self.disc_batch_size)
+          bd_loss,bd_avg,bg_avg = self.train_discriminator(disc_batch)
           bg_loss,bg_avg = self.train_generator()
           if self.plot:
             self.gan_plotter.batch_update(bd_loss,bd_avg,bg_avg,bg_loss,bg_avg)
