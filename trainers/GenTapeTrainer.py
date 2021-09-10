@@ -1,5 +1,4 @@
 from typing import List
-from numpy.lib.function_base import median
 from models.GanInput import RealImageInput
 from config.TrainingConfig import DataConfig, GanTrainingConfig
 from config.DiscriminatorConfig import DiscriminatorModelConfig
@@ -34,14 +33,12 @@ class GenTapeTrainer(GanTrainingConfig):
     generator_input = self.G.get_input(g)
     with tf.GradientTape() as gen_tape:
       generated_images = self.generator(generator_input,training=True)
-      fake_out = []
+      fake_out = np.zeros(shape=(self.disc_batch_size,*self.G.img_shape))
       
       for i in range(self.batch_ratio):
-        fake_out.append(self.discriminator(generated_images[i*d:i*d+d],training=False))
+        fake_out[i*d,i*d+d] = self.discriminator(generated_images[i*d:i*d+d],training=False)
       
-      fake_out = np.concatenate(fake_out,axis=0)
       fake_label = self.gen_label*tf.ones_like(fake_out)
-      
       loss = self.G.loss_function(fake_label,fake_out)
       g_avg = np.average(fake_out)
       
