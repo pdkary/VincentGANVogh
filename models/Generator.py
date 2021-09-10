@@ -27,6 +27,7 @@ class Generator(GeneratorModelConfig):
         if self.using_noise:
             if isinstance(self.noise_model_config,ImageNoiseModel):
                 self.noise_model = self.noise_model_config
+                self.noise_model.load()
             else:
                 self.noise_model = NoiseModel(self.noise_model_config)
             self.input.append(self.noise_model.input)
