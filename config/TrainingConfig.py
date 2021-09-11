@@ -22,17 +22,14 @@ class GanTrainingConfig():
                  plot: bool,
                  disc_labels: Tuple[float, float],
                  gen_label: float,
-                 gen_batch_size: int,
-                 disc_batch_size: int,
+                 batch_size: int,
                  preview_rows: int,
                  preview_cols: int,
                  preview_margin: int):
         self.plot = plot
         self.disc_labels = disc_labels
         self.gen_label = gen_label
-        self.gen_batch_size = gen_batch_size
-        self.disc_batch_size = disc_batch_size
+        self.batch_size = batch_size
         self.preview_rows = preview_rows
         self.preview_cols = preview_cols
         self.preview_margin = preview_margin
-        assert gen_batch_size % disc_batch_size == 0
