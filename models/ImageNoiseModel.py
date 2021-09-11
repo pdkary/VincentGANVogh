@@ -1,5 +1,4 @@
 from models.NoiseModel import NoiseModel
-from config.TrainingConfig import DataConfig
 from tensorflow.keras.regularizers import L2
 from config.GeneratorConfig import NoiseModelConfig, RealImageNoiseConfig,
 from models.GanInput import RealImageInput
