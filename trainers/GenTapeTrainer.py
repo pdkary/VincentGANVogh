@@ -1,5 +1,5 @@
 from typing import List
-from models.GanInput import RealImageInput
+from layers.GanInput import RealImageInput
 from config.TrainingConfig import DataConfig, GanTrainingConfig
 from config.DiscriminatorConfig import DiscriminatorModelConfig
 from config.GeneratorConfig import GeneratorModelConfig
@@ -82,10 +82,7 @@ class GenTapeTrainer(GanTrainingConfig):
           bd_loss,bd_avg,bg_avg = self.train_discriminator(disc_batch)
           bg_loss,bg_avg = self.train_generator()
           if self.plot:
-            self.gan_plotter.batch_update(bd_loss,bd_avg,bg_avg,bg_loss,bg_avg)
-      
-      if self.plot: 
-        self.gan_plotter.end_batch()
+            self.gan_plotter.batch_update([bd_loss,bd_avg,bg_avg,bg_loss,bg_avg])
       
       if epoch % printerval == 0:
         preview_seed = self.G.get_input(self.preview_size)
@@ -98,7 +95,7 @@ class GenTapeTrainer(GanTrainingConfig):
   def train_n_eras(self,eras,epochs,batches_per_epoch,printerval,ma_size):
     if self.plot:
       from helpers.GanPlotter import GanPlotter
-      self.gan_plotter = GanPlotter(moving_average_size=ma_size)
+      self.gan_plotter = GanPlotter(moving_average_size=ma_size,labels=["D_loss","D_D_Label","D_G_Label","G_Loss","D_G_Label"])
     for i in range(eras):
       self.train(epochs,batches_per_epoch,printerval)
       filename = self.image_sources[0].data_helper.model_name + "%d"%((i+1)*epochs)

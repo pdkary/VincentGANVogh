@@ -7,33 +7,21 @@ from tensorflow.keras.backend import prod
 from tensorflow.keras.layers import Input, Dense, Activation, Reshape
 import tensorflow as tf
 import numpy as np
-from abc import ABC
+from abc import ABC, abstractmethod
 
 class GanInput(ABC):
     def __init__(self,input_shape: Tuple[int,int,int],name="gan_input"):
         self.input_shape = input_shape
         self.input = Input(shape=input_shape,dtype=tf.float32,name=name)
         self.model = Activation('linear')(self.input)
-        
+    
+    @abstractmethod    
     def get_batch(self,batch_size):
         pass
 
-class EncodedInput(GanInput):
-    def __init__(self,input_shape: int,buffer_size:int = 1000):
+class EncoderInput(GanInput):
+    def __init__(self,input_shape: int):
         super().__init__((input_shape,),name="encoded_input")
-        self.buffer_size = buffer_size
-        self.dataset = []
-        self.looking = 0
-    
-    def update(self,encoded_val):
-        self.dataset.append(encoded_val)
-        if len(self.dataset) > self.buffer_size:
-            self.dataset = self.dataset[1:]
-    
-    def get_batch(self, batch_size):
-        out = self.dataset[self.looking:self.looking+batch_size]
-        self.looking+=batch_size
-        return out
     
 class GenConstantInput(GanInput):
     def __init__(self, input_shape: Tuple):

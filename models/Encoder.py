@@ -1,6 +1,6 @@
 
 from config.GeneratorConfig import GenLayerConfig, GeneratorModelConfig
-from models.GanInput import EncodedInput
+from models.GanInput import EncoderInput
 from tensorflow.python.keras.losses import BinaryCrossentropy
 from config.DiscriminatorConfig import DiscConvLayerConfig, DiscDenseLayerConfig, DiscriminatorModelConfig
 from tensorflow.keras.optimizers import Optimizer
@@ -38,7 +38,7 @@ def get_decoder(output_channels: int,
     gf = GenLayerConfig(output_channels,1,1,final_activation)
     return GeneratorModelConfig(
         img_shape = (256,256,output_channels),
-        input_model = EncodedInput(encoded_space_size),
+        input_model = EncoderInput(encoded_space_size),
         style_model_config = None,
         noise_model_config = None,
         gen_layers=[gl(512,3),gl(512,3),gl(256,3),gl(128,3),gl(64,2),gl(32,2),gf],
