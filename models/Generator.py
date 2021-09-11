@@ -7,6 +7,7 @@ from tensorflow.keras.models import Model
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from models.NoiseModel import NoiseModel
 from models.StyleModel import StyleModel
+from models.ImageNoiseModel import ImageNoiseModel
 
 class Generator(GeneratorModelConfig):
     def __init__(self,gen_config: GeneratorModelConfig):
@@ -24,7 +25,11 @@ class Generator(GeneratorModelConfig):
             self.input.append(self.style_model.input)
             
         if self.using_noise:
-            self.noise_model = NoiseModel(self.noise_model_config)
+            if isinstance(self.noise_model_config,ImageNoiseModel):
+                self.noise_model = self.noise_model_config
+                self.noise_model.load()
+            else:
+                self.noise_model = NoiseModel(self.noise_model_config)
             self.input.append(self.noise_model.input)
     
     def get_input(self,batch_size):
