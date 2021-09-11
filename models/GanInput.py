@@ -18,6 +18,23 @@ class GanInput(ABC):
     def get_batch(self,batch_size):
         pass
 
+class EncodedInput(GanInput):
+    def __init__(self,input_shape: int,buffer_size:int = 1000):
+        super().__init__((input_shape,),name="encoded_input")
+        self.buffer_size = buffer_size
+        self.dataset = []
+        self.looking = 0
+    
+    def update(self,encoded_val):
+        self.dataset.append(encoded_val)
+        if len(self.dataset) > self.buffer_size:
+            self.dataset = self.dataset[1:]
+    
+    def get_batch(self, batch_size):
+        out = self.dataset[self.looking:self.looking+batch_size]
+        self.looking+=batch_size
+        return out
+    
 class GenConstantInput(GanInput):
     def __init__(self, input_shape: Tuple):
         super().__init__(input_shape,name="gen_constant_input")

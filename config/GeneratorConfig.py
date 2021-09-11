@@ -1,3 +1,4 @@
+from config.TrainingConfig import DataConfig
 from typing import List, Tuple
 from models.GanInput import GanInput
 from tensorflow.keras.optimizers import Optimizer
@@ -23,6 +24,11 @@ class NoiseModelConfig():
     self.noise_image_size = noise_image_size
     self.kernel_size = kernel_size
     self.max_std_dev = max_std_dev
+
+class RealImageNoiseConfig():
+  def __init__(self,noise_model_config: NoiseModelConfig,data_config:DataConfig):
+      self.noise_model_config = noise_model_config
+      self.data_config = data_config
 
 class GenLayerConfig():
   def __init__(self,

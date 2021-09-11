@@ -53,7 +53,7 @@ class Generator(GeneratorModelConfig):
         out = input_tensor
         out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         for i in range(config.convolutions):
-            if config.transpose and i == 0:
+            if config.transpose:
                 out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,padding='same',kernel_regularizer=L2(), kernel_initializer = 'he_normal')(out)
             else:
                 out = Conv2D(config.filters,config.kernel_size,padding='same',kernel_regularizer=L2(), kernel_initializer = 'he_normal')(out)
