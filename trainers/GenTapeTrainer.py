@@ -31,10 +31,20 @@ class GenTapeTrainer(GanTrainingConfig):
     
     for source in self.image_sources:
       source.load()
-
-  def train_batch(self,disc_batch):
+      
+  def train_generator(self):
     generator_input = self.G.get_input(self.batch_size)
-    
+    with tf.GradientTape() as gen_tape:
+      generated_images = self.generator(generator_input,training=False)
+      fake_out = self.discriminator(generated_images,training=True)
+      g_loss = self.G.loss_function(self.gen_label, fake_out)
+      g_avg = np.mean(fake_out)
+      gradients_of_generator = gen_tape.gradient(g_loss,self.generator.trainable_variables)
+      self.G.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
+    return g_loss
+  
+  def train_discriminator(self,disc_batch):
+    generator_input = self.G.get_input(self.batch_size)
     with tf.GradientTape() as disc_tape, tf.GradientTape() as gen_tape:
       generated_images = self.generator(generator_input,training=False)
       real_out = self.discriminator(disc_batch,training=True)
@@ -44,15 +54,10 @@ class GenTapeTrainer(GanTrainingConfig):
       fake_loss = self.D.loss_function(self.fake_label, fake_out)
       d_loss = (real_loss + fake_loss)/2
       d_avg = np.mean(real_out)
-      g_avg = np.mean(fake_out)
       
-      g_loss = self.G.loss_function(self.gen_label, fake_out)
       gradients_of_discriminator = disc_tape.gradient(d_loss,self.discriminator.trainable_variables)
       self.D.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.discriminator.trainable_variables))
-      
-      gradients_of_generator = gen_tape.gradient(g_loss,self.generator.trainable_variables)
-      self.G.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
-    return d_loss,d_avg,g_avg,g_loss
+    return d_loss,d_avg
     
   def train(self,epochs,batches_per_epoch,printerval):
     for epoch in range(epochs):
@@ -62,7 +67,8 @@ class GenTapeTrainer(GanTrainingConfig):
       for i in range(batches_per_epoch):
         for source in self.image_sources:
           disc_batch = source.get_batch(self.batch_size)
-          d_loss,d_avg,g_avg,g_loss = self.train_batch(disc_batch)
+          d_loss,d_avg = self.train_discriminator(disc_batch)
+          g_avg,g_loss = self.train_generator()
           if self.plot:
             self.gan_plotter.batch_update([d_loss,d_avg,g_avg,g_loss])
       
