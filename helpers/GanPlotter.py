@@ -5,9 +5,9 @@ import numpy as np
 class GanPlotter:
     def __init__(self,moving_average_size,labels) -> None:
         self.moving_average_size = moving_average_size
-        self.labels = labels
+        self.labels = labels + ["Epoch Time"]
         self.progress_plot = ProgressPlot(plot_names = labels,line_names=["value", "MA"])
-        self.num_labels = len(labels)+1
+        self.num_labels = len(labels)
         self.plot_lists = [[] for i in range(self.num_labels)]
         self.plot_ma_lists = [[] for i in range(self.num_labels)]
         self.batch_lists = [[] for i in range(self.num_labels)]

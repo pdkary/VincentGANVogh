@@ -99,7 +99,7 @@ class EncoderTrainer(GanTrainingConfig):
     def train_n_eras(self,eras,epochs,batches_per_epoch,printerval,ma_size):
         if self.plot:
             from helpers.GanPlotter import GanPlotter
-            self.gan_plotter = GanPlotter(moving_average_size=ma_size,labels=["ELoss","EAvg","DLoss","Davg","Epoch time"])
+            self.gan_plotter = GanPlotter(moving_average_size=ma_size,labels=["ELoss","EAvg","DLoss","Davg"])
         for i in range(eras):
             self.train(epochs,batches_per_epoch,printerval)
             filename = self.image_sources[0].data_helper.model_name + "%d"%((i+1)*epochs)
