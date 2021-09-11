@@ -41,7 +41,7 @@ class GenTapeTrainer(GanTrainingConfig):
       g_avg = np.mean(fake_out)
       gradients_of_generator = gen_tape.gradient(g_loss,self.generator.trainable_variables)
       self.G.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
-    return g_loss
+    return g_loss,g_avg
   
   def train_discriminator(self,disc_batch):
     generator_input = self.G.get_input(self.batch_size)
