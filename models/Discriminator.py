@@ -8,6 +8,7 @@ class Discriminator(DiscriminatorModelConfig):
     def __init__(self,disc_model_config: DiscriminatorModelConfig):
         DiscriminatorModelConfig.__init__(self,**disc_model_config.__dict__)
         self.input = Input(shape=self.img_shape,name="discriminator")
+        self.output_dim = self.disc_dense_layers[-1].size
         
     def build(self):
         out = self.input

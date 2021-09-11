@@ -20,6 +20,11 @@ class GenTapeTrainer(GanTrainingConfig):
     self.image_sources: List[RealImageInput] = [RealImageInput(d) for d in data_configs]
     self.preview_size = self.preview_cols*self.preview_rows
     
+    label_shape = (self.batch_size,self.D.output_dim)
+    self.real_label = self.disc_labels[0]*tf.ones(shape=label_shape)
+    self.fake_label = self.disc_labels[1]*tf.ones(shape=label_shape)
+    self.gen_label = self.gen_label*tf.ones(shape=label_shape)
+    
     self.generator = self.G.build()
     self.discriminator = self.D.build()
     self.model_output_path = data_configs[0].data_path + "/models"
@@ -34,15 +39,12 @@ class GenTapeTrainer(GanTrainingConfig):
       generated_images = self.generator(generator_input,training=False)
       real_out = self.discriminator(disc_batch,training=True)
       fake_out = self.discriminator(generated_images,training=True)
-      real_label = self.disc_labels[0]*tf.ones_like(real_out)
-      fake_label = self.disc_labels[1]*tf.ones_like(fake_out)
-      gen_label = self.gen_label*tf.ones_like(fake_out)
       
-      real_loss = self.D.loss_function(real_label, real_out)
-      fake_loss = self.D.loss_function(fake_label, fake_out)
+      real_loss = self.D.loss_function(self.real_label, real_out)
+      fake_loss = self.D.loss_function(self.fake_label, fake_out)
       d_loss = (real_loss + fake_loss)/2
       
-      g_loss = self.G.loss_function(gen_label, fake_out)
+      g_loss = self.G.loss_function(self.gen_label, fake_out)
       d_avg = np.average(real_out)
       g_avg = np.average(fake_out)      
       gradients_of_discriminator = disc_tape.gradient(d_loss,self.discriminator.trainable_variables)
