@@ -22,7 +22,7 @@ class GanPlotter:
     
     def log_epoch(self):
         epoch_time = time.time()-self.epoch_start
-        self.data["Epoch Time"]["plot"].append(epoch_time)
+        self.data["Epoch Time"]["batch"].append(epoch_time)
         output = []
         for label in self.labels:
             batch_mean = np.mean(self.data[label]["batch"])
