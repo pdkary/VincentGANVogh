@@ -40,13 +40,12 @@ class GenTapeTrainer(GanTrainingConfig):
       real_out = self.discriminator(disc_batch,training=True)
       fake_out = self.discriminator(generated_images,training=True)
       
-      real_loss = self.D.loss_function(self.real_label, real_out)
-      fake_loss = self.D.loss_function(self.fake_label, fake_out)
+      real_loss,real_avg = self.D.loss_function(self.real_label, real_out)
+      fake_loss,fake_avg = self.D.loss_function(self.fake_label, fake_out)
       d_loss = (real_loss + fake_loss)/2
+      d_avg = (real_avg + fake_avg)/2
       
-      g_loss = self.G.loss_function(self.gen_label, fake_out)
-      d_avg = np.average(real_out)
-      g_avg = np.average(fake_out)      
+      g_loss,g_avg = self.G.loss_function(self.gen_label, fake_out)
       gradients_of_discriminator = disc_tape.gradient(d_loss,self.discriminator.trainable_variables)
       self.D.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.discriminator.trainable_variables))
       
