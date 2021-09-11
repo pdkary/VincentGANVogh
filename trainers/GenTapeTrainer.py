@@ -68,7 +68,7 @@ class GenTapeTrainer(GanTrainingConfig):
         for source in self.image_sources:
           disc_batch = source.get_batch(self.batch_size)
           d_loss,d_avg = self.train_discriminator(disc_batch)
-          g_avg,g_loss = self.train_generator()
+          g_loss,g_avg = self.train_generator()
           if self.plot:
             self.gan_plotter.batch_update([d_loss,d_avg,g_avg,g_loss])
       
@@ -83,7 +83,7 @@ class GenTapeTrainer(GanTrainingConfig):
   def train_n_eras(self,eras,epochs,batches_per_epoch,printerval,ma_size):
     if self.plot:
       from helpers.GanPlotter import GanPlotter
-      self.gan_plotter = GanPlotter(moving_average_size=ma_size,labels=["D_loss","D_D_Label","D_G_Label","G_Loss"])
+      self.gan_plotter = GanPlotter(moving_average_size=ma_size,labels=["D_loss","D_avg","G_avg","G_Loss"])
     for i in range(eras):
       self.train(epochs,batches_per_epoch,printerval)
       filename = self.image_sources[0].data_helper.model_name + "%d"%((i+1)*epochs)
