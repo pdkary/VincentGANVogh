@@ -1,6 +1,6 @@
 from models.NoiseModel import NoiseModel
 from tensorflow.keras.regularizers import L2
-from config.GeneratorConfig import NoiseModelConfig, RealImageNoiseConfig,
+from config.GeneratorConfig import NoiseModelConfig, RealImageNoiseConfig
 from models.GanInput import RealImageInput
 from layers.AdaptiveAdd import AdaptiveAdd
 from tensorflow.keras.layers import Cropping2D,Cropping2D, Conv2D
