@@ -32,7 +32,7 @@ class GenTapeTrainer(GanTrainingConfig):
     for source in self.image_sources:
       source.load()
 
-  def train(self,disc_batch):
+  def train_batch(self,disc_batch):
     generator_input = self.G.get_input(self.batch_size)
     
     with tf.GradientTape() as disc_tape, tf.GradientTape() as gen_tape:
@@ -61,7 +61,7 @@ class GenTapeTrainer(GanTrainingConfig):
       for i in range(batches_per_epoch):
         for source in self.image_sources:
           disc_batch = source.get_batch(self.batch_size)
-          d_loss,d_avg,g_avg,g_loss = self.train(disc_batch)
+          d_loss,d_avg,g_avg,g_loss = self.train_batch(disc_batch)
           if self.plot:
             self.gan_plotter.batch_update([d_loss,d_avg,g_avg,g_loss])
       
