@@ -13,7 +13,7 @@ class CallableConfig():
     return self.callable(**self.args,**self.kwargs)
 
 class ActivationConfig(CallableConfig):
-  def __init__(self, callable: Callable,name:str, args: Dict, kwargs: Dict):
+  def __init__(self, callable: Callable,name:str, args: Dict = {}, kwargs: Dict = {}):
       super().__init__(callable, args=args, kwargs=kwargs)
       self.name = name
       self.count = 0
