@@ -1,6 +1,6 @@
 from config.TrainingConfig import DataConfig
 from typing import List, Tuple
-from models.GanInput import GanInput
+from layers.GanInput import GanInput
 from tensorflow.keras.optimizers import Optimizer
 from config.CallableConfig import ActivationConfig, NormalizationConfig
 from tensorflow.keras.losses import Loss

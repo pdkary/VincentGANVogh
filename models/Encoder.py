@@ -1,6 +1,6 @@
 
 from config.GeneratorConfig import GenLayerConfig, GeneratorModelConfig
-from models.GanInput import EncoderInput
+from layers.GanInput import EncoderInput
 from tensorflow.python.keras.losses import BinaryCrossentropy
 from config.DiscriminatorConfig import DiscConvLayerConfig, DiscDenseLayerConfig, DiscriminatorModelConfig
 from tensorflow.keras.optimizers import Optimizer

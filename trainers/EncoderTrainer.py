@@ -35,13 +35,17 @@ class EncoderTrainer(GanTrainingConfig):
         GanTrainingConfig.__init__(self,**gan_training_config.__dict__)
         assert self.gen_batch_size == self.disc_batch_size, "Batch sizes must be equal"
         self.preview_size = self.preview_cols*self.preview_rows
+        
         self.content_data_source = RealImageInput(content_data_source)
         self.style_data_source = RealImageInput(style_data_source)
+        
         self.encoder = Discriminator(get_encoder(3,1000,leakyRELU_conv,leakyRELU_dense,sigmoid,instance_norm,Adam(learning_rate=0.002)))
         self.encoder_model = self.encoder.build()
         self.decoder = Generator(get_decoder(3,1000,leakyRELU_conv,sigmoid,batch_norm,Adam(learning_rate=0.02)))
         self.decoder_model = self.decoder.build()
-
+        
+        self.model_output_path = self.content_data_source.data_path + "/models"
+    
     def train_step(self):
         content_input = self.content_data_source.get_batch(self.gen_batch_size)
         style_input = self.style_data_source.get_batch(self.gen_batch_size)
@@ -95,7 +99,7 @@ class EncoderTrainer(GanTrainingConfig):
     def train_n_eras(self,eras,epochs,batches_per_epoch,printerval,ma_size):
         if self.plot:
             from helpers.GanPlotter import GanPlotter
-            self.gan_plotter = GanPlotter(moving_average_size=ma_size,labels=["ELoss","EAvg","DLoss","Davg","Epoch time")
+            self.gan_plotter = GanPlotter(moving_average_size=ma_size,labels=["ELoss","EAvg","DLoss","Davg","Epoch time"])
         for i in range(eras):
             self.train(epochs,batches_per_epoch,printerval)
             filename = self.image_sources[0].data_helper.model_name + "%d"%((i+1)*epochs)

@@ -1,5 +1,5 @@
 from tensorflow.keras.regularizers import L2
-from models.GanInput import RealImageInput
+from layers.GanInput import RealImageInput
 import numpy as np
 from config.GeneratorConfig import GeneratorModelConfig, GenLayerConfig
 from tensorflow.keras.layers import Conv2D, Dense, UpSampling2D, Conv2DTranspose
@@ -7,7 +7,7 @@ from tensorflow.keras.models import Model
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from models.NoiseModel import NoiseModel
 from models.StyleModel import StyleModel
-from models.ImageNoiseModel import ImageNoiseModel
+from models.NoiseModel import ImageNoiseModel
 
 class Generator(GeneratorModelConfig):
     def __init__(self,gen_config: GeneratorModelConfig):
