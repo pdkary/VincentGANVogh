@@ -74,7 +74,7 @@ class GenTapeTrainer(GanTrainingConfig):
   def train(self,epochs,batches_per_epoch,printerval):
     for epoch in range(epochs):
       if self.plot:
-        self.gan_plotter.start_batch()
+        self.gan_plotter.start_epoch()
       
       for i in range(batches_per_epoch):
         for source in self.image_sources:
