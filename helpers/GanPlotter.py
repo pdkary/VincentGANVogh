@@ -8,7 +8,7 @@ class GanPlotter:
         self.labels = labels + ["Epoch Time"]
         self.progress_plot = ProgressPlot(plot_names = self.labels,line_names=["value", "MA"])
         self.num_labels = len(self.labels)
-        self.data = dict(zip(labels,[{"plot":[],"batch":[]} for l in self.labels]))
+        self.data = dict(zip(self.labels,[{"plot":[],"batch":[]} for l in self.labels]))
     
     def start_epoch(self):
         self.epoch_start = time.time()
