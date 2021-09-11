@@ -8,28 +8,25 @@ class GanPlotter:
         self.labels = labels + ["Epoch Time"]
         self.progress_plot = ProgressPlot(plot_names = self.labels,line_names=["value", "MA"])
         self.num_labels = len(self.labels)
-        self.plot_lists = [[] for i in range(self.num_labels)]
-        self.plot_ma_lists = [[] for i in range(self.num_labels)]
-        self.batch_lists = [[] for i in range(self.num_labels)]
+        self.data = zip(labels,[{"plot":[],"batch":[]} for l in self.labels])
     
     def start_epoch(self):
         self.epoch_start = time.time()
-        self.batch_lists = [[] for i in range(self.num_labels)]
-    
+        for label in self.labels:
+            self.data[label]["batch"] = []
+                
     def batch_update(self,update_arr):
         assert len(update_arr) == len(self.labels)-1, "values must have same length as labels"
         for i,val in enumerate(update_arr):
-            self.batch_lists[i].append(val)
+            self.data[self.labels[i]]["batch"].append(val)
     
     def log_epoch(self):
         epoch_time = time.time()-self.epoch_start
-        self.plot_lists[-1].append(epoch_time)
+        self.data["Epoch Time"]["plot"].append(epoch_time)
         output = []
-        for i in range(self.num_labels):
-            batch_mean = np.mean(self.batch_lists[i])
-            self.plot_lists[i].append(batch_mean)
-            self.plot_ma_lists[i].append(batch_mean)
-            self.plot_ma_lists[i] = self.plot_ma_lists[i][1:] if len(self.plot_ma_lists[i]) >= self.moving_average_size else self.plot_ma_lists[i]
-            batch_ma = np.mean(self.plot_ma_lists[i])
-            output.append([batch_mean,batch_ma])
+        for label in self.labels:
+            batch_mean = np.mean(self.data[label]["batch"])
+            self.data[label]["plot"].append(batch_mean)
+            plot_ma = np.mean(self.data[label]["plot"][-self.moving_average_size:])
+            output.append([batch_mean,plot_ma])
         self.progress_plot.update(output)
