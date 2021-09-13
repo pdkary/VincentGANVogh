@@ -31,6 +31,9 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.generator = self.G.build()
         self.discriminator = self.D.build()
         self.model_output_path = data_configs[0].data_path + "/models"
+        
+        self.disc_accuracy = tf.keras.metrics.Accuracy()
+        self.gen_accuracy = tf.keras.metrics.Accuracy()
 
         for source in self.image_sources:
             source.load()
