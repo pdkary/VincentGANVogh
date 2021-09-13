@@ -32,10 +32,9 @@ class GenTapeTrainer(GanTrainingConfig):
     for source in self.image_sources:
       source.load()
       
-  def train_generator(self):
-    generator_input = self.G.get_input(self.batch_size)
+  def train_generator(self,gen_input):
     with tf.GradientTape() as gen_tape:
-      generated_images = self.generator(generator_input,training=False)
+      generated_images = self.generator(gen_input,training=False)
       fake_out = self.discriminator(generated_images,training=True)
       g_loss = self.G.loss_function(self.gen_label, fake_out)
       g_avg = np.mean(fake_out)
