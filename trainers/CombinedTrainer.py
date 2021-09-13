@@ -1,5 +1,4 @@
 from trainers.AbstractTrainer import AbstractTrainer
-import numpy as np
 import tensorflow as tf
 
 

@@ -1,6 +1,7 @@
 from tensorflow.python.keras.losses import BinaryCrossentropy
 from config.DiscriminatorConfig import DiscriminatorModelConfig, DiscConvLayerConfig,DiscDenseLayerConfig, ActivationConfig, NormalizationConfig
 from tensorflow.keras.optimizers import Optimizer
+from tensorflow.keras.losses import Loss
 
 def get_vgg19(input_channels:int,
               conv_activation:ActivationConfig,
@@ -8,6 +9,7 @@ def get_vgg19(input_channels:int,
               final_activation:ActivationConfig,
               normalization:NormalizationConfig,
               optimizer: Optimizer,
+              loss_function: Loss,
               output_dim: int = 1,
               minibatch_size:int = 32,
               dropout_rate:float = 0.5,
@@ -21,9 +23,9 @@ def get_vgg19(input_channels:int,
         disc_conv_layers = [d_c(64,2),d_c(128,2),d_c(256,3),d_c(512,3),d_c(512,3)],
         disc_dense_layers = [d_d(4096),d_d(4096),d_d(1000),d_out],
         minibatch=True,
-        minibatch_size=minibatch_size,
+        minibatch_size = minibatch_size,
         disc_optimizer = optimizer,
-        loss_function=BinaryCrossentropy())
+        loss_function = loss_function)
     
     if lite:
         D.disc_conv_layers = D.disc_conv_layers[:-1] + 2*[D.disc_conv_layers[-1]]
