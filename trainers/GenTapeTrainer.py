@@ -28,7 +28,7 @@ class GenTapeTrainer(AbstractTrainer):
             d_loss = (real_loss + fake_loss)/2
             self.disc_accuracy.update_state(self.real_label,real_out)
             self.disc_accuracy.update_state(self.fake_label,fake_out)
-            d_avg = self.disc_accuracy()
+            d_avg = self.disc_accuracy.result()
 
             gradients_of_discriminator = disc_tape.gradient(
                 d_loss, self.discriminator.trainable_variables)
