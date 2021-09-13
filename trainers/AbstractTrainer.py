@@ -88,7 +88,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         if self.plot:
             from helpers.GanPlotter import GanPlotter
             self.gan_plotter = GanPlotter(moving_average_size=ma_size, labels=[
-                                          "D_loss", "D_avg", "G_avg", "G_Loss"])
+                                          "D_loss", "D_acc", "G_acc", "G_Loss"])
         for i in range(eras):
             self.train(epochs, printerval)
             filename = self.image_sources[0].data_helper.model_name + \
