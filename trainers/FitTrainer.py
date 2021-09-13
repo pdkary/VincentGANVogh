@@ -3,7 +3,7 @@ from trainers.AbstractTrainer import AbstractTrainer
 
 class FitTrainer(AbstractTrainer):
     def train_generator(self, source_input, gen_input):
-        loss,avg = self.generator.train_on_batch(gen_input,source_input,training=True)
+        loss,avg = self.generator.train_on_batch(gen_input,source_input)
         return loss,avg
     
     def train_discriminator(self, disc_input, gen_input):
