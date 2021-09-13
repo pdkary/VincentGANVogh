@@ -9,7 +9,7 @@ class GenTapeTrainer(AbstractTrainer):
             generated_images = self.generator(gen_input, training=False)
             fake_out = self.discriminator(generated_images, training=True)
             g_loss = self.G.loss_function(self.gen_label, fake_out)
-            self.gen_accuracy.update_state(self.real_label,fake_out)
+            self.gen_accuracy.update_state(self.gen_label,fake_out)
             g_avg = self.gen_accuracy.result()
             gradients_of_generator = gen_tape.gradient(
                 g_loss, self.generator.trainable_variables)
