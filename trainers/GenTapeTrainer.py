@@ -43,11 +43,10 @@ class GenTapeTrainer(GanTrainingConfig):
       self.G.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
     return g_loss,g_avg
   
-  def train_discriminator(self,disc_batch):
-    generator_input = self.G.get_input(self.batch_size)
+  def train_discriminator(self,disc_input,gen_input):
     with tf.GradientTape() as disc_tape:
-      generated_images = self.generator(generator_input,training=False)
-      real_out = self.discriminator(disc_batch,training=True)
+      generated_images = self.generator(gen_input,training=False)
+      real_out = self.discriminator(disc_input,training=True)
       fake_out = self.discriminator(generated_images,training=True)
       
       real_loss = self.D.loss_function(self.real_label, real_out)
@@ -66,10 +65,25 @@ class GenTapeTrainer(GanTrainingConfig):
       
       for i in range(batches_per_epoch):
         for source in self.image_sources:
-          disc_batch = source.get_batch(self.batch_size)
-          d_loss,d_avg = self.train_discriminator(disc_batch)
-          g_loss,g_avg = self.train_generator()
+          d_loss,d_avg = 0,0
+          g_loss,g_avg = 0,0
+          for i in range(self.disc_batches_per_epoch):
+            disc_input = source.get_batch(self.batch_size)
+            gen_input = self.G.get_input(self.batch_size)
+            batch_loss,batch_avg = self.train_discriminator(disc_input,gen_input)
+            d_loss += batch_loss
+            d_avg += batch_avg
+          for i in range(self.gen_batches_per_epoch):
+            gen_input = self.G.get_input(self.batch_size)
+            batch_loss,batch_avg = self.train_generator(gen_input)
+            g_loss += batch_loss
+            g_avg += batch_avg
+          
           if self.plot:
+            d_loss /= self.disc_batches_per_epoch
+            d_avg /= self.disc_batches_per_epoch
+            g_loss /= self.gen_batches_per_epoch
+            g_avg /= self.gen_batches_per_epoch
             self.gan_plotter.batch_update([d_loss,d_avg,g_avg,g_loss])
       
       if epoch % printerval == 0:
