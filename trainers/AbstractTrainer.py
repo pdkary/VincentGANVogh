@@ -43,44 +43,43 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def train_discriminator(self, source_input, gen_input):
         return 0.0, 0.0
 
-    def train(self, epochs, batches_per_epoch, printerval):
+    def train(self, epochs, printerval):
         for epoch in range(epochs):
             if self.plot:
                 self.gan_plotter.start_epoch()
 
-            for i in range(batches_per_epoch):
-                for source in self.image_sources:
-                    d_loss, d_avg = 0, 0
-                    g_loss, g_avg = 0, 0
-                    for i in range(self.disc_batches_per_epoch):
-                        source_input = source.get_batch(self.batch_size)
-                        gen_input = self.G.get_input(self.batch_size)
-                        batch_loss, batch_avg = self.train_discriminator(source_input, gen_input)
-                        d_loss += batch_loss
-                        d_avg += batch_avg
-                    for i in range(self.gen_batches_per_epoch):
-                        gen_input = self.G.get_input(self.batch_size)
-                        batch_loss, batch_avg = self.train_generator(gen_input)
-                        g_loss += batch_loss
-                        g_avg += batch_avg
+            for source in self.image_sources:
+                d_loss, d_avg = 0, 0
+                g_loss, g_avg = 0, 0
+                for i in range(self.disc_batches_per_epoch):
+                    source_input = source.get_batch(self.batch_size)
+                    gen_input = self.G.get_input(self.batch_size)
+                    batch_loss, batch_avg = self.train_discriminator(source_input, gen_input)
+                    d_loss += batch_loss
+                    d_avg += batch_avg
+                for i in range(self.gen_batches_per_epoch):
+                    gen_input = self.G.get_input(self.batch_size)
+                    batch_loss, batch_avg = self.train_generator(gen_input)
+                    g_loss += batch_loss
+                    g_avg += batch_avg
 
-                    if self.plot:
-                        d_loss /= self.disc_batches_per_epoch
-                        d_avg /= self.disc_batches_per_epoch
-                        g_loss /= self.gen_batches_per_epoch
-                        g_avg /= self.gen_batches_per_epoch
-                        self.gan_plotter.batch_update(
-                            [d_loss, d_avg, g_avg, g_loss])
-
+                if self.plot:
+                    d_loss /= self.disc_batches_per_epoch
+                    d_avg /= self.disc_batches_per_epoch
+                    g_loss /= self.gen_batches_per_epoch
+                    g_avg /= self.gen_batches_per_epoch
+                    self.gan_plotter.batch_update(
+                        [d_loss, d_avg, g_avg, g_loss])
+            
+            if epoch >= 10 and self.plot:
+                self.gan_plotter.log_epoch()
+                
             if epoch % printerval == 0:
                 preview_seed = self.G.get_input(self.preview_size)
                 generated_images = np.array(
                     self.generator.predict(preview_seed))
                 self.image_sources[0].save(
                     epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
-
-            if epoch >= 10 and self.plot:
-                self.gan_plotter.log_epoch()
 
     def train_n_eras(self, eras, epochs, batches_per_epoch, printerval, ma_size):
         if self.plot:

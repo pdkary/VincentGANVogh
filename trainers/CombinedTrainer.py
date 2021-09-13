@@ -18,6 +18,7 @@ class CombinedTrainer(AbstractTrainer):
         generated_images = self.generator(gen_input, training=False)
         real_loss, real_avg = self.discriminator.train_on_batch(disc_input, self.real_label)
         fake_loss, fake_avg = self.discriminator.train_on_batch(generated_images, self.fake_label)
+        print(self.discriminator.metrics_names)
         loss = (real_loss + fake_loss)/2
         avg = (real_avg + fake_avg)/2
         return loss, avg
