@@ -4,7 +4,7 @@ import tensorflow as tf
 
 
 class GenTapeTrainer(AbstractTrainer):
-    def train_generator(self, source_input, gen_input):
+    def train_generator(self, gen_input):
         with tf.GradientTape() as gen_tape:
             generated_images = self.generator(gen_input, training=False)
             fake_out = self.discriminator(generated_images, training=True)

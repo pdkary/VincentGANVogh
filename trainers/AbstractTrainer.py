@@ -36,7 +36,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
             source.load()
 
     @abstractmethod
-    def train_generator(self, source_input, gen_input):
+    def train_generator(self, gen_input):
         return 0.0, 0.0
 
     @abstractmethod
@@ -59,9 +59,8 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                         d_loss += batch_loss
                         d_avg += batch_avg
                     for i in range(self.gen_batches_per_epoch):
-                        source_input = source.get_batch(self.batch_size)
                         gen_input = self.G.get_input(self.batch_size)
-                        batch_loss, batch_avg = self.train_generator(source_input, gen_input)
+                        batch_loss, batch_avg = self.train_generator(gen_input)
                         g_loss += batch_loss
                         g_avg += batch_avg
 
