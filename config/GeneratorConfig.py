@@ -1,6 +1,6 @@
 from config.TrainingConfig import DataConfig
 from typing import List, Tuple
-from layers.GanInput import GanInput
+from layers.GanInput import GanInput, RealImageInput
 from tensorflow.keras.optimizers import Optimizer
 from config.CallableConfig import ActivationConfig, NormalizationConfig
 from tensorflow.keras.losses import Loss
@@ -9,10 +9,10 @@ class StyleModelConfig():
   def __init__(self,
                style_image_shape: Tuple[int,int,int],
                style_activation: ActivationConfig,
-               data_config: DataConfig):
+               image_input: RealImageInput):
     self.style_image_shape = style_image_shape
     self.style_activation = style_activation
-    self.data_config = data_config
+    self.image_input = image_input
 
 class NoiseModelConfig():
   def __init__(self,
