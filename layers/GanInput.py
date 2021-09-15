@@ -52,7 +52,7 @@ class GenLatentSpaceInput(GanInput):
 class RealImageInput(GanInput,DataConfig):
     def __init__(self,data_config: DataConfig):
         GanInput.__init__(self,data_config.image_shape,name="real_image_input")
-        DataConfig().__init__(self,**data_config.__dict__)
+        DataConfig.__init__(self,**data_config.__dict__)
         self.data_helper = DataHelper(data_config)
         print("Preparing Dataset".upper())
         self.images = self.data_helper.load_data()
