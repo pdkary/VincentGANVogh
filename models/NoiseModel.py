@@ -13,7 +13,7 @@ class NoiseModelBase(ABC):
                  max_std_dev: int = 1):
         self.noise_image_size = noise_image_size
         self.kernel_size = kernel_size
-        self.max_std_Dev = max_std_dev
+        self.max_std_dev = max_std_dev
         self.input = Input(shape=self.noise_image_size, name="noise_model_input")
         self.model = Activation('linear')(self.input)
     
