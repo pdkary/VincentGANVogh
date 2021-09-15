@@ -29,9 +29,11 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.generator = self.G.build()
         self.discriminator = self.D.build()
         self.model_output_path = data_configs[0].data_path + "/models"
-        self.metrics = [m() for m in self.metrics]
-        d_metric_labels = ["D_" + str(m.name) for m in self.metrics]
-        g_metric_labels = ["G_" + str(m.name) for m in self.metrics]
+        
+        self.disc_metrics = [m() for m in self.metrics]
+        self.gen_metrics = [m() for m in self.metrics]
+        d_metric_labels = ["D_" + str(m.name) for m in self.disc_metrics]
+        g_metric_labels = ["G_" + str(m.name) for m in self.gen_metrics]
         self.plot_labels = ["D_Loss","G_Loss",*d_metric_labels,*g_metric_labels]
 
         for source in self.image_sources:

@@ -7,10 +7,11 @@ class GenTapeTrainer(AbstractTrainer):
         with tf.GradientTape() as gen_tape:
             generated_images = self.generator(gen_input, training=False)
             fake_out = self.discriminator(generated_images, training=True)
+            
             g_loss = self.G.loss_function(self.gen_label, fake_out)
             out = [g_loss]
             
-            for metric in self.metrics:
+            for metric in self.gen_metrics:
                 metric.update_state(self.gen_label,fake_out)
                 out.append(metric.result())
             
@@ -30,9 +31,8 @@ class GenTapeTrainer(AbstractTrainer):
             d_loss = self.D.loss_function(labels,output)
             out = [d_loss]
             
-            for metric in self.metrics:
-                metric.update_state(self.real_label,real_out)
-                metric.update_state(self.fake_label,fake_out)
+            for metric in self.disc_metrics:
+                metric.update_state(labels,output)
                 out.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
