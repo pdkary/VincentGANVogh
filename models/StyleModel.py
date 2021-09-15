@@ -14,6 +14,7 @@ class StyleModelBase(ABC):
                  activation:ActivationConfig,
                  style_layers:int,
                  style_layer_size:int):
+        self.input_shape = input_shape
         self.input = Input(shape=input_shape,name="style_model_input")
         self.model = self.input
         self.activation = activation
