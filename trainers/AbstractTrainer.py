@@ -76,6 +76,10 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                         g_metrics[i] += batch_metrics[i]
 
                 if self.plot:
+                    d_loss /= self.disc_batches_per_epoch
+                    g_loss /= self.gen_batches_per_epoch
+                    d_metrics = [d/self.disc_batches_per_epoch for d in d_metrics]
+                    g_metrics = [g/self.gen_batches_per_epoch for g in g_metrics]
                     self.gan_plotter.batch_update([d_loss, g_loss, *d_metrics, *g_metrics])
             
             if epoch >= 10 and self.plot:
