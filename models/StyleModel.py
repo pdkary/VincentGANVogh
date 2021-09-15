@@ -27,17 +27,17 @@ class StyleModelBase(ABC):
         
 class LatentStyleModel(StyleModelBase):
     def __init__(self,
-                 input_shape: Tuple, 
+                 latent_size: int, 
                  activation: ActivationConfig,
                  style_layers: int, 
                  style_layer_size: int):
-        super().__init__(input_shape,activation,style_layers,style_layer_size)
+        super().__init__(latent_size,activation,style_layers,style_layer_size)
         for i in range(style_layers):
             self.model = Dense(style_layer_size, kernel_regularizer=L2(), kernel_initializer = 'he_normal')(self.model)
             self.model = self.activation.get()(self.model)
     
     def get_batch(self,batch_size:int):
-        return tf.random.normal(shape = (batch_size,*self.input_shape),dtype=tf.float32)
+        return tf.random.normal(shape = (batch_size,self.input_shape),dtype=tf.float32)
 
 class ImageStyleModel(StyleModelBase):
     def __init__(self,
