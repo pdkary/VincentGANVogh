@@ -50,4 +50,4 @@ class ImageStyleModel(StyleModelBase):
             self.model = self.activation.get()(self.model)
         
     def get_batch(self,batch_size):
-        self.image_source.get_batch(batch_size)
+        return self.image_source.get_batch(batch_size)
