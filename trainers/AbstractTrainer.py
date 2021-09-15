@@ -32,9 +32,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         d_metric_labels = ["D_" + m.name for m in self.metrics]
         g_metric_labels = ["G_" + m.name for m in self.metrics]
         self.plot_labels = ["D_Loss","G_Loss",*d_metric_labels,*g_metric_labels]
-        
-        self.disc_accuracy = tf.keras.metrics.Accuracy()
-        self.gen_accuracy = tf.keras.metrics.Accuracy()
+        self.metrics = [m() for m in self.metrics]
 
         for source in self.image_sources:
             source.load()
@@ -71,7 +69,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                     
                 for i in range(self.gen_batches_per_epoch):
                     gen_input = self.G.get_input(self.batch_size)
-                    batch_out = self.train_generator(source_input, gen_input)
+                    batch_out = self.train_generator(gen_input)
                     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                     g_loss += batch_loss
                     for i in range(len(self.metrics)):
