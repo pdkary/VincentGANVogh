@@ -45,11 +45,3 @@ class ConstantNoiseModel(NoiseModelBase):
         for i in range(batch_size):
             noise_batch[i] = self.constant
         return noise_batch
-
-class ImageNoiseModel(NoiseModelBase,RealImageInput):
-    def __init__(self,real_image_noise_config: RealImageNoiseConfig):
-        NoiseModelConfig.__init__(self,**real_image_noise_config.noise_model_config.__dict__)
-        RealImageInput.__init__(self,real_image_noise_config.data_config)
-
-    def get_batch(self, batch_size: int):
-        return RealImageInput.get_batch(self,batch_size)

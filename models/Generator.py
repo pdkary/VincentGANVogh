@@ -14,22 +14,15 @@ class Generator(GeneratorModelConfig):
         GeneratorModelConfig.__init__(self,**gen_config.__dict__)
         self.using_style = np.any([l.style for l in list(self.gen_layers[0])[0]])
         self.using_noise = np.any([l.noise for l in list(self.gen_layers[0])[0]])
-        self.using_image_input = isinstance(self.input_model,RealImageInput)
         
         self.input = [self.input_model.input]
-        if self.using_image_input:
-            self.input_model.load()
              
         if self.using_style:
             self.style_model = StyleModel(self.style_model_config)
             self.input.append(self.style_model.input)
             
         if self.using_noise:
-            if isinstance(self.noise_model_config,ImageNoiseModel):
-                self.noise_model = self.noise_model_config
-                self.noise_model.load()
-            else:
-                self.noise_model = NoiseModel(self.noise_model_config)
+            self.noise_model = NoiseModel(self.noise_model_config)
             self.input.append(self.noise_model.input)
     
     def get_input(self,batch_size):
@@ -67,7 +60,7 @@ class Generator(GeneratorModelConfig):
                 out = self.noise_model.add(out)
             
             if config.style:
-                out = AdaptiveInstanceNormalization()(out,self.style_model)
+                out = AdaptiveInstanceNormalization()(out,self.style_model.model)
             else:
                 out = self.normalization.get()(out)
             out =  config.activation.get()(out)

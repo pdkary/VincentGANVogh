@@ -7,14 +7,12 @@ from tensorflow.keras.losses import Loss
 
 class StyleModelConfig():
   def __init__(self,
-               style_model_size: int,
-               style_layer_size: int,
-               style_layers: int,
-               style_activation: ActivationConfig):
-    self.style_model_size = style_model_size
-    self.style_layer_size = style_layer_size
-    self.style_layers = style_layers
+               style_image_shape: Tuple[int,int,int],
+               style_activation: ActivationConfig,
+               data_config: DataConfig):
+    self.style_image_shape = style_image_shape
     self.style_activation = style_activation
+    self.data_config = data_config
 
 class NoiseModelConfig():
   def __init__(self,

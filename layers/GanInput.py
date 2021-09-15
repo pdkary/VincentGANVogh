@@ -49,12 +49,11 @@ class GenLatentSpaceInput(GanInput):
     def get_batch(self, batch_size):
         return tf.random.normal(shape=(batch_size,self.input_shape))
 
-class RealImageInput(GanInput):
+class RealImageInput(GanInput,DataConfig):
     def __init__(self,data_config: DataConfig):
-        super().__init__(data_config.image_shape,name="real_image_input")
+        GanInput.__init__(self,data_config.image_shape,name="real_image_input")
+        DataConfig().__init__(self,**data_config.__dict__)
         self.data_helper = DataHelper(data_config)
-    
-    def load(self):
         print("Preparing Dataset".upper())
         self.images = self.data_helper.load_data()
         self.dataset = tf.data.Dataset.from_tensor_slices(self.images)

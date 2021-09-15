@@ -14,11 +14,11 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                  gen_model_config:    GeneratorModelConfig,
                  disc_model_config:   DiscriminatorModelConfig,
                  gan_training_config: GanTrainingConfig,
-                 data_configs:         List[DataConfig]):
+                 image_sources:         List[RealImageInput]):
         GanTrainingConfig.__init__(self, **gan_training_config.__dict__)
         self.G: Generator = Generator(gen_model_config)
         self.D: Discriminator = Discriminator(disc_model_config)
-        self.image_sources: List[RealImageInput] = [RealImageInput(d) for d in data_configs]
+        self.image_sources = image_sources
         self.preview_size = self.preview_cols*self.preview_rows
 
         label_shape = (self.batch_size, self.D.output_dim)
@@ -28,16 +28,13 @@ class AbstractTrainer(GanTrainingConfig, ABC):
 
         self.generator = self.G.build()
         self.discriminator = self.D.build()
-        self.model_output_path = data_configs[0].data_path + "/models"
+        self.model_output_path = self.image_sources[0].data_path + "/models"
         
         self.disc_metrics = [m() for m in self.metrics]
         self.gen_metrics = [m() for m in self.metrics]
         d_metric_labels = ["D_" + str(m.name) for m in self.disc_metrics]
         g_metric_labels = ["G_" + str(m.name) for m in self.gen_metrics]
         self.plot_labels = ["D_Loss","G_Loss",*d_metric_labels,*g_metric_labels]
-
-        for source in self.image_sources:
-            source.load()
 
     @abstractmethod
     def train_generator(self, source_input, gen_input):
