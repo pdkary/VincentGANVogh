@@ -1,11 +1,8 @@
 from tensorflow.keras.regularizers import L2
-import numpy as np
 from config.GeneratorConfig import GeneratorModelConfig, GenLayerConfig
-from tensorflow.keras.layers import Conv2D, UpSampling2D, Conv2DTranspose
+from tensorflow.keras.layers import Conv2D, UpSampling2D, Conv2DTranspose, Dense
 from tensorflow.keras.models import Model
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
-from models.NoiseModel import NoiseModel
-from models.StyleModel import StyleModel
 
 class Generator(GeneratorModelConfig):
     def __init__(self,gen_config: GeneratorModelConfig):

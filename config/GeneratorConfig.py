@@ -6,15 +6,6 @@ from tensorflow.keras.optimizers import Optimizer
 from config.CallableConfig import ActivationConfig, NormalizationConfig
 from tensorflow.keras.losses import Loss
 
-class NoiseModelConfig():
-  def __init__(self,
-               noise_image_size: Tuple[int,int,int],
-               kernel_size: int,
-               max_std_dev: float):
-    self.noise_image_size = noise_image_size
-    self.kernel_size = kernel_size
-    self.max_std_dev = max_std_dev
-
 class GenLayerConfig():
   def __init__(self,
                filters:int,

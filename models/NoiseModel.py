@@ -1,15 +1,19 @@
 from abc import ABC, abstractmethod
-from layers.GanInput import RealImageInput
+from typing import Tuple
 from tensorflow.keras.regularizers import L2
-from config.GeneratorConfig import NoiseModelConfig
 from layers.AdaptiveAdd import AdaptiveAdd
 from tensorflow.keras.layers import Cropping2D, Activation, Input, Cropping2D, Conv2D
 import numpy as np
 import tensorflow as tf
 
-class NoiseModelBase(NoiseModelConfig, ABC):
-    def __init__(self,noise_config:NoiseModelConfig):
-        super().__init__(**noise_config.__dict__)
+class NoiseModelBase(ABC):
+    def __init__(self,
+                 noise_image_size: Tuple[int,int,int],
+                 kernel_size: int = 1,
+                 max_std_dev: int = 1):
+        self.noise_image_size = noise_image_size
+        self.kernel_size = kernel_size
+        self.max_std_Dev = max_std_dev
         self.input = Input(shape=self.noise_image_size, name="noise_model_input")
         self.model = Activation('linear')(self.input)
     
@@ -25,7 +29,7 @@ class NoiseModelBase(NoiseModelConfig, ABC):
         pass
     
 
-class NoiseModel(NoiseModelBase):
+class LatentNoiseModel(NoiseModelBase):
     def __init__(self,noise_config):
         super().__init__(noise_config)
         
