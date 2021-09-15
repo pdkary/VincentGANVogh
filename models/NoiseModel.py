@@ -29,6 +29,12 @@ class NoiseModelBase(ABC):
         pass
 
 class LatentNoiseModel(NoiseModelBase):
+    def __init__(self, 
+                 noise_image_size: Tuple[int, int, int], 
+                 kernel_size: int, 
+                 max_std_dev: int):
+        super().__init__(noise_image_size, kernel_size, max_std_dev)
+    
     def get_batch(self,batch_size:int):
         noise_batch = np.full((batch_size,*self.noise_image_size),0.0,dtype=np.float32)
         for i in range(batch_size):
