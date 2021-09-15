@@ -26,7 +26,7 @@ class GenTapeTrainer(AbstractTrainer):
 
             real_loss = self.D.loss_function(self.real_label, real_out)
             fake_loss = self.D.loss_function(self.fake_label, fake_out)
-            d_loss = real_loss + fake_loss
+            d_loss = max(real_loss,fake_loss)
             out = [d_loss]
             
             for metric in self.metrics:
