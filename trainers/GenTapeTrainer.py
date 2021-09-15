@@ -23,10 +23,11 @@ class GenTapeTrainer(AbstractTrainer):
             generated_images = self.generator(gen_input, training=False)
             real_out = self.discriminator(disc_input, training=True)
             fake_out = self.discriminator(generated_images, training=True)
+            
+            labels = tf.concat([self.real_label,self.fake_label])
+            output = tf.concat([real_out,fake_out])
 
-            real_loss = self.D.loss_function(self.real_label, real_out)
-            fake_loss = self.D.loss_function(self.fake_label, fake_out)
-            d_loss = max(real_loss,fake_loss)
+            d_loss = self.D.loss_function(labels,output)
             out = [d_loss]
             
             for metric in self.metrics:
