@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 from layers.GanInput import RealImageInput
-from config.TrainingConfig import DataConfig, GanTrainingConfig
+from config.TrainingConfig import GanTrainingConfig
 from config.DiscriminatorConfig import DiscriminatorModelConfig
 from config.GeneratorConfig import GeneratorModelConfig
 from models.Generator import Generator
