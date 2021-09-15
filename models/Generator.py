@@ -67,9 +67,7 @@ class Generator(GeneratorModelConfig):
                 out = self.noise_model.add(out)
             
             if config.style:
-                gamma = Dense(config.filters,bias_initializer='ones')(self.style_model.model)
-                beta = Dense(config.filters,bias_initializer='zeros')(self.style_model.model)
-                out = AdaptiveInstanceNormalization()([out,gamma,beta])
+                out = AdaptiveInstanceNormalization()(out,self.style_model)
             else:
                 out = self.normalization.get()(out)
             out =  config.activation.get()(out)

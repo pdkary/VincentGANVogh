@@ -1,18 +1,22 @@
-from tensorflow.keras.layers import Layer, Dense, Lambda
-import tensorflow as tf
+from tensorflow.keras.layers import Layer
 import keras.backend as K
 
 class AdaptiveInstanceNormalization(Layer):
     def __init__(self):
         super(AdaptiveInstanceNormalization, self).__init__()
 
-    def call(self, inputs):
-        input_tensor, gamma, beta = inputs
-        mean = K.mean(input_tensor, axis = [1, 2], keepdims = True)
-        std = K.std(input_tensor, axis = [1, 2], keepdims = True) + 1e-7
-        y = (input_tensor - mean) / std
+    def calc_mean_std(self,features):
+        batch_size, c = features.size()[:2]
+        reshaped_features = K.reshape(features,(batch_size,c,-1))
+        features_mean = K.mean(reshaped_features)
+        features_mean = K.reshape(features_mean,(batch_size,c,1,1))
+        features_std = K.std(reshaped_features)
+        features_std = K.reshape(features_std,(batch_size,c,1,1)) + 1e-6
+        return features_mean,features_std
         
-        pool_shape = [-1, 1, 1, y.shape[-1]]
-        scale = K.reshape(gamma, pool_shape)
-        bias = K.reshape(beta, pool_shape)
-        return y * scale + bias
+
+    def call(self, content_features,style_features):
+        content_mean,content_std = self.calc_mean_std(content_features)
+        style_mean, style_std = self.calc_mean_std(style_features)
+        normalized_features = style_std * (content_features - content_mean) / content_std + style_mean
+        return normalized_features
