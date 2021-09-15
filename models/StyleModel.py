@@ -24,7 +24,7 @@ class StyleModelBase(ABC):
     def get_batch(self,batch_size:int):
         pass
         
-class StyleLatentModel(StyleModelBase):
+class LatentStyleModel(StyleModelBase):
     def __init__(self,
                  input_shape: Tuple, 
                  activation: ActivationConfig,
@@ -36,7 +36,7 @@ class StyleLatentModel(StyleModelBase):
             self.model = self.activation.get()(self.model)
     
     def get_batch(self,batch_size:int):
-        return tf.random.normal(shape = (batch_size,self.style_layer_size),dtype=tf.float32)
+        return tf.random.normal(shape = (batch_size,*self.input_shape),dtype=tf.float32)
 
 class ImageStyleModel(StyleModelBase):
     def __init__(self,
