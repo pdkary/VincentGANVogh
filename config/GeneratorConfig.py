@@ -7,11 +7,11 @@ from tensorflow.keras.losses import Loss
 
 class StyleModelConfig():
   def __init__(self,
-               style_latent_size: int,
+               style_model_size: int,
                style_layer_size: int,
                style_layers: int,
                style_activation: ActivationConfig):
-    self.style_latent_size = style_latent_size
+    self.style_model_size = style_model_size
     self.style_layer_size = style_layer_size
     self.style_layers = style_layers
     self.style_activation = style_activation
