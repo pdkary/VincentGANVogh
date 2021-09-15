@@ -28,7 +28,7 @@ class StyleLatentModel(StyleModelBase):
                  activation: ActivationConfig,
                  style_layers: int, 
                  style_layer_size: int):
-        super().__init__(input_shape,activation)
+        super().__init__(input_shape,activation,style_layers,style_layer_size)
         for i in range(style_layers):
             self.model = Dense(style_layer_size, kernel_regularizer=L2(), kernel_initializer = 'he_normal')(self.model)
             self.model = self.activation.get()(self.model)
