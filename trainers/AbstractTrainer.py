@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 from layers.GanInput import RealImageInput
-from config.TrainingConfig import DataConfig, GanTrainingConfig
+from config.TrainingConfig import GanTrainingConfig
 from config.DiscriminatorConfig import DiscriminatorModelConfig
 from config.GeneratorConfig import GeneratorModelConfig
 from models.Generator import Generator
@@ -35,9 +35,6 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         d_metric_labels = ["D_" + str(m.name) for m in self.disc_metrics]
         g_metric_labels = ["G_" + str(m.name) for m in self.gen_metrics]
         self.plot_labels = ["D_Loss","G_Loss",*d_metric_labels,*g_metric_labels]
-
-        for source in self.image_sources:
-            source.load()
 
     @abstractmethod
     def train_generator(self, source_input, gen_input):
