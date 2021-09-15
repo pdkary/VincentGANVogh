@@ -53,8 +53,6 @@ class RealImageInput(GanInput):
     def __init__(self,data_config: DataConfig):
         super().__init__(data_config.image_shape,name="real_image_input")
         self.data_helper = DataHelper(data_config)
-    
-    def load(self):
         print("Preparing Dataset".upper())
         self.images = self.data_helper.load_data()
         self.dataset = tf.data.Dataset.from_tensor_slices(self.images)

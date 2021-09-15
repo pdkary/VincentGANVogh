@@ -14,11 +14,11 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                  gen_model_config:    GeneratorModelConfig,
                  disc_model_config:   DiscriminatorModelConfig,
                  gan_training_config: GanTrainingConfig,
-                 data_configs:         List[DataConfig]):
+                 image_sources:         List[RealImageInput]):
         GanTrainingConfig.__init__(self, **gan_training_config.__dict__)
         self.G: Generator = Generator(gen_model_config)
         self.D: Discriminator = Discriminator(disc_model_config)
-        self.image_sources: List[RealImageInput] = [RealImageInput(d) for d in data_configs]
+        self.image_sources = image_sources
         self.preview_size = self.preview_cols*self.preview_rows
 
         label_shape = (self.batch_size, self.D.output_dim)
@@ -28,7 +28,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
 
         self.generator = self.G.build()
         self.discriminator = self.D.build()
-        self.model_output_path = data_configs[0].data_path + "/models"
+        self.model_output_path = self.image_sources[0].data_path + "/models"
         
         self.disc_metrics = [m() for m in self.metrics]
         self.gen_metrics = [m() for m in self.metrics]
@@ -40,7 +40,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
             source.load()
 
     @abstractmethod
-    def train_generator(self, gen_input):
+    def train_generator(self, source_input, gen_input):
         return 2*[0.0] + len(self.metrics)*[0.0]
 
     @abstractmethod
@@ -70,8 +70,9 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                         d_metrics[i] += batch_metrics[i]
                     
                 for i in range(self.gen_batches_per_epoch):
+                    source_input = source.get_batch(self.batch_size)
                     gen_input = self.G.get_input(self.batch_size)
-                    batch_out = self.train_generator(gen_input)
+                    batch_out = self.train_generator(source_input,gen_input)
                     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                     g_loss += batch_loss
                     for i in range(len(self.metrics)):

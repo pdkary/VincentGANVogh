@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from layers.GanInput import RealImageInput
 from tensorflow.keras.regularizers import L2
-from config.GeneratorConfig import NoiseModelConfig, RealImageNoiseConfig
+from config.GeneratorConfig import NoiseModelConfig
 from layers.AdaptiveAdd import AdaptiveAdd
 from tensorflow.keras.layers import Cropping2D, Activation, Input, Cropping2D, Conv2D
 import numpy as np
@@ -45,11 +45,3 @@ class ConstantNoiseModel(NoiseModelBase):
         for i in range(batch_size):
             noise_batch[i] = self.constant
         return noise_batch
-
-class ImageNoiseModel(NoiseModelBase,RealImageInput):
-    def __init__(self,real_image_noise_config: RealImageNoiseConfig):
-        NoiseModelConfig.__init__(self,**real_image_noise_config.noise_model_config.__dict__)
-        RealImageInput.__init__(self,real_image_noise_config.data_config)
-
-    def get_batch(self, batch_size: int):
-        return RealImageInput.get_batch(self,batch_size)

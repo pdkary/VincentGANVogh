@@ -12,31 +12,20 @@ from models.NoiseModel import ImageNoiseModel
 class Generator(GeneratorModelConfig):
     def __init__(self,gen_config: GeneratorModelConfig):
         GeneratorModelConfig.__init__(self,**gen_config.__dict__)
-        self.using_style = np.any([l.style for l in list(self.gen_layers[0])[0]])
-        self.using_noise = np.any([l.noise for l in list(self.gen_layers[0])[0]])
-        self.using_image_input = isinstance(self.input_model,RealImageInput)
         
         self.input = [self.input_model.input]
-        if self.using_image_input:
-            self.input_model.load()
              
-        if self.using_style:
-            self.style_model = StyleModel(self.style_model_config)
+        if self.style_model is not None:
             self.input.append(self.style_model.input)
             
-        if self.using_noise:
-            if isinstance(self.noise_model_config,ImageNoiseModel):
-                self.noise_model = self.noise_model_config
-                self.noise_model.load()
-            else:
-                self.noise_model = NoiseModel(self.noise_model_config)
+        if self.noise_model is not None:
             self.input.append(self.noise_model.input)
     
     def get_input(self,batch_size):
         inp = [self.input_model.get_batch(batch_size)]
-        if self.using_style:
+        if self.style_model is not None:
             inp.append(self.style_model.get_batch(batch_size))
-        if self.using_noise:
+        if self.noise_model is not None:
             inp.append(self.noise_model.get_batch(batch_size))
         return inp
     
@@ -63,10 +52,10 @@ class Generator(GeneratorModelConfig):
             else:
                 out = Conv2D(config.filters,config.kernel_size,padding='same',kernel_regularizer=L2(), kernel_initializer = 'he_normal')(out)
             
-            if config.noise:
+            if self.noise_model is not None and config.noise:
                 out = self.noise_model.add(out)
             
-            if config.style:
+            if self.style_model is not None and config.style:
                 gamma = Dense(config.filters,bias_initializer='ones')(self.style_model.model)
                 beta = Dense(config.filters,bias_initializer='zeros')(self.style_model.model)
                 out = AdaptiveInstanceNormalization()([out,gamma,beta])
