@@ -9,7 +9,6 @@ from models.Discriminator import Discriminator
 import numpy as np
 import tensorflow as tf
 
-
 class AbstractTrainer(GanTrainingConfig, ABC):
     def __init__(self,
                  gen_model_config:    GeneratorModelConfig,
@@ -19,8 +18,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         GanTrainingConfig.__init__(self, **gan_training_config.__dict__)
         self.G: Generator = Generator(gen_model_config)
         self.D: Discriminator = Discriminator(disc_model_config)
-        self.image_sources: List[RealImageInput] = [
-            RealImageInput(d) for d in data_configs]
+        self.image_sources: List[RealImageInput] = [RealImageInput(d) for d in data_configs]
         self.preview_size = self.preview_cols*self.preview_rows
 
         label_shape = (self.batch_size, self.D.output_dim)
@@ -31,6 +29,9 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.generator = self.G.build()
         self.discriminator = self.D.build()
         self.model_output_path = data_configs[0].data_path + "/models"
+        d_metric_labels = ["D_" + m.name for m in self.metrics]
+        g_metric_labels = ["G_" + m.name for m in self.metrics]
+        self.plot_labels = ["D_Loss","G_Loss",*d_metric_labels,*g_metric_labels]
         
         self.disc_accuracy = tf.keras.metrics.Accuracy()
         self.gen_accuracy = tf.keras.metrics.Accuracy()
@@ -40,11 +41,15 @@ class AbstractTrainer(GanTrainingConfig, ABC):
 
     @abstractmethod
     def train_generator(self, gen_input):
-        return 0.0, 0.0
+        return 2*[0.0] + len(self.metrics)*[0.0]
 
     @abstractmethod
     def train_discriminator(self, source_input, gen_input):
-        return 0.0, 0.0
+        return 2*[0.0] + len(self.metrics)*[0.0]
+
+    def save_generator(self, epoch):
+        filename = self.image_sources[0].data_helper.model_name + str(epoch)
+        self.generator.save(self.model_output_path + filename)
 
     def train(self, epochs, printerval):
         for epoch in range(epochs):
@@ -52,27 +57,28 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                 self.gan_plotter.start_epoch()
 
             for source in self.image_sources:
-                d_loss, d_avg = 0, 0
-                g_loss, g_avg = 0, 0
+                d_loss, d_metrics = 0.0, [0.0 for i in self.metrics]
+                g_loss, g_metrics = 0.0, [0.0 for i in self.metrics]
+                
                 for i in range(self.disc_batches_per_epoch):
                     source_input = source.get_batch(self.batch_size)
                     gen_input = self.G.get_input(self.batch_size)
-                    batch_loss, batch_avg = self.train_discriminator(source_input, gen_input)
+                    batch_out = self.train_discriminator(source_input, gen_input)
+                    batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                     d_loss += batch_loss
-                    d_avg += batch_avg
+                    for i in range(len(self.metrics)):
+                        d_metrics[i] += batch_metrics[i]
+                    
                 for i in range(self.gen_batches_per_epoch):
                     gen_input = self.G.get_input(self.batch_size)
-                    batch_loss, batch_avg = self.train_generator(gen_input)
+                    batch_out = self.train_generator(source_input, gen_input)
+                    batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                     g_loss += batch_loss
-                    g_avg += batch_avg
+                    for i in range(len(self.metrics)):
+                        g_metrics[i] += batch_metrics[i]
 
                 if self.plot:
-                    d_loss /= self.disc_batches_per_epoch
-                    d_avg /= self.disc_batches_per_epoch
-                    g_loss /= self.gen_batches_per_epoch
-                    g_avg /= self.gen_batches_per_epoch
-                    self.gan_plotter.batch_update(
-                        [d_loss, d_avg, g_avg, g_loss])
+                    self.gan_plotter.batch_update([d_loss, g_loss, *d_metrics, *g_metrics])
             
             if epoch >= 10 and self.plot:
                 self.gan_plotter.log_epoch()
@@ -87,11 +93,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def train_n_eras(self, eras, epochs, printerval, ma_size):
         if self.plot:
             from helpers.GanPlotter import GanPlotter
-            self.gan_plotter = GanPlotter(moving_average_size=ma_size, labels=[
-                                          "D_loss", "D_acc", "G_acc", "G_Loss"])
+            self.gan_plotter = GanPlotter(moving_average_size=ma_size, labels=self.plot_labels)
         for i in range(eras):
             self.train(epochs, printerval)
-            filename = self.image_sources[0].data_helper.model_name + \
-                "%d" % ((i+1)*epochs)
-            print(self.model_output_path + filename)
-            self.generator.save(self.model_output_path + filename)
+            self.save_generator((i+1)*epochs)
