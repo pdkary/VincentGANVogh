@@ -24,15 +24,15 @@ class GenTapeTrainer(AbstractTrainer):
             generated_images = self.generator(gen_input, training=False)
             real_out = self.discriminator(disc_input, training=True)
             fake_out = self.discriminator(generated_images, training=True)
-            
-            labels = tf.concat([self.real_label,self.fake_label],axis=0)
-            output = tf.concat([real_out,fake_out],axis=0)
 
-            d_loss = self.D.loss_function(labels,output)
+            real_loss = self.D.loss_function(self.real_label,real_out)
+            fake_loss = self.D.loss_function(self.fake_label,fake_out)
+            d_loss = (real_loss + fake_loss)/2
             out = [d_loss]
             
             for metric in self.disc_metrics:
-                metric.update_state(labels,output)
+                metric.update_state(self.real_label,real_out)
+                metric.update_state(self.fake_label,fake_out)
                 out.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
