@@ -49,7 +49,7 @@ class ImageStyleModel(StyleModelBase):
         self.image_source = real_image_input
         super().__init__(real_image_input.input_shape,activation,style_layers,style_layer_size)
         self.model = MaxPooling2D((downsample_factor,downsample_factor))(self.model)
-        self.model = Flatten()(self.model)
+        self.model = Flatten()(self.model) if style_layers > 0 else self.model
         for i in range(style_layers):
             self.model = Dense(style_layer_size, kernel_regularizer=L2(), kernel_initializer='he_normal')(self.model)
             self.model = self.activation.get()(self.model)
