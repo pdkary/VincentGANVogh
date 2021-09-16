@@ -53,7 +53,7 @@ class Generator(GeneratorModelConfig):
             if self.style_model is not None and config.style:
                 # gamma = Dense(config.filters,bias_initializer='ones')(self.style_model.model)
                 # beta = Dense(config.filters,bias_initializer='zeros')(self.style_model.model)
-                out = AdaptiveInstanceNormalization()([out,self.style_model.model])
+                out = AdaptiveInstanceNormalization()(out,self.style_model.model)
             else:
                 out = self.normalization.get()(out)
             out =  config.activation.get()(out)
