@@ -7,8 +7,8 @@ class AdaptiveInstanceNormalization(Layer):
 
     def call(self, inputs):
         input_tensor, gamma, beta = inputs
-        mean = K.mean(input_tensor, axis = [1, 2], keepdims = True)
-        std = K.std(input_tensor, axis = [1, 2], keepdims = True) + 1e-7
+        mean = K.mean(input_tensor, axis = [1, -1], keepdims = True)
+        std = K.std(input_tensor, axis = [1, -1], keepdims = True) + 1e-7
         y = (input_tensor - mean) / std
         
         pool_shape = [-1, 1, 1, y.shape[-1]]
