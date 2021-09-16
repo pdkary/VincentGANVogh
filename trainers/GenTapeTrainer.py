@@ -3,6 +3,9 @@ import tensorflow as tf
 
 
 class GenTapeTrainer(AbstractTrainer):
+    def get_style_loss(self,style_features,decoded_image):
+        pass
+    
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
             generated_images = self.generator(gen_input, training=False)
