@@ -1,6 +1,6 @@
 from typing import Tuple, List
 
-from config.GanConfig import NormalizationConfig, RegularizationConfig, GenLayerConfig
+from config.GanConfig import NormalizationConfig, RegularizationConfig, GenLayerConfig, NoneCallable
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from layers.GanInput import GanInput
 
@@ -22,8 +22,8 @@ class Generator():
                  loss_function: Loss,
                  style_model: StyleModelBase = None,
                  noise_model: NoiseModelBase = None,
-                 normalization: NormalizationConfig = None,
-                 kernel_regularizer:RegularizationConfig = None,
+                 normalization: NormalizationConfig = NoneCallable,
+                 kernel_regularizer:RegularizationConfig = NoneCallable,
                  kernel_initializer:str = None):
         self.img_shape = img_shape
         self.input_model = input_model

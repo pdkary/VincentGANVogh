@@ -38,7 +38,7 @@ class NormalizationConfig(CallableConfig):
 class RegularizationConfig(CallableConfig):
     pass
 
-NoneConfig = CallableConfig(None)
+NoneCallable = CallableConfig(None)
 
 class DiscConvLayerConfig():
     def __init__(self,

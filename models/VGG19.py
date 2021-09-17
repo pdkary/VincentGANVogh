@@ -1,5 +1,5 @@
 from models.Discriminator import Discriminator
-from config.GanConfig import DiscConvLayerConfig,DiscDenseLayerConfig, ActivationConfig, NoneConfig, NormalizationConfig, RegularizationConfig
+from config.GanConfig import DiscConvLayerConfig,DiscDenseLayerConfig, ActivationConfig, NoneCallable, NormalizationConfig, RegularizationConfig
 from tensorflow.keras.optimizers import Optimizer
 from tensorflow.keras.losses import Loss
 
@@ -10,7 +10,7 @@ def get_vgg19(input_channels:int,
               normalization:NormalizationConfig,
               optimizer: Optimizer,
               loss_function: Loss,
-              kernel_regularizer: RegularizationConfig = NoneConfig,
+              kernel_regularizer: RegularizationConfig = NoneCallable,
               kernel_initializer: str = "glorot_uniform",
               output_dim: int = 1,
               minibatch_size:int = 32,
