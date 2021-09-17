@@ -52,7 +52,6 @@ class LatentNoiseModel(NoiseModelBase):
                  kernel_size: int = 1, 
                  max_std_dev: int = 1):
         super().__init__(noise_image_size, activation, kernel_regularizer,kernel_initializer, kernel_size, max_std_dev)
-        self.constant = tf.random.normal(shape=self.noise_image_size, stddev=self.max_std_dev)
         
     def get_batch(self, batch_size: int):
         noise_batch = np.full((batch_size, *self.noise_image_size), 0.0, dtype=np.float32)
