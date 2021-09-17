@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from layers.GanInput import RealImageInput
 from typing import Tuple
 
 import numpy as np
@@ -15,7 +16,7 @@ class NoiseModelBase(ABC):
                  kernel_regularizer: RegularizationConfig,
                  kernel_initializer: str = "glorot_normal",
                  kernel_size: int = 1,
-                 max_std_dev: int = 1):
+                 max_std_dev: float = 1.0):
         self.noise_image_size = noise_image_size
         self.activation = activation
         self.kernel_regularizer = kernel_regularizer
@@ -53,7 +54,7 @@ class LatentNoiseModel(NoiseModelBase):
                  kernel_regularizer: RegularizationConfig, 
                  kernel_initializer: str = "glorot_uniform", 
                  kernel_size: int = 1, 
-                 max_std_dev: int = 1):
+                 max_std_dev: float = 1.0):
         super().__init__(noise_image_size, activation, kernel_regularizer,kernel_initializer, kernel_size, max_std_dev)
         
     def get_training_batch(self, batch_size: int):
@@ -73,7 +74,7 @@ class ConstantNoiseModel(NoiseModelBase):
                  kernel_regularizer: RegularizationConfig, 
                  kernel_initializer: str = "glorot_uniform", 
                  kernel_size: int = 1, 
-                 max_std_dev: int = 1):
+                 max_std_dev: float = 1.0):
         super().__init__(noise_image_size, activation, kernel_regularizer,kernel_initializer, kernel_size, max_std_dev)
         self.constant = tf.random.normal(shape=self.noise_image_size, stddev=self.max_std_dev)
 
@@ -86,3 +87,14 @@ class ConstantNoiseModel(NoiseModelBase):
     
     def get_validation_batch(self, batch_size: int):
         return self.get_training_batch(batch_size)
+
+
+class ImageNoiseModel(NoiseModelBase):
+    def __init__(self, 
+                 image_source: RealImageInput, 
+                 activation: ActivationConfig, 
+                 kernel_regularizer: RegularizationConfig, 
+                 kernel_initializer: str = "glorot_uniform", 
+                 kernel_size: int = 1, 
+                 max_std_dev: float = 1.0):
+        super().__init__(image_source.image_shape, activation, kernel_regularizer, kernel_initializer, kernel_size, max_std_dev)
