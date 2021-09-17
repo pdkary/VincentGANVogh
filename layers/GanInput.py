@@ -1,13 +1,16 @@
-from config.GanConfig import ActivationConfig
-from tensorflow.keras.regularizers import L2
-from helpers.DataHelper import DataHelper
-from config.TrainingConfig import DataConfig
-from typing import Tuple
-from tensorflow.keras.backend import prod
-from tensorflow.keras.layers import Input, Dense, Activation, Reshape
-import tensorflow as tf
-import numpy as np
 from abc import ABC, abstractmethod
+from typing import Tuple
+
+import numpy as np
+import tensorflow as tf
+from tensorflow.python.data import Dataset
+from config.GanConfig import ActivationConfig
+from config.TrainingConfig import DataConfig
+from helpers.DataHelper import DataHelper
+from tensorflow.keras.backend import prod
+from tensorflow.keras.layers import Activation, Dense, Input, Reshape
+from tensorflow.keras.regularizers import L2
+
 
 class GanInput(ABC):
     def __init__(self,input_shape: Tuple[int,int,int],name="gan_input"):
@@ -56,15 +59,25 @@ class RealImageInput(GanInput,DataConfig):
         self.data_helper = DataHelper(data_config)
         print("Preparing Dataset".upper())
         self.images = self.data_helper.load_data()
-        self.dataset = tf.data.Dataset.from_tensor_slices(self.images)
-        self.dataset_size = len(self.images)
+        
+        self.num_training_imgs = 9*len(self.images)//10
+        self.training_images = self.images[:self.num_training_imgs]
+        self.validation_images = self.images[self.num_training_imgs:]
+        self.training_dataset = tf.data.Dataset.from_tensor_slices(self.training_images)
+        self.validation_dataset = tf.data.Dataset.from_tensor_slices(self.validation_images)
         print("DATASET LOADED")
     
     def save(self,epoch,images,preview_rows,preview_cols,preview_margin):
         self.data_helper.save_images(epoch,images,preview_rows,preview_cols,preview_margin)
     
-    def get_batch(self,batch_size):
-        d = self.dataset.shuffle(self.dataset_size).batch(batch_size)
+    def get_training_batch(self,batch_size):
+        return self.__get_batch__(batch_size,self.training_dataset)
+    
+    def get_validation_batch(self,batch_size):
+        return self.__get_batch__(batch_size,self.validation_dataset)
+    
+    def __get_batch__(self,batch_size:int,dataset:Dataset):
+        d = dataset.shuffle(self.num_training_imgs//2).batch(batch_size)
         d_iterator = iter(d)
         batch = next(d_iterator)
         while batch.shape[0] != batch_size:
