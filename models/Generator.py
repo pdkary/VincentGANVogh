@@ -69,16 +69,20 @@ class Generator():
         out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         for i in range(config.convolutions):
             if config.transpose:
-                out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,padding='same',kernel_regularizer=self.kernel_regularizer.get(), kernel_initializer = self.kernel_initializer)(out)
+                out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,
+                                      padding='same',kernel_regularizer=self.kernel_regularizer.get(), 
+                                      kernel_initializer = self.kernel_initializer)(out)
             else:
-                out = Conv2D(config.filters,config.kernel_size,padding='same',kernel_regularizer=self.kernel_regularizer.get(), kernel_initializer = self.kernel_initializer)(out)
+                out = Conv2D(config.filters,config.kernel_size,
+                             padding='same',kernel_regularizer=self.kernel_regularizer.get(), 
+                             kernel_initializer = self.kernel_initializer)(out)
             
             if self.noise_model is not None and config.noise:
                 out = self.noise_model.add(out)
             
             if self.style_model is not None and config.style:
-                beta = Dense(config.filters,bias_initializer='ones')(self.S)
-                gamma = Dense(config.filters,bias_initializer='zeros')(self.S)
+                beta = Dense(config.filters,bias_initializer='ones')(self.style_model.model)
+                gamma = Dense(config.filters,bias_initializer='zeros')(self.style_model.model)
                 out = AdaptiveInstanceNormalization()([out,beta,gamma])
             else:
                 out = self.normalization.get()(out)
