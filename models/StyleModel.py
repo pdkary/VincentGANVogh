@@ -4,9 +4,7 @@ from typing import Tuple
 import tensorflow as tf
 from config.GanConfig import ActivationConfig, RegularizationConfig
 from layers.GanInput import RealImageInput
-from tensorflow.keras.layers import Dense, Flatten, Input
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import MaxPooling2D
+from tensorflow.keras.layers import Dense, Flatten, Input, Conv2D, MaxPooling2D, Activation
 
 
 class StyleModelBase(ABC):
@@ -81,7 +79,7 @@ class ImageStyleModel(StyleModelBase):
 
         for i in range(self.style_layers):
             model = Dense(self.style_layer_size)(model)
-            model = self.activation.get()(model)
+            model = self.activation.get()(model) if i != self.style_layers - 1 else Activation("sigmoid")(model)
         self.model = model
 
     def get_training_batch(self, batch_size):
