@@ -72,8 +72,10 @@ class ImageStyleModel(StyleModelBase):
         model = MaxPooling2D(self.downsample_factor)(self.input)
         for i in range(convolutions):
             model = Conv2D(filters, kernel_size, padding="same")(model)
-            model = conv_activation.get()
+            model = conv_activation.get()(model)
+            
         model = Flatten()(model) if self.style_layers > 0 else model
+        
         for i in range(self.style_layers):
             model = Dense(self.style_layer_size,
                           kernel_regularizer=kernel_regularizer.get(),
