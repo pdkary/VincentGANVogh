@@ -26,7 +26,7 @@ class Discriminator():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.output_dim = self.disc_dense_layers[-1].size
-        self.output_dim = self.output_dim + self.minibatch_size if self.minibatch else self.output_dim
+        self.output_dim = self.output_dim
         self.input = Input(shape=self.img_shape, name="discriminator")
 
     def build(self):
