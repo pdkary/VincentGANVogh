@@ -72,7 +72,6 @@ class Generator():
 
     def generator_block(self,input_tensor,config: GenLayerConfig):
         out = input_tensor
-        out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         for i in range(config.convolutions):
             if config.transpose:
                 out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,
@@ -93,4 +92,5 @@ class Generator():
             else:
                 out = self.normalization.get()(out)
             out =  config.activation.get()(out)
+        out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         return out

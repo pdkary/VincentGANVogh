@@ -1,10 +1,12 @@
 from typing import List, Tuple
-from tensorflow.keras.optimizers import Optimizer
-from tensorflow.keras.losses import Loss
+
 from config.GanConfig import DiscConvLayerConfig, DiscDenseLayerConfig, RegularizationConfig
-from third_party_layers.MinibatchDiscrimination import MinibatchDiscrimination
-from tensorflow.keras.layers import Dense, Dropout, Conv2D, MaxPooling2D, Flatten, Input
+from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, Input, MaxPooling2D
+from tensorflow.keras.losses import Loss
 from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Optimizer
+from third_party_layers.MinibatchDiscrimination import MinibatchDiscrimination
+
 
 class Discriminator():
     def __init__(self,
