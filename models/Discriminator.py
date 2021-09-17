@@ -27,7 +27,7 @@ class Discriminator():
         self.kernel_initializer = kernel_initializer
         self.output_dim = self.disc_dense_layers[-1].size
         self.output_dim = self.output_dim
-        self.input = Input(shape=self.img_shape, name="discriminator")
+        self.input = Input(shape=self.img_shape, name="discriminator_input")
 
     def build(self):
         out = self.input

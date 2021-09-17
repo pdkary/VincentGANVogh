@@ -66,7 +66,6 @@ class ImageStyleModel(StyleModelBase):
         self.downsample_factor = (downsample_factor, downsample_factor)
         super().__init__(real_image_input.input_shape,
                          style_layers, style_layer_size, activation)
-        self.input = self.image_source.input
 
         model = MaxPooling2D(self.downsample_factor)(self.input)
         for i in range(convolutions):
@@ -79,7 +78,7 @@ class ImageStyleModel(StyleModelBase):
 
         for i in range(self.style_layers):
             model = Dense(self.style_layer_size)(model)
-            model = self.activation.get()(model) if i != self.style_layers - 1 else Activation("sigmoid")(model)
+            model = self.activation.get()(model)
         self.model = model
 
     def get_training_batch(self, batch_size):
