@@ -54,7 +54,7 @@ class Generator():
     
     def build(self,print_summary=True):
         out = self.input_model.model
-        for layer_config in list(self.gen_layers[0])[0]:
+        for layer_config in self.gen_layers:
             out = self.generator_block(out,layer_config)
         self.functional_model = out
         gen_model = Model(inputs=self.input,outputs=out,name="generator")
