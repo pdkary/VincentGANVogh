@@ -59,8 +59,8 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                 g_loss, g_metrics = 0.0, [0.0 for i in self.metrics]
                 
                 for i in range(self.disc_batches_per_epoch):
-                    source_input = source.get_batch(self.batch_size)
-                    gen_input = self.G.get_input(self.batch_size)
+                    source_input = source.get_validation_batch(self.batch_size)
+                    gen_input = self.G.get_validation_input(self.batch_size)
                     batch_out = self.train_discriminator(source_input, gen_input)
                     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                     d_loss += batch_loss
@@ -68,9 +68,8 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                         d_metrics[i] += batch_metrics[i]
                     
                 for i in range(self.gen_batches_per_epoch):
-                    source_input = source.get_batch(self.batch_size)
-                    gen_input = self.G.get_input(self.batch_size)
-                    batch_out = self.train_generator(source_input,gen_input)
+                    gen_input = self.G.get_training_input(self.batch_size)
+                    batch_out = self.train_generator(None,gen_input)
                     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                     g_loss += batch_loss
                     for i in range(len(self.metrics)):
@@ -87,7 +86,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                 self.gan_plotter.log_epoch()
                 
             if epoch % printerval == 0:
-                preview_seed = self.G.get_input(self.preview_size)
+                preview_seed = self.G.get_training_input(self.preview_size)
                 generated_images = np.array(self.generator.predict(preview_seed))
                 self.image_sources[0].save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
 

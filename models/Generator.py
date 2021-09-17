@@ -44,12 +44,20 @@ class Generator():
         if self.noise_model is not None:
             self.input.append(self.noise_model.input)
     
-    def get_input(self,batch_size):
-        inp = [self.input_model.get_batch(batch_size)]
+    def get_training_input(self,batch_size):
+        inp = [self.input_model.get_training_batch(batch_size)]
         if self.style_model is not None:
-            inp.append(self.style_model.get_batch(batch_size))
+            inp.append(self.style_model.get_training_batch(batch_size))
         if self.noise_model is not None:
-            inp.append(self.noise_model.get_batch(batch_size))
+            inp.append(self.noise_model.get_training_batch(batch_size))
+        return inp
+    
+    def get_validation_input(self,batch_size):
+        inp = [self.input_model.get_validation_batch(batch_size)]
+        if self.style_model is not None:
+            inp.append(self.style_model.get_validation_batch(batch_size))
+        if self.noise_model is not None:
+            inp.append(self.noise_model.get_validation_batch(batch_size))
         return inp
     
     def build(self,print_summary=True):
@@ -62,7 +70,6 @@ class Generator():
         if print_summary:
             gen_model.summary()
         return gen_model
-
 
     def generator_block(self,input_tensor,config: GenLayerConfig):
         out = input_tensor

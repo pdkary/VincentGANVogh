@@ -6,7 +6,6 @@ import tensorflow as tf
 from config.GanConfig import ActivationConfig, RegularizationConfig
 from layers.AdaptiveAdd import AdaptiveAdd
 from tensorflow.keras.layers import Conv2D, Cropping2D, Input
-from tensorflow.keras.regularizers import L2
 
 
 class NoiseModelBase(ABC):
@@ -39,7 +38,11 @@ class NoiseModelBase(ABC):
         return AdaptiveAdd()([input_tensor, noise])
 
     @abstractmethod
-    def get_batch(self, batch_size: int):
+    def get_training_batch(self, batch_size: int):
+        pass
+    
+    @abstractmethod
+    def get_validation_batch(self, batch_size: int):
         pass
 
 
@@ -53,11 +56,14 @@ class LatentNoiseModel(NoiseModelBase):
                  max_std_dev: int = 1):
         super().__init__(noise_image_size, activation, kernel_regularizer,kernel_initializer, kernel_size, max_std_dev)
         
-    def get_batch(self, batch_size: int):
+    def get_training_batch(self, batch_size: int):
         noise_batch = np.full((batch_size, *self.noise_image_size), 0.0, dtype=np.float32)
         for i in range(batch_size):
             noise_batch[i] = tf.random.normal(shape=self.noise_image_size, stddev=self.max_std_dev)
         return noise_batch
+    
+    def get_validation_batch(self, batch_size: int):
+        return self.get_training_batch(batch_size)
 
 
 class ConstantNoiseModel(NoiseModelBase):
@@ -71,9 +77,12 @@ class ConstantNoiseModel(NoiseModelBase):
         super().__init__(noise_image_size, activation, kernel_regularizer,kernel_initializer, kernel_size, max_std_dev)
         self.constant = tf.random.normal(shape=self.noise_image_size, stddev=self.max_std_dev)
 
-    def get_batch(self, batch_size: int):
+    def get_training_batch(self, batch_size: int):
         noise_batch = np.full(
             (batch_size, *self.noise_image_size), 0.0, dtype=np.float32)
         for i in range(batch_size):
             noise_batch[i] = self.constant
         return noise_batch
+    
+    def get_validation_batch(self, batch_size: int):
+        return self.get_training_batch(batch_size)

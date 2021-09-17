@@ -26,7 +26,11 @@ class StyleModelBase(ABC):
         self.kernel_initializer = kernel_initializer
     
     @abstractmethod
-    def get_batch(self,batch_size:int):
+    def get_training_batch(self,batch_size:int):
+        pass
+    
+    @abstractmethod
+    def get_validation_batch(self,batch_size:int):
         pass
         
 class LatentStyleModel(StyleModelBase):
@@ -47,8 +51,11 @@ class LatentStyleModel(StyleModelBase):
             model = self.activation.get()(model)
         self.model = model
     
-    def get_batch(self,batch_size:int):
+    def get_training_batch(self,batch_size:int):
         return tf.random.normal(shape = (batch_size,self.input_shape),dtype=tf.float32)
+    
+    def get_validation_batch(self, batch_size: int):
+        return self.get_training_batch(batch_size)
 
 class ImageStyleModel(StyleModelBase):
     def __init__(self,
@@ -70,5 +77,8 @@ class ImageStyleModel(StyleModelBase):
             model = self.activation.get()(model)
         self.model = model
         
-    def get_batch(self,batch_size):
-        return self.image_source.get_batch(batch_size)
+    def get_training_batch(self,batch_size):
+        return self.image_source.get_training_batch(batch_size)
+        
+    def get_validation_batch(self,batch_size):
+        return self.image_source.get_validation_batch(batch_size)

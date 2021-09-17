@@ -19,7 +19,11 @@ class GanInput(ABC):
         self.model = Activation('linear')(self.input)
     
     @abstractmethod    
-    def get_batch(self,batch_size):
+    def get_training_batch(self,batch_size):
+        pass
+    
+    @abstractmethod    
+    def get_validation_batch(self,batch_size):
         pass
 
 class EncoderInput(GanInput):
@@ -32,11 +36,14 @@ class GenConstantInput(GanInput):
         self.constant = tf.constant(tf.random.normal(shape=input_shape,dtype=tf.float32))
         self.model = Activation('linear')(self.input)
     
-    def get_batch(self, batch_size):
+    def get_training_batch(self, batch_size):
         gc_batch = np.full((batch_size,*self.input_shape),0.0,dtype=np.float32)
         for i in range(batch_size):
             gc_batch[i] = self.constant
         return gc_batch
+    
+    def get_validation_batch(self, batch_size):
+        return self.get_training_batch(batch_size)
         
 class GenLatentSpaceInput(GanInput):
     def __init__(self, input_shape: int,output_shape:Tuple,layer_size,layers, activation: ActivationConfig):
@@ -49,8 +56,11 @@ class GenLatentSpaceInput(GanInput):
         self.model = activation.get()(self.model)
         self.model = Reshape(output_shape)(self.model)
     
-    def get_batch(self, batch_size):
+    def get_training_batch(self, batch_size):
         return tf.random.normal(shape=(batch_size,self.input_shape))
+    
+    def get_validation_batch(self, batch_size):
+        return self.get_training_batch(batch_size)
 
 class RealImageInput(GanInput,DataConfig):
     def __init__(self,data_config: DataConfig):
@@ -60,7 +70,7 @@ class RealImageInput(GanInput,DataConfig):
         print("Preparing Dataset".upper())
         self.images = self.data_helper.load_data()
         
-        self.num_training_imgs = 9*len(self.images)//10
+        self.num_training_imgs = len(self.images)//2
         self.training_images = self.images[:self.num_training_imgs]
         self.validation_images = self.images[self.num_training_imgs:]
         self.training_dataset = tf.data.Dataset.from_tensor_slices(self.training_images)
