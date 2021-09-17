@@ -18,7 +18,7 @@ class Generator():
     def __init__(self,
                  img_shape: Tuple[int,int,int],
                  input_model: GanInput,
-                 gen_layers: List[GenLayerConfig],
+                 gen_layers: List,
                  gen_optimizer: Optimizer,
                  loss_function: Loss,
                  style_model: StyleModelBase = None,
