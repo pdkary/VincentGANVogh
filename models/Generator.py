@@ -1,4 +1,4 @@
-from typing import Tuple, Iterable
+from typing import Tuple, List
 
 from config.GanConfig import NormalizationConfig, RegularizationConfig, GenLayerConfig
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
@@ -18,7 +18,7 @@ class Generator():
     def __init__(self,
                  img_shape: Tuple[int,int,int],
                  input_model: GanInput,
-                 gen_layers: Iterable[GenLayerConfig],
+                 gen_layers: List[GenLayerConfig],
                  gen_optimizer: Optimizer,
                  loss_function: Loss,
                  style_model: StyleModelBase = None,
@@ -28,7 +28,7 @@ class Generator():
                  kernel_initializer:str = None):
         self.img_shape = img_shape
         self.input_model = input_model
-        self.gen_layers = gen_layers,
+        self.gen_layers = gen_layers
         self.gen_optimizer = gen_optimizer
         self.loss_function = loss_function
         self.style_model = style_model
