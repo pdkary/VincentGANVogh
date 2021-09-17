@@ -3,27 +3,39 @@ from typing import Tuple
 
 import numpy as np
 import tensorflow as tf
+from config.GanConfig import ActivationConfig, RegularizationConfig
 from layers.AdaptiveAdd import AdaptiveAdd
-from tensorflow.keras.layers import Activation, Conv2D, Cropping2D, Input
+from tensorflow.keras.layers import Conv2D, Cropping2D, Input
 from tensorflow.keras.regularizers import L2
 
 
 class NoiseModelBase(ABC):
     def __init__(self,
                  noise_image_size: Tuple[int,int,int],
+                 activation: ActivationConfig,
+                 kernel_regularizer: RegularizationConfig,
+                 kernel_initializer: str = "glorot_normal",
                  kernel_size: int = 1,
                  max_std_dev: int = 1):
         self.noise_image_size = noise_image_size
+        self.activation = activation
+        self.kernel_regularizer = kernel_regularizer
+        self.kernel_initializer = kernel_initializer
         self.kernel_size = kernel_size
         self.max_std_dev = max_std_dev
+        
         self.input = Input(shape=self.noise_image_size, name="noise_model_input")
-        self.model = Activation('linear')(self.input)
+        self.model = self.activation.get()(self.input)
     
     def add(self,input_tensor):
         n_size = self.model.shape[1]
         i_size = input_tensor.shape[1]
         noise = Cropping2D((n_size-i_size)//2)(self.model)
-        noise = Conv2D(input_tensor.shape[-1],self.kernel_size,padding='same', kernel_regularizer=L2(),kernel_initializer='he_normal')(noise)
+        noise = Conv2D(input_tensor.shape[-1],
+                       self.kernel_size,
+                       padding='same', 
+                       kernel_regularizer=self.kernel_regularizer.get(),
+                       kernel_initializer=self.kernel_initializer)(noise)
         return AdaptiveAdd()([input_tensor,noise])
 
     @abstractmethod
