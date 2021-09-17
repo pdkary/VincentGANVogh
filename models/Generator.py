@@ -39,6 +39,7 @@ class Generator():
         
         self.input = [self.input_model.input]
         if self.style_model is not None:
+            self.S = self.style_model.build()
             self.input.append(self.style_model.input)
             
         if self.noise_model is not None:
@@ -77,8 +78,8 @@ class Generator():
                 out = self.noise_model.add(out)
             
             if self.style_model is not None and config.style:
-                beta = Dense(config.filters,bias_initializer='ones')(self.style_model.model)
-                gamma = Dense(config.filters,bias_initializer='zeros')(self.style_model.model)
+                beta = Dense(config.filters,bias_initializer='ones')(self.S)
+                gamma = Dense(config.filters,bias_initializer='zeros')(self.S)
                 out = AdaptiveInstanceNormalization()([out,beta,gamma])
             else:
                 out = self.normalization.get()(out)
