@@ -81,12 +81,12 @@ class RealImageInput(GanInput,DataConfig):
         self.data_helper.save_images(epoch,images,preview_rows,preview_cols,preview_margin)
     
     def get_training_batch(self,batch_size):
-        return self.__get_batch__(batch_size,self.training_dataset)
+        return self.get_batch(batch_size,self.training_dataset)
     
     def get_validation_batch(self,batch_size):
-        return self.__get_batch__(batch_size,self.validation_dataset)
+        return self.get_batch(batch_size,self.validation_dataset)
     
-    def __get_batch__(self,batch_size:int,dataset:Dataset):
+    def get_batch(self,batch_size:int,dataset:Dataset):
         d = dataset.shuffle(self.num_training_imgs//2).batch(batch_size)
         d_iterator = iter(d)
         batch = next(d_iterator)
