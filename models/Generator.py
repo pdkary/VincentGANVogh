@@ -1,15 +1,41 @@
-from tensorflow.keras.regularizers import L2
-from config.GeneratorConfig import GeneratorModelConfig, GenLayerConfig
-from tensorflow.keras.layers import Conv2D, UpSampling2D, Conv2DTranspose, Dense
-from tensorflow.keras.models import Model
-from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
+from typing import List, Tuple
 
-class Generator(GeneratorModelConfig):
-    def __init__(self,gen_config: GeneratorModelConfig):
-        GeneratorModelConfig.__init__(self,**gen_config.__dict__)
+from config.GanConfig import NormalizationConfig, RegularizationConfig, GenLayerConfig
+from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
+from layers.GanInput import GanInput
+
+from tensorflow.keras.layers import Conv2D, Conv2DTranspose, Dense,UpSampling2D
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Optimizer
+from tensorflow.keras.regularizers import L2
+from tensorflow.python.keras.losses import Loss
+
+from models.NoiseModel import NoiseModelBase
+from models.StyleModel import StyleModelBase
+
+
+class Generator():
+    def __init__(self,
+                 img_shape: Tuple[int,int,int],
+                 input_model: GanInput,
+                 gen_layers: List[GenLayerConfig],
+                 gen_optimizer: Optimizer,
+                 loss_function: Loss,
+                 style_model: StyleModelBase = None,
+                 noise_model: NoiseModelBase = None,
+                 normalization: NormalizationConfig = None,
+                 kernel_regularizer:RegularizationConfig = None):
+        self.img_shape = img_shape
+        self.input_model = input_model
+        self.gen_layers = gen_layers,
+        self.gen_optimizer = gen_optimizer
+        self.loss_function = loss_function
+        self.style_model = style_model
+        self.noise_model = noise_model
+        self.normalization = normalization
+        self.kernel_regularizer = kernel_regularizer
         
         self.input = [self.input_model.input]
-             
         if self.style_model is not None:
             self.input.append(self.style_model.input)
             
@@ -30,9 +56,7 @@ class Generator(GeneratorModelConfig):
             out = self.generator_block(out,layer_config)
         self.functional_model = out
         gen_model = Model(inputs=self.input,outputs=out,name="generator")
-        gen_model.compile(optimizer=self.gen_optimizer,
-                           loss=self.loss_function,
-                           metrics=['accuracy'])
+        gen_model.compile(optimizer=self.gen_optimizer,loss=self.loss_function)
         if print_summary:
             gen_model.summary()
         return gen_model

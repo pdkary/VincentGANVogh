@@ -1,23 +1,24 @@
 from abc import ABC, abstractmethod
 from typing import List
-from layers.GanInput import RealImageInput
-from config.TrainingConfig import GanTrainingConfig
-from config.DiscriminatorConfig import DiscriminatorModelConfig
-from config.GeneratorConfig import GeneratorModelConfig
-from models.Generator import Generator
-from models.Discriminator import Discriminator
+
 import numpy as np
 import tensorflow as tf
+from config.TrainingConfig import GanTrainingConfig
+from layers.GanInput import RealImageInput
+from models.Discriminator import Discriminator
+from models.Generator import Generator
+from tensorflow.keras.metrics import Metric
+
 
 class AbstractTrainer(GanTrainingConfig, ABC):
     def __init__(self,
-                 gen_model_config:    GeneratorModelConfig,
-                 disc_model_config:   DiscriminatorModelConfig,
+                 generator:    Generator,
+                 discriminator:   Discriminator,
                  gan_training_config: GanTrainingConfig,
                  image_sources:         List[RealImageInput]):
         GanTrainingConfig.__init__(self, **gan_training_config.__dict__)
-        self.G: Generator = Generator(gen_model_config)
-        self.D: Discriminator = Discriminator(disc_model_config)
+        self.G: Generator = generator
+        self.D: Discriminator = discriminator
         self.image_sources = image_sources
         self.preview_size = self.preview_cols*self.preview_rows
 
@@ -30,8 +31,8 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.discriminator = self.D.build()
         self.model_output_path = self.image_sources[0].data_path + "/models"
         
-        self.disc_metrics = [m() for m in self.metrics]
-        self.gen_metrics = [m() for m in self.metrics]
+        self.disc_metrics: List[Metric] = [m() for m in self.metrics]
+        self.gen_metrics: List[Metric] = [m() for m in self.metrics]
         d_metric_labels = ["D_" + str(m.name) for m in self.disc_metrics]
         g_metric_labels = ["G_" + str(m.name) for m in self.gen_metrics]
         self.plot_labels = ["D_Loss","G_Loss",*d_metric_labels,*g_metric_labels]
@@ -87,10 +88,8 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                 
             if epoch % printerval == 0:
                 preview_seed = self.G.get_input(self.preview_size)
-                generated_images = np.array(
-                    self.generator.predict(preview_seed))
-                self.image_sources[0].save(
-                    epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
+                generated_images = np.array(self.generator.predict(preview_seed))
+                self.image_sources[0].save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
 
     def train_n_eras(self, eras, epochs, printerval, ma_size):
         if self.plot:

@@ -1,6 +1,5 @@
 from tensorflow.keras.layers import Layer
 import keras.backend as K
-import tensorflow as tf
 
 class AdaptiveInstanceNormalization(Layer):
     def __init__(self,**kwargs):
@@ -8,8 +7,10 @@ class AdaptiveInstanceNormalization(Layer):
     
     def call(self, inputs):
         input_tensor, beta, gamma = inputs
-        mean = K.mean(input_tensor, axis = [0,1,2], keepdims = True)
-        std = K.std(input_tensor, axis = [0,1,2], keepdims = True) + 1e-7
-        normed = (input_tensor - mean) / std
+        beta = K.reshape(beta,(-1,1,1,beta.shape[-1]))
+        gamma = K.reshape(gamma,(-1,1,1,gamma.shape[-1]))
+        mean = K.mean(input_tensor, axis = [1,2], keepdims = True)
+        std = K.std(input_tensor, axis = [1,2], keepdims = True) + 1e-7
+        normed = (input_tensor - mean)/std
         return normed * gamma + beta
         

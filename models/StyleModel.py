@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from tensorflow.python.keras.layers.pooling import MaxPooling2D
-from config.CallableConfig import ActivationConfig
+from config.GanConfig import ActivationConfig
 from typing import Tuple
 from layers.GanInput import RealImageInput
 from tensorflow.keras.regularizers import L2

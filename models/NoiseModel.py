@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import Tuple
-from tensorflow.keras.regularizers import L2
-from layers.AdaptiveAdd import AdaptiveAdd
-from tensorflow.keras.layers import Cropping2D, Activation, Input, Cropping2D, Conv2D
+
 import numpy as np
 import tensorflow as tf
+from layers.AdaptiveAdd import AdaptiveAdd
+from tensorflow.keras.layers import Activation, Conv2D, Cropping2D, Input
+from tensorflow.keras.regularizers import L2
+
 
 class NoiseModelBase(ABC):
     def __init__(self,
