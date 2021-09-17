@@ -36,7 +36,7 @@ class LatentStyleModel(StyleModelBase):
                  style_layer_size: int, 
                  activation: ActivationConfig, 
                  kernel_regularizer: RegularizationConfig, 
-                 kernel_initializer: str):
+                 kernel_initializer: str = "glorot_uniform"):
         super().__init__(input_shape, style_layers, style_layer_size, activation, kernel_regularizer, kernel_initializer)
         
         model = self.input
