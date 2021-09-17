@@ -68,6 +68,7 @@ class ImageStyleModel(StyleModelBase):
         self.downsample_factor = (downsample_factor, downsample_factor)
         super().__init__(real_image_input.input_shape,
                          style_layers, style_layer_size, activation)
+        self.input = self.image_source.input
 
         model = MaxPooling2D(self.downsample_factor)(self.input)
         for i in range(convolutions):
