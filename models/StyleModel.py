@@ -62,17 +62,24 @@ class ImageStyleModel(StyleModelBase):
                  kernel_regularizer: RegularizationConfig,
                  kernel_initializer: str = "glorot_uniform",
                  downsample_factor: int = 1):
+        self.filters = filters
+        self.convolutions = convolutions
+        self.kernel_size = kernel_size
+        self.conv_activation = conv_activation
+        self.kernel_regularizer = kernel_regularizer
+        self.kernel_initializer = kernel_initializer
         self.image_source = real_image_input
         self.downsample_factor = (downsample_factor, downsample_factor)
-        super().__init__(real_image_input.input_shape,
-                         style_layers, style_layer_size, activation)
-
+        super().__init__(real_image_input.input_shape,style_layers, style_layer_size, activation)
+        
+    
+    def build(self):
         model = MaxPooling2D(self.downsample_factor)(self.input)
-        for i in range(convolutions):
-            model = Conv2D(filters, kernel_size, padding="same",
-                           kernel_regularizer=kernel_regularizer.get(),
-                           kernel_initializer=kernel_initializer)(model)
-            model = conv_activation.get()(model)
+        for i in range(self.convolutions):
+            model = Conv2D(self.filters, self.kernel_size, padding="same",
+                           kernel_regularizer=self.kernel_regularizer.get(),
+                           kernel_initializer=self.kernel_initializer)(model)
+            model = self.conv_activation.get()(model)
 
         model = Flatten()(model) if self.style_layers > 0 else model
 
@@ -80,6 +87,7 @@ class ImageStyleModel(StyleModelBase):
             model = Dense(self.style_layer_size)(model)
             model = self.activation.get()(model)
         self.model = model
+        return self
 
     def get_training_batch(self, batch_size):
         return self.image_source.get_training_batch(batch_size)
