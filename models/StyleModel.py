@@ -26,23 +26,26 @@ class StyleModelBase(ABC):
         self.kernel_initializer = kernel_initializer
     
     @abstractmethod
-    def build(self):
-        pass
-    
-    @abstractmethod
     def get_batch(self,batch_size:int):
         pass
         
 class LatentStyleModel(StyleModelBase):
-    def build(self):
+    def __init__(self, 
+                 input_shape: Tuple, 
+                 style_layers: int, 
+                 style_layer_size: int, 
+                 activation: ActivationConfig, 
+                 kernel_regularizer: RegularizationConfig, 
+                 kernel_initializer: str):
+        super().__init__(input_shape, style_layers, style_layer_size, activation, kernel_regularizer, kernel_initializer)
+        
         model = self.input
         for i in range(self.style_layers):
             model = Dense(self.style_layer_size, 
                           kernel_regularizer=self.kernel_regularizer.get(),
                           kernel_initializer = self.kernel_initializer)(model)
             model = self.activation.get()(model)
-        self.model = Model(inputs=self.input,outputs=model)
-        return self.model
+        self.model = model
     
     def get_batch(self,batch_size:int):
         return tf.random.normal(shape = (batch_size,self.input_shape),dtype=tf.float32)
@@ -58,7 +61,6 @@ class ImageStyleModel(StyleModelBase):
         self.downsample_factor = (downsample_factor,downsample_factor)
         super().__init__(real_image_input.input_shape,activation,style_layers,style_layer_size)
         
-    def build(self):
         model = MaxPooling2D(self.downsample_factor)(self.input)
         model = Flatten()(model) if self.style_layers > 0 else model
         for i in range(self.style_layers):
@@ -66,8 +68,7 @@ class ImageStyleModel(StyleModelBase):
                           kernel_regularizer=self.kernel_regularizer.get(), 
                           kernel_initializer=self.kernel_initializer)(model)
             model = self.activation.get()(model)
-        self.model = Model(inputs=self.input,outputs=model)
-        return self.model
+        self.model = model
         
     def get_batch(self,batch_size):
         return self.image_source.get_batch(batch_size)

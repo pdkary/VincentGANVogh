@@ -39,7 +39,6 @@ class Generator():
         
         self.input = [self.input_model.input]
         if self.style_model is not None:
-            self.S = self.style_model.build()
             self.input.append(self.style_model.input)
             
         if self.noise_model is not None:
