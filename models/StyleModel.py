@@ -1,14 +1,13 @@
 from abc import ABC, abstractmethod
-from tensorflow.python.keras.layers.convolutional import Conv2D
-
-from tensorflow.python.keras.layers.pooling import MaxPooling2D
-from tensorflow.python.keras.models import Model
-from config.GanConfig import ActivationConfig, RegularizationConfig
 from typing import Tuple
-from layers.GanInput import RealImageInput
-from tensorflow.keras.regularizers import L2
-from tensorflow.keras.layers import Input, Dense, Flatten
+
 import tensorflow as tf
+from config.GanConfig import ActivationConfig, RegularizationConfig
+from layers.GanInput import RealImageInput
+from tensorflow.keras.layers import Dense, Flatten, Input
+from tensorflow.python.keras.layers.convolutional import Conv2D
+from tensorflow.python.keras.layers.pooling import MaxPooling2D
+
 
 class StyleModelBase(ABC):
     def __init__(self, 
@@ -17,10 +16,10 @@ class StyleModelBase(ABC):
                  style_layer_size: int, 
                  activation: ActivationConfig):
         self.input_shape = input_shape
-        self.input = Input(shape=input_shape,name="style_model_input")
-        self.activation = activation
         self.style_layers = style_layers
         self.style_layer_size = style_layer_size
+        self.activation = activation
+        self.input = Input(shape=input_shape,name="style_model_input")
     
     @abstractmethod
     def get_training_batch(self,batch_size:int):
