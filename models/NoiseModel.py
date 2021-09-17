@@ -97,4 +97,11 @@ class ImageNoiseModel(NoiseModelBase):
                  kernel_initializer: str = "glorot_uniform", 
                  kernel_size: int = 1, 
                  max_std_dev: float = 1.0):
+        self.image_source = image_source
         super().__init__(image_source.image_shape, activation, kernel_regularizer, kernel_initializer, kernel_size, max_std_dev)
+        
+    def get_training_batch(self, batch_size):
+        return self.image_source.get_training_batch(batch_size)
+
+    def get_validation_batch(self, batch_size):
+        return self.image_source.get_validation_batch(batch_size)
