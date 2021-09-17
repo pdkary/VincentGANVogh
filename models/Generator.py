@@ -24,7 +24,8 @@ class Generator():
                  style_model: StyleModelBase = None,
                  noise_model: NoiseModelBase = None,
                  normalization: NormalizationConfig = None,
-                 kernel_regularizer:RegularizationConfig = None):
+                 kernel_regularizer:RegularizationConfig = None,
+                 kernel_initializer:str = None):
         self.img_shape = img_shape
         self.input_model = input_model
         self.gen_layers = gen_layers,
@@ -34,6 +35,7 @@ class Generator():
         self.noise_model = noise_model
         self.normalization = normalization
         self.kernel_regularizer = kernel_regularizer
+        self.kernel_initializer = kernel_initializer
         
         self.input = [self.input_model.input]
         if self.style_model is not None:
@@ -67,9 +69,9 @@ class Generator():
         out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         for i in range(config.convolutions):
             if config.transpose:
-                out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,padding='same',kernel_regularizer=L2(), kernel_initializer = 'he_normal')(out)
+                out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,padding='same',kernel_regularizer=self.kernel_regularizer.get(), kernel_initializer = self.kernel_initializer)(out)
             else:
-                out = Conv2D(config.filters,config.kernel_size,padding='same',kernel_regularizer=L2(), kernel_initializer = 'he_normal')(out)
+                out = Conv2D(config.filters,config.kernel_size,padding='same',kernel_regularizer=self.kernel_regularizer.get(), kernel_initializer = self.kernel_initializer)(out)
             
             if self.noise_model is not None and config.noise:
                 out = self.noise_model.add(out)
