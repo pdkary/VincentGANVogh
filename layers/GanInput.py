@@ -1,4 +1,4 @@
-from config.CallableConfig import ActivationConfig
+from config.GanConfig import ActivationConfig
 from tensorflow.keras.regularizers import L2
 from helpers.DataHelper import DataHelper
 from config.TrainingConfig import DataConfig
