@@ -7,7 +7,6 @@ from layers.GanInput import GanInput
 from tensorflow.keras.layers import Conv2D, Conv2DTranspose, Dense,UpSampling2D
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Optimizer
-from tensorflow.keras.regularizers import L2
 from tensorflow.python.keras.losses import Loss
 
 from models.NoiseModel import NoiseModelBase
@@ -65,7 +64,7 @@ class Generator():
         for layer_config in self.gen_layers:
             out = self.generator_block(out,layer_config)
         self.functional_model = out
-        gen_model = Model(inputs=self.input,outputs=out,name="generator")
+        gen_model = Model(inputs=self.input,outputs=out,name="Generator")
         gen_model.compile(optimizer=self.gen_optimizer,loss=self.loss_function)
         if print_summary:
             gen_model.summary()
