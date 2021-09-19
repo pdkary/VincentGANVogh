@@ -14,7 +14,9 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             disc_outs = [da.output for da in disc_activations]
             outs = list(zip(gen_outs,disc_outs))
             ada_outs = [adain(g_out,d_out) for g_out,d_out in outs]
-            loss += self.G.loss_function(gen_outs,ada_outs)
+            layer_loss = self.G.loss_function(gen_outs,ada_outs)
+            print(layer_loss)
+            loss += layer_loss
         return loss*tf.ones_like(content_loss_arr)
     
     def train_generator(self,source_input, gen_input):
