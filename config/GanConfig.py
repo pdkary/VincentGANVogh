@@ -29,7 +29,7 @@ class NamedCallableConfig(CallableConfig):
         else:
             shape_name = "_".join(input_shape)
         name = self.name + shape_name
-        if self.shape_count[shape_name] is not None:
+        if shape_name in self.shape_count.keys():
             self.shape_count[shape_name] += 1
         else:
             self.shape_count[shape_name] = 1
