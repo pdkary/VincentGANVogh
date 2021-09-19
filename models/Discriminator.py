@@ -51,7 +51,8 @@ class Discriminator():
     def disc_dense_block(self, input_tensor, config: DiscDenseLayerConfig):
         out_db = Dense(config.size)(input_tensor)
         out_db = Dropout(config.dropout_rate)(out_db) if config.dropout_rate > 0 else out_db
-        out_db = config.activation_config.get(config.size)(out_db)
+        print("called from disc_dense")
+        out_db = config.activation.get(config.size)(out_db)
         return out_db
 
     def disc_conv_block(self, input_tensor, config: DiscConvLayerConfig):
@@ -61,7 +62,8 @@ class Discriminator():
                             kernel_regularizer=self.kernel_regularizer.get(), 
                             kernel_initializer=self.kernel_initializer)(out_cb)
             out_cb = config.normalization.get()(out_cb)
-            out_cb = config.activation_config.get(out_cb.shape)(out_cb)
+            print("called from disc_conv")
+            out_cb = config.activation.get(out_cb.shape)(out_cb)
             out_cb = Dropout(config.dropout_rate)(out_cb) if config.dropout_rate > 0 else out_cb
         out_cb = MaxPooling2D()(out_cb)
         return out_cb

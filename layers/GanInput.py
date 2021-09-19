@@ -51,8 +51,10 @@ class GenLatentSpaceInput(GanInput):
         self.model = self.input
         for i in range(layers):
             self.model = Dense(layer_size)(self.model)
+            print("called from gen latent space input")
             self.model = activation.get(layer_size)(self.model)
         self.model = Dense(prod(output_shape))(self.model)
+        print("called from gen latent space input")
         self.model = activation.get(prod(output_shape))(self.model)
         self.model = Reshape(output_shape)(self.model)
     
