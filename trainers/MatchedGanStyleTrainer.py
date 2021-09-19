@@ -11,12 +11,15 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             disc_activations = self.D.disc_conv_layers[0].activation.find_by_size(x)
             
             gen_outs = [ga.output for ga in gen_activations]
+            print("gen_out_shapes: ",[x.shape for x in gen_outs])
             disc_outs = [da.output for da in disc_activations]
-            outs = list(zip(gen_outs,disc_outs))
-            ada_outs = [adain(g,d) for g,d in outs]
-            ada_outs = list(zip(gen_outs,ada_outs))
-            layer_loss = [self.G.loss_function(g,a) for g,a in ada_outs]
-            print("layer_loss: ",layer_loss)
+            print("disc_out_shapes: ",[x.shape for x in disc_outs])
+            gen_2_disc = list(zip(gen_outs,disc_outs))
+            ada_outs = [adain(g,d) for g,d in gen_2_disc]
+            print("ada_out_shapes: ",[x.shape for x in ada_outs])
+            gen_2_ada = list(zip(gen_outs,[adain(g,d) for g,d in outs]))
+            layer_loss = [self.G.loss_function(g,a) for g,a in gen_2_ada]
+            print("layer_loss_shapes: ",[x.shape for x in layer_loss])
             loss += layer_loss
         return loss*tf.ones_like(content_loss_arr)
     
