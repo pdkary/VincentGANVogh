@@ -16,20 +16,28 @@ class CallableConfig():
         else:
             return self.callable(**self.args, **self.kwargs)
 
-class ActivationConfig(CallableConfig):
+class NamedCallableConfig(CallableConfig):
     def __init__(self, callable: Callable, name: str, args: Dict = {}, kwargs: Dict = {}):
         super().__init__(callable, args=args, kwargs=kwargs)
         self.layer_dict = {}
+        self.shape_count = {}
         self.name = name
-        self.count = 0
 
-    def get(self):
-        name = self.name + "_" + str(self.count)
-        self.count += 1
-        self.kwargs["name"] = name
+    def get(self,input_shape):
+        shape_name = "_".join(input_shape)
+        name = self.name + shape_name
+        if self.shape_count[shape_name] is not None:
+            self.shape_count[shape_name] += 1
+        else:
+            self.shape_count[shape_name] = 1
+        
+        self.kwargs["name"] = name + "_" + str(self.shape_count[shape_name])
         self.layer_dict[name] = self.callable(**self.args, **self.kwargs)
         return self.layer_dict[name]
 
+class ActivationConfig(NamedCallableConfig):
+    def __init__(self, callable: Callable, name: str, args: Dict, kwargs: Dict):
+        super().__init__(callable, name, args=args, kwargs=kwargs)
 
 class NormalizationConfig(CallableConfig):
     pass
