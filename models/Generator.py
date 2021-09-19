@@ -92,6 +92,5 @@ class Generator():
                 out = AdaptiveInstanceNormalization()([out,beta,gamma])
             else:
                 out = self.normalization.get()(out)
-            print("called from gen block")
             out =  config.activation.get(out.shape)(out)
         return out

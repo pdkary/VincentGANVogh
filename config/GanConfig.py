@@ -24,8 +24,6 @@ class NamedCallableConfig(CallableConfig):
         self.name = name
 
     def get(self,input_shape):
-        print(input_shape)
-        print(type(input_shape))
         if isinstance(input_shape,numbers.Number):
             shape_name = "_" + str(input_shape)
         else:

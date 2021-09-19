@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from typing import Tuple
-import numbers
 
 import numpy as np
 import tensorflow as tf
@@ -51,10 +50,8 @@ class GenLatentSpaceInput(GanInput):
         self.model = self.input
         for i in range(layers):
             self.model = Dense(layer_size)(self.model)
-            print("called from gen latent space input")
             self.model = activation.get(layer_size)(self.model)
         self.model = Dense(np.prod(output_shape))(self.model)
-        print("called from gen latent space input")
         self.model = activation.get(np.prod(output_shape))(self.model)
         self.model = Reshape(output_shape)(self.model)
     
@@ -69,7 +66,6 @@ class RealImageInput(GanInput,DataConfig):
         GanInput.__init__(self,data_config.image_shape,name="real_image_input")
         DataConfig.__init__(self,**data_config.__dict__)
         self.data_helper = DataHelper(data_config)
-        print("Preparing Dataset".upper())
         self.images = self.data_helper.load_data()
         
         self.num_training_imgs = len(self.images)//2
