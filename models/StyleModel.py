@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Tuple
 
 import tensorflow as tf
-from config.GanConfig import ActivationConfig, RegularizationConfig
+from config.GanConfig import ActivationConfig, NoneCallable, RegularizationConfig
 from layers.GanInput import RealImageInput
 from tensorflow.keras.layers import Dense, Flatten, Input, Conv2D, MaxPooling2D, Activation
 
@@ -59,7 +59,7 @@ class ImageStyleModel(StyleModelBase):
                  style_layer_size: int,
                  activation: ActivationConfig,
                  conv_activation: ActivationConfig,
-                 kernel_regularizer: RegularizationConfig,
+                 kernel_regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_uniform",
                  downsample_factor: int = 1):
         self.image_source = real_image_input

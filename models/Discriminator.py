@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from config.GanConfig import DiscConvLayerConfig, DiscDenseLayerConfig, RegularizationConfig
+from config.GanConfig import DiscConvLayerConfig, DiscDenseLayerConfig, NoneCallable, RegularizationConfig
 from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, Input, MaxPooling2D
 from tensorflow.keras.losses import Loss
 from tensorflow.keras.models import Model
@@ -16,7 +16,7 @@ class Discriminator():
                  minibatch_size: int,
                  disc_optimizer: Optimizer,
                  loss_function: Loss,
-                 kernel_regularizer: RegularizationConfig,
+                 kernel_regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_uniform"):
         self.img_shape = img_shape
         self.disc_conv_layers = disc_conv_layers

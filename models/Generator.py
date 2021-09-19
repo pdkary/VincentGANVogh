@@ -24,7 +24,7 @@ class Generator():
                  noise_model: NoiseModelBase = None,
                  normalization: NormalizationConfig = NoneCallable,
                  kernel_regularizer:RegularizationConfig = NoneCallable,
-                 kernel_initializer:str = None):
+                 kernel_initializer:str = "glorot_uniform"):
         self.img_shape = img_shape
         self.input_model = input_model
         self.gen_layers = gen_layers

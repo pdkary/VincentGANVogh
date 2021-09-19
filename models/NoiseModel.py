@@ -4,7 +4,7 @@ from typing import Tuple
 
 import numpy as np
 import tensorflow as tf
-from config.GanConfig import ActivationConfig, RegularizationConfig
+from config.GanConfig import ActivationConfig, NoneCallable, RegularizationConfig
 from layers.AdaptiveAdd import AdaptiveAdd
 from tensorflow.keras.layers import Conv2D, Cropping2D, Input
 
@@ -13,7 +13,7 @@ class NoiseModelBase(ABC):
     def __init__(self,
                  noise_image_size: Tuple[int, int, int],
                  activation: ActivationConfig,
-                 kernel_regularizer: RegularizationConfig,
+                 kernel_regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_normal",
                  kernel_size: int = 1,
                  max_std_dev: float = 1.0):
