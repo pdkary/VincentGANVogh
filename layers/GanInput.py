@@ -7,7 +7,6 @@ from tensorflow.python.data import Dataset
 from config.GanConfig import ActivationConfig
 from config.TrainingConfig import DataConfig
 from helpers.DataHelper import DataHelper
-from tensorflow.keras.backend import prod
 from tensorflow.keras.layers import Activation, Dense, Input, Reshape
 from tensorflow.keras.regularizers import L2
 
@@ -53,9 +52,9 @@ class GenLatentSpaceInput(GanInput):
             self.model = Dense(layer_size)(self.model)
             print("called from gen latent space input")
             self.model = activation.get(layer_size)(self.model)
-        self.model = Dense(prod(output_shape))(self.model)
+        self.model = Dense(np.prod(output_shape))(self.model)
         print("called from gen latent space input")
-        self.model = activation.get(prod(output_shape))(self.model)
+        self.model = activation.get(np.prod(output_shape))(self.model)
         self.model = Reshape(output_shape)(self.model)
     
     def get_training_batch(self, batch_size):
