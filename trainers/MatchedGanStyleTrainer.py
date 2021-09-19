@@ -15,7 +15,6 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             outs = list(zip(gen_outs,disc_outs))
             ada_outs = [adain(g_out,d_out) for g_out,d_out in outs]
             layer_loss = self.G.loss_function(gen_outs,ada_outs)
-            print(layer_loss)
             loss += layer_loss
         return loss*tf.ones_like(content_loss_arr)
     
@@ -26,10 +25,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             
             content_loss = self.G.loss_function(self.gen_label, fake_out)
             style_loss = self.get_style_loss(content_loss)
-            print(type(content_loss))
-            print(type(style_loss))
             g_loss = content_loss + style_loss
-            print(type(g_loss))
             out = [g_loss]
             
             for metric in self.gen_metrics:

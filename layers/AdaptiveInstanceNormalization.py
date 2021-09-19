@@ -27,5 +27,8 @@ def adain(content_features,style_features):
     style_std = K.std(style_features,axis=[1,2],keepdims=True) + 1e-7
     print("style_std: ",style_std.shape)
     normed = (content_features - content_mean)/content_std
-    return style_std*normed + style_mean
+    print("normed: ",normed.shape)
+    out = style_std*normed + style_mean
+    print("out: ",out.shape)
+    return out
         
