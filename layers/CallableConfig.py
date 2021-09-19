@@ -12,7 +12,7 @@ class CallableConfig():
 
     def get(self):
         if self.callable is None:
-            return None
+            return lambda x: x
         else:
             return self.callable(**self.args, **self.kwargs)
         
@@ -59,10 +59,6 @@ class NamedCallableConfig(CallableConfig):
             shape_name = "_" + "_".join(input_shape)
         return [self.layer_dict[n] for n in self.layer_dict.keys() if shape_name in n]
         
-        
-        
-        
-
 class ActivationConfig(NamedCallableConfig):
     def __init__(self, callable: Callable, name: str, args: Dict = {}, kwargs: Dict = {}):
         super().__init__(callable, name, args=args, kwargs=kwargs)
