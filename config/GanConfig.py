@@ -26,7 +26,6 @@ class DiscDenseLayerConfig():
         self.activation = activation
         self.dropout_rate = dropout_rate
 
-
 class GenLayerConfig():
     def __init__(self,
                  filters: int,
