@@ -31,14 +31,15 @@ class NamedCallableConfig(CallableConfig):
         else:
             input_shape = list(filter(None,input_shape))
             input_shape = [str(x) for x in input_shape]
-            shape_name = "_(" + "_".join(input_shape) + ")"
-        name = self.name + shape_name
+            shape_name = "_" + "_".join(input_shape)
+            
         if shape_name in self.shape_count.keys():
             self.shape_count[shape_name] += 1
         else:
             self.shape_count[shape_name] = 1
         
-        self.kwargs["name"] = name + "_" + str(self.shape_count[shape_name])
+        name = self.name + shape_name + "_" + str(self.shape_count[shape_name])
+        self.kwargs["name"] = name
         self.layer_dict[name] = self.callable(**self.args, **self.kwargs)
         return self.layer_dict[name]
 
