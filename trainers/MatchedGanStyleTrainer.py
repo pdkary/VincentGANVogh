@@ -27,7 +27,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             fake_out = self.discriminator(generated_images, training=True)
             
             content_loss = self.G.loss_function(self.gen_label, fake_out)
-            style_loss = self.get_style_loss()
+            style_loss = self.get_style_loss(content_loss)
             print(content_loss.shape)
             print(style_loss.shape)
             g_loss = content_loss + style_loss
