@@ -9,14 +9,16 @@ class DataConfig():
                  model_name: str,
                  flip_lr: bool,
                  load_n_percent: bool,
-                 norm_function: function):
+                 load_scale_function: function,
+                 save_scale_function: function):
         self.data_path = data_path
         self.image_type = image_type
         self.image_shape = image_shape
         self.model_name = model_name
         self.flip_lr = flip_lr
         self.load_n_percent = load_n_percent,
-        self.norm_function = norm_function
+        self.load_scale_function = load_scale_function
+        self.save_scale_function = save_scale_function
 
 class GanTrainingConfig():
     def __init__(self,

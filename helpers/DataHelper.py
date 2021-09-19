@@ -33,7 +33,7 @@ class DataHelper(DataConfig):
                 
             img = img.resize(size=(img_rows, img_cols),resample=Image.ANTIALIAS)
             img = np.array(img).astype('float32')
-            img = img/255
+            img = self.load_scale_function(img)
             # if channels == 1:
             #     img = np.expand_dims(img,axis=-1)
             x.append(img)
@@ -68,7 +68,7 @@ class DataHelper(DataConfig):
                 img = generated_images[image_count]
                 if channels == 1:
                     img = np.reshape(img,newshape=(img_size,img_size))
-                scaled_img = self.norm_function(img)
+                scaled_img = self.save_scale_function(img)
                 image_array[r:r+img_size, c:c+img_size] = scaled_img
                 image_count += 1
 
