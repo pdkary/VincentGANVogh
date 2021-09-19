@@ -71,13 +71,13 @@ class ImageStyleModel(StyleModelBase):
             model = Conv2D(filters, kernel_size, padding="same",
                            kernel_regularizer=kernel_regularizer.get(),
                            kernel_initializer=kernel_initializer)(model)
-            model = conv_activation.get()(model)
+            model = conv_activation.get(model.shape)(model)
 
         model = Flatten()(model) if self.style_layers > 0 else model
 
         for i in range(self.style_layers):
             model = Dense(self.style_layer_size)(model)
-            model = self.activation.get()(model)
+            model = self.activation.get(self.style_layer_size)(model)
         self.model = model
 
     def get_training_batch(self, batch_size):
