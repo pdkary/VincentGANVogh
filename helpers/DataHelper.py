@@ -68,9 +68,7 @@ class DataHelper(DataConfig):
                 img = generated_images[image_count]
                 if channels == 1:
                     img = np.reshape(img,newshape=(img_size,img_size))
-                img_min = np.min(img)
-                img_max = np.max(img)
-                scaled_img = 255*(img - img_min)/(img_max - img_min + 1e-5)
+                scaled_img = self.norm_function(img)
                 image_array[r:r+img_size, c:c+img_size] = scaled_img
                 image_count += 1
 
