@@ -38,13 +38,13 @@ def get_matched_gan(img_shape:Tuple[int,int,int],
 
     gen_input_model = GenLatentSpaceInput(100,(2,2,1024),512,3,gen_dense_activation)
     gl = lambda f,c: GenLayerConfig(f,c,3,gen_conv_activation,upsampling=True,style=True,noise=True)
-    output_layer = GenLayerConfig(img_shape[-1],1,1,gen_final_activation,style=True)
+    gen_output_layer = GenLayerConfig(img_shape[-1],1,1,gen_final_activation,style=True)
     
     disc_conv_layers = [dcl(f,c) for f,c in layer_sizes]
-    disc_dense_layers = [ddl(4096),ddl(4096),ddl(1000)]
-    disc_layers = [*disc_conv_layers,*disc_dense_layers,dout]
+    disc_dense_layers = [ddl(4096),ddl(4096),ddl(1000),dout]
     
     gen_layers = [gl(f,c) for f,c in reversed(layer_sizes)]
+    gen_layers.append(gen_output_layer)
     
     G = Generator(img_shape,gen_input_model,gen_layers,gen_optimizer,
                   gen_loss_func,style_model,noise_model,normalization,
