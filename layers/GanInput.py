@@ -4,7 +4,7 @@ from typing import Tuple
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.data import Dataset
-from config.GanConfig import ActivationConfig
+from layers.CallableConfig import ActivationConfig
 from config.TrainingConfig import DataConfig
 from helpers.DataHelper import DataHelper
 from tensorflow.keras.layers import Activation, Dense, Input, Reshape

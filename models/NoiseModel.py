@@ -4,7 +4,7 @@ from typing import Tuple
 
 import numpy as np
 import tensorflow as tf
-from config.GanConfig import ActivationConfig, NoneCallable, RegularizationConfig
+from layers.CallableConfig import ActivationConfig, NoneCallable, RegularizationConfig
 from layers.AdaptiveAdd import AdaptiveAdd
 from tensorflow.keras.layers import Conv2D, Cropping2D, Input
 

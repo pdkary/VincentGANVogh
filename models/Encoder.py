@@ -1,5 +1,6 @@
 
-from config.GanConfig import ActivationConfig, DiscConvLayerConfig, DiscDenseLayerConfig, GenLayerConfig, NormalizationConfig
+from config.GanConfig import DiscConvLayerConfig, DiscDenseLayerConfig, GenLayerConfig
+from layers.CallableConfig import ActivationConfig,NormalizationConfig,
 from layers.GanInput import EncoderInput
 from tensorflow.keras.optimizers import Optimizer
 from tensorflow.python.keras.losses import BinaryCrossentropy

@@ -1,5 +1,6 @@
 from models.Discriminator import Discriminator
-from config.GanConfig import DiscConvLayerConfig,DiscDenseLayerConfig, ActivationConfig, NoneCallable, NormalizationConfig, RegularizationConfig
+from config.GanConfig import DiscConvLayerConfig,DiscDenseLayerConfig
+from layers.CallableConfig import ActivationConfig, NoneCallable, NormalizationConfig, RegularizationConfig
 from tensorflow.keras.optimizers import Optimizer
 from tensorflow.keras.losses import Loss
 

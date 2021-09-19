@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Tuple
 
 import tensorflow as tf
-from config.GanConfig import ActivationConfig, NoneCallable, RegularizationConfig
+from layers.CallableConfig import ActivationConfig, NoneCallable, RegularizationConfig
 from layers.GanInput import RealImageInput
 from tensorflow.keras.layers import Dense, Flatten, Input, Conv2D, MaxPooling2D, Activation
 

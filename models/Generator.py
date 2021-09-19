@@ -1,6 +1,6 @@
 from typing import Tuple, List
 
-from config.GanConfig import NormalizationConfig, RegularizationConfig, GenLayerConfig, NoneCallable
+from layers.CallableConfig import NormalizationConfig, RegularizationConfig, GenLayerConfig, NoneCallable
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from layers.GanInput import GanInput
 
