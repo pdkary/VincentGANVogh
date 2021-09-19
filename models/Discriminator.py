@@ -37,8 +37,7 @@ class Discriminator():
             out = self.disc_conv_block(out, layer_config)
 
         out = Flatten()(out)
-        out = MinibatchDiscrimination(
-            self.minibatch_size, self.img_shape[-1])(out) if self.minibatch else out
+        out = MinibatchDiscrimination(self.minibatch_size, self.img_shape[-1])(out) if self.minibatch else out
 
         for layer_config in self.disc_dense_layers:
             out = self.disc_dense_block(out, layer_config)
@@ -50,7 +49,7 @@ class Discriminator():
         return disc_model
 
     def disc_dense_block(self, input_tensor, config: DiscDenseLayerConfig):
-        out_db = Dense(config.size, kernel_regularizer=self.kernel_regularizer.get(), kernel_initializer=self.kernel_initializer)(input_tensor)
+        out_db = Dense(config.size)(input_tensor)
         out_db = Dropout(config.dropout_rate)(out_db) if config.dropout_rate > 0 else out_db
         out_db = config.activation_config.get()(out_db)
         return out_db
@@ -58,10 +57,11 @@ class Discriminator():
     def disc_conv_block(self, input_tensor, config: DiscConvLayerConfig):
         out_cb = input_tensor
         for i in range(config.convolutions):
-            out_cb = Conv2D(config.filters, config.kernel_size, padding="same", kernel_regularizer=self.kernel_regularizer.get(), kernel_initializer=self.kernel_initializer)(out_cb)
+            out_cb = Conv2D(config.filters, config.kernel_size, padding="same", 
+                            kernel_regularizer=self.kernel_regularizer.get(), 
+                            kernel_initializer=self.kernel_initializer)(out_cb)
             out_cb = config.normalization.get()(out_cb)
             out_cb = config.activation_config.get()(out_cb)
             out_cb = Dropout(config.dropout_rate)(out_cb) if config.dropout_rate > 0 else out_cb
-
         out_cb = MaxPooling2D()(out_cb)
         return out_cb
