@@ -24,7 +24,10 @@ class NamedCallableConfig(CallableConfig):
         self.name = name
 
     def get(self,input_shape):
-        shape_name = "_".join(input_shape)
+        if type(input_shape) == int or type(input_shape) ==  float:
+            shape_name = "_" + str(input_shape)
+        else:
+            shape_name = "_".join(input_shape)
         name = self.name + shape_name
         if self.shape_count[shape_name] is not None:
             self.shape_count[shape_name] += 1
