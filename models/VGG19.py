@@ -16,7 +16,7 @@ def get_vgg19(input_channels:int,
               minibatch_size:int = 32,
               dropout_rate:float = 0.5,
               lite:bool = False):
-    d_c = lambda f,c: DiscConvLayerConfig(f,c,3,conv_activation,normalization)
+    d_c = lambda f,c: DiscConvLayerConfig(f,c,3,0.5,conv_activation,normalization)
     d_d = lambda s : DiscDenseLayerConfig(s,dense_activation,dropout_rate)
     d_out = DiscDenseLayerConfig(output_dim, final_activation, 0.0)
     

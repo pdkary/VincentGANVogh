@@ -45,11 +45,13 @@ class DiscConvLayerConfig():
                  filters: int,
                  convolutions: int,
                  kernel_size: int,
+                 dropout_rate: float,
                  activation_config: ActivationConfig,
                  normalization: NormalizationConfig):
         self.filters = filters
         self.convolutions = convolutions
         self.kernel_size = kernel_size
+        self.dropout_rate = dropout_rate
         self.activation_config = activation_config
         self.normalization = normalization
 
