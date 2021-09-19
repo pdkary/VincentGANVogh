@@ -21,8 +21,10 @@ class MatchedGanStyleTrainer(AbstractTrainer):
                 gen_2_ada = list(zip(gen_outs,ada_outs))
                 layer_loss = [self.G.loss_function(g,a) for g,a in gen_2_ada]
                 print("layer_loss_shapes: ",[x.shape for x in layer_loss])
-                loss += layer_loss
-        return loss*tf.ones_like(content_loss_arr)
+                loss += K.sum(layer_loss)
+        out = loss*tf.ones_like(content_loss_arr)
+        print("style loss: ",out)
+        return out
     
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
