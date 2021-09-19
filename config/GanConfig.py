@@ -29,6 +29,7 @@ class NamedCallableConfig(CallableConfig):
         if isinstance(input_shape,numbers.Number):
             shape_name = "_" + str(input_shape)
         else:
+            input_shape = list(filter(None,input_shape))
             shape_name = "_".join(input_shape)
         name = self.name + shape_name
         if shape_name in self.shape_count.keys():
