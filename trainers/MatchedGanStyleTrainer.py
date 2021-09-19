@@ -4,27 +4,43 @@ from trainers.AbstractTrainer import AbstractTrainer
 import tensorflow as tf
 
 class MatchedGanStyleTrainer(AbstractTrainer):
-    def get_style_loss(self,content_loss_arr):
-        loss = 0.0
-        for x in self.G.layer_sizes:
-            gen_activations = self.G.gen_layers[0].activation.find_by_size(x)
-            disc_activations = self.D.disc_conv_layers[0].activation.find_by_size(x)
-            assert len(gen_activations) == len(disc_activations)
-            if len(gen_activations) > 0:
-                gen_outs = [ga.output for ga in gen_activations]
-                print("gen_out_shapes: ",[x.shape for x in gen_outs])
-                disc_outs = [da.output for da in disc_activations]
-                print("disc_out_shapes: ",[x.shape for x in disc_outs])
-                gen_2_disc = list(zip(gen_outs,disc_outs))
-                ada_outs = [adain(g,d) for g,d in gen_2_disc]
-                print("ada_out_shapes: ",[x.shape for x in ada_outs])
-                gen_2_ada = list(zip(gen_outs,ada_outs))
-                layer_loss = [self.G.loss_function(g,a) for g,a in gen_2_ada]
-                print("layer_loss_shapes: ",[x.shape for x in layer_loss])
-                loss += K.sum(layer_loss)
-        out = loss*tf.ones_like(content_loss_arr)
-        print("style loss: ",out)
-        return out
+    def __init__(self, 
+                 generator: Generator, 
+                 discriminator: Discriminator,
+                 gan_training_config: GanTrainingConfig, 
+                 image_sources: List[RealImageInput]):
+        super().__init__(generator, discriminator, gan_training_config, image_sources)
+        self.gen_act = self.G.gen_layers[0].activation
+        self.disc_act = self.D.disc_conv_layers[0].activation
+        self.g_features = [*self.gen_act.find_by_size(x) for x in self.G.layer_sizes]
+        self.d_features = [*self.disc_act.find_by_size(x) for x in self.D.layer_sizes]
+        
+        g_final = self.G.functional_model
+        d_final = self.D.functional_model
+        self.generator = Model(inputs=self.G.input,outputs=[g_final,*self.g_features])
+        self.discriminator = Model(inputs=self.D.input,outputs=[d_final,*self.d_features])
+        
+    # def get_style_loss(self,content_loss_arr):
+    #     loss = 0.0
+    #     for x in self.G.layer_sizes:
+    #         gen_activations = self.G.gen_layers[0].activation.find_by_size(x)
+    #         disc_activations = self.D.disc_conv_layers[0].activation.find_by_size(x)
+    #         assert len(gen_activations) == len(disc_activations)
+    #         if len(gen_activations) > 0:
+    #             gen_outs = [ga.output for ga in gen_activations]
+    #             print("gen_out_shapes: ",[x.shape for x in gen_outs])
+    #             disc_outs = [da.output for da in disc_activations]
+    #             print("disc_out_shapes: ",[x.shape for x in disc_outs])
+    #             gen_2_disc = list(zip(gen_outs,disc_outs))
+    #             ada_outs = [adain(g,d) for g,d in gen_2_disc]
+    #             print("ada_out_shapes: ",[x.shape for x in ada_outs])
+    #             gen_2_ada = list(zip(gen_outs,ada_outs))
+    #             layer_loss = [self.G.loss_function(g,a) for g,a in gen_2_ada]
+    #             print("layer_loss_shapes: ",[x.shape for x in layer_loss])
+    #             loss += K.sum(layer_loss)
+    #     out = loss*tf.ones_like(content_loss_arr)
+    #     print("style loss: ",out)
+    #     return out
     
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
@@ -32,7 +48,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             fake_out = self.discriminator(generated_images, training=True)
             
             content_loss = self.G.loss_function(self.gen_label, fake_out)
-            style_loss = self.get_style_loss(content_loss)
+            # style_loss = self.get_style_loss(content_loss)
             g_loss = content_loss + style_loss
             out = [g_loss]
             
