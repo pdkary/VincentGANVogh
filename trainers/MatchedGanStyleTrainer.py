@@ -12,8 +12,10 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         super().__init__(generator, discriminator, gan_training_config, image_sources)
         self.gen_act = self.G.gen_layers[0].activation
         self.disc_act = self.D.disc_conv_layers[0].activation
-        self.g_features = [*self.gen_act.find_by_size(x) for x in self.G.layer_sizes]
-        self.d_features = [*self.disc_act.find_by_size(x) for x in self.D.layer_sizes]
+        g_features = [self.gen_act.find_by_size(x) for x in self.G.layer_sizes]
+        self.g_features = [y for x in g_features for y in x]
+        d_features = [self.disc_act.find_by_size(x) for x in self.D.layer_sizes]
+        self.d_features = [y for x in d_features for y in x]
         
         g_final = self.G.functional_model
         d_final = self.D.functional_model
