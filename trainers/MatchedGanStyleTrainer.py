@@ -17,7 +17,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             gen_2_disc = list(zip(gen_outs,disc_outs))
             ada_outs = [adain(g,d) for g,d in gen_2_disc]
             print("ada_out_shapes: ",[x.shape for x in ada_outs])
-            gen_2_ada = list(zip(gen_outs,[adain(g,d) for g,d in outs]))
+            gen_2_ada = list(zip(gen_outs,ada_outs))
             layer_loss = [self.G.loss_function(g,a) for g,a in gen_2_ada]
             print("layer_loss_shapes: ",[x.shape for x in layer_loss])
             loss += layer_loss
