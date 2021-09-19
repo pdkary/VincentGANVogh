@@ -21,7 +21,6 @@ def get_matched_gan(img_shape:Tuple[int,int,int],
                     gen_optimizer:Optimizer,
                     gen_loss_func: Loss,
                     gen_conv_activation: ActivationConfig,
-                    gen_dense_activation: ActivationConfig,
                     gen_final_activation,
                     disc_output_dim: int = 1,
                     minibatch_size: int = 32,
@@ -35,8 +34,6 @@ def get_matched_gan(img_shape:Tuple[int,int,int],
     ddl = lambda s: DiscDenseLayerConfig(s,disc_dense_activation,dropout_rate)
     dout = DiscDenseLayerConfig(disc_output_dim,disc_final_activation,0.0)
     
-
-    gen_input_model = GenLatentSpaceInput(100,(2,2,1024),512,3,gen_dense_activation)
     gl = lambda f,c: GenLayerConfig(f,c,3,gen_conv_activation,upsampling=True,style=True,noise=True)
     gen_output_layer = GenLayerConfig(img_shape[-1],1,1,gen_final_activation,style=True)
     
