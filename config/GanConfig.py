@@ -1,5 +1,5 @@
 from typing import Callable, Dict, Tuple
-
+import numbers
 
 class CallableConfig():
     def __init__(self,
@@ -26,7 +26,7 @@ class NamedCallableConfig(CallableConfig):
     def get(self,input_shape):
         print(input_shape)
         print(type(input_shape))
-        if type(input_shape) == int or type(input_shape) ==  float:
+        if isinstance(input_shape,numbers.Number):
             shape_name = "_" + str(input_shape)
         else:
             shape_name = "_".join(input_shape)
