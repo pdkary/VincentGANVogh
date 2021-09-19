@@ -61,7 +61,7 @@ class Discriminator():
             out_cb = Conv2D(config.filters, config.kernel_size, padding="same", kernel_regularizer=self.kernel_regularizer.get(), kernel_initializer=self.kernel_initializer)(out_cb)
             out_cb = config.normalization.get()(out_cb)
             out_cb = config.activation_config.get()(out_cb)
-            out_db = Dropout(config.dropout_rate)(out_db) if config.dropout_rate > 0 else out_db
+            out_cb = Dropout(config.dropout_rate)(out_cb) if config.dropout_rate > 0 else out_cb
 
         out_cb = MaxPooling2D()(out_cb)
         return out_cb
