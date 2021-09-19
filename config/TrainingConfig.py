@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import Callable, Tuple, List
 from tensorflow.keras.metrics import Metric
 
 class DataConfig():
