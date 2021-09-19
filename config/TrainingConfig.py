@@ -9,8 +9,8 @@ class DataConfig():
                  model_name: str,
                  flip_lr: bool,
                  load_n_percent: bool,
-                 load_scale_function: function,
-                 save_scale_function: function):
+                 load_scale_function: Callable,
+                 save_scale_function: Callable):
         self.data_path = data_path
         self.image_type = image_type
         self.image_shape = image_shape
