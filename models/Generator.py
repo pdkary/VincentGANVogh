@@ -36,6 +36,7 @@ class Generator():
         self.normalization = normalization
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
+        self.layer_sizes = [self.input_model.input_shape]
         
         self.input = [self.input_model.input]
         if self.style_model is not None:
@@ -75,6 +76,7 @@ class Generator():
         out = input_tensor
         out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         for i in range(config.convolutions):
+            self.layer_sizes.append(list(filter(None,out.shape)))
             if config.transpose:
                 out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,
                                       padding='same',kernel_regularizer=self.kernel_regularizer.get(), 

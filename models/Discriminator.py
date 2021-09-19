@@ -31,6 +31,7 @@ class Discriminator():
         self.output_dim = self.disc_dense_layers[-1].size
         self.output_dim = self.output_dim
         self.input = Input(shape=self.img_shape, name="discriminator_input")
+        self.layer_sizes = [self.img_shape]
 
     def build(self):
         out = self.input
@@ -50,6 +51,7 @@ class Discriminator():
         return disc_model
 
     def disc_dense_block(self, input_tensor, config: DiscDenseLayerConfig):
+        self.layer_sizes.append(list(filter(None,input_tensor.shape)))
         out_db = Dense(config.size)(input_tensor)
         out_db = Dropout(config.dropout_rate)(out_db) if config.dropout_rate > 0 else out_db
         out_db = config.activation.get(config.size)(out_db)
@@ -58,6 +60,7 @@ class Discriminator():
     def disc_conv_block(self, input_tensor, config: DiscConvLayerConfig):
         out_cb = input_tensor
         for i in range(config.convolutions):
+            self.layer_sizes.append(list(filter(None,out_cb.shape)))
             out_cb = Conv2D(config.filters, config.kernel_size, padding="same", 
                             kernel_regularizer=self.kernel_regularizer.get(), 
                             kernel_initializer=self.kernel_initializer)(out_cb)
