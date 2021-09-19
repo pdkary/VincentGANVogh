@@ -36,7 +36,7 @@ class NamedCallableConfig(CallableConfig):
         return self.layer_dict[name]
 
 class ActivationConfig(NamedCallableConfig):
-    def __init__(self, callable: Callable, name: str, args: Dict, kwargs: Dict):
+    def __init__(self, callable: Callable, name: str, args: Dict = {}, kwargs: Dict = {}):
         super().__init__(callable, name, args=args, kwargs=kwargs)
 
 class NormalizationConfig(CallableConfig):
