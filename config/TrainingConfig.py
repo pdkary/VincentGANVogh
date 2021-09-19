@@ -16,7 +16,7 @@ class DataConfig():
         self.image_shape = image_shape
         self.model_name = model_name
         self.flip_lr = flip_lr
-        self.load_n_percent = load_n_percent,
+        self.load_n_percent = load_n_percent
         self.load_scale_function = load_scale_function
         self.save_scale_function = save_scale_function
 
