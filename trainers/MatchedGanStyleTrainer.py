@@ -28,7 +28,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             
             content_loss = self.G.loss_function(self.gen_label, fake_out)
             style_loss = self.get_style_loss()
-            out = [content_loss + style_loss]
+            g_loss = content_loss + style_loss
+            out = [g_loss]
             
             for metric in self.gen_metrics:
                 metric.update_state(self.gen_label,fake_out)
