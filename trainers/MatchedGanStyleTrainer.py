@@ -1,4 +1,4 @@
-
+from layers.AdaptiveInstanceNormalization import adain
 import keras.backend as K
 from trainers.AbstractTrainer import AbstractTrainer
 import tensorflow as tf
@@ -10,14 +10,9 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             gen_activations = self.G.gen_layers[0].activation.find_by_size(x)
             disc_activations = self.D.disc_conv_layers[0].activation.find_by_size(x)
             
-            gen_std = [K.std(ga.output) for ga in gen_activations]
-            disc_std = [K.std(da.output) for da in disc_activations]
-            gen_mean = [K.mean(ga.output) for ga in gen_activations]
-            disc_mean = [K.mean(da.output) for da in disc_activations]
-            
-            std_loss = self.G.loss_function(gen_std,disc_std)
-            mean_loss = self.G.loss_function(gen_mean,disc_mean)
-            loss += std_loss + mean_loss
+            gen_outs = [ga.out for ga in gen_activations]
+            ada_outs = [adain(gen_outs[i],disc_activations[i]) for i in disc_activations]
+            loss += self.G.loss_function(gen_outs,ada_outs)
         return loss*tf.ones_like(content_loss_arr)
     
     def train_generator(self,source_input, gen_input):

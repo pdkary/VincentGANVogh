@@ -13,4 +13,13 @@ class AdaptiveInstanceNormalization(Layer):
         std = K.std(input_tensor, axis = [1,2], keepdims = True) + 1e-7
         normed = (input_tensor - mean)/std
         return normed * gamma + beta
+    
+
+def adain(content_features,style_features):
+    content_mean = K.mean(content_features,axis=[1,2],keepdims=True)
+    content_std = K.std(content_features,axis=[1,2],keepdims=True) + 1e-7
+    style_mean = K.mean(style_features,axis=[1,2],keepdims=True)
+    style_std = K.std(style_features,axis=[1,2],keepdims=True) + 1e-7
+    normed = (content_features - content_mean)/content_std
+    return style_std*normed + style_mean
         
