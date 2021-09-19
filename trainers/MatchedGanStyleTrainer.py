@@ -10,10 +10,10 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             gen_activations = self.G.gen_layers[0].activation.find_by_size(x)
             disc_activations = self.D.disc_conv_layers[0].activation.find_by_size(x)
             
-            gen_std = [K.std(ga) for ga in gen_activations]
-            disc_std = [K.std(da) for da in disc_activations]
-            gen_mean = [K.mean(ga) for ga in gen_activations]
-            disc_mean = [K.mean(da) for da in disc_activations]
+            gen_std = [K.std(ga.output) for ga in gen_activations]
+            disc_std = [K.std(da.output) for da in disc_activations]
+            gen_mean = [K.mean(ga.output) for ga in gen_activations]
+            disc_mean = [K.mean(da.output) for da in disc_activations]
             
             std_loss = self.G.loss_function(gen_std,disc_std)
             mean_loss = self.G.loss_function(gen_mean,disc_mean)
