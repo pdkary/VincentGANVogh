@@ -1,3 +1,4 @@
+from typing import List
 import keras.backend as K
 import tensorflow as tf
 from config.TrainingConfig import GanTrainingConfig
@@ -7,12 +8,13 @@ from models.Discriminator import Discriminator
 from models.Generator import Generator
 
 from trainers.AbstractTrainer import AbstractTrainer
+from tensorflow.keras.models import Model
 
 class MatchedGanStyleTrainer(AbstractTrainer):
     def __init__(self, 
-                 generator: Generator, 
+                 generator: Generator,
                  discriminator: Discriminator,
-                 gan_training_config: GanTrainingConfig, 
+                 gan_training_config: GanTrainingConfig,
                  image_sources: List[RealImageInput]):
         super().__init__(generator, discriminator, gan_training_config, image_sources)
         self.gen_act = self.G.gen_layers[0].activation
@@ -56,7 +58,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             
             content_loss = self.G.loss_function(self.gen_label, fake_out)
             # style_loss = self.get_style_loss(content_loss)
-            g_loss = content_loss + style_loss
+            g_loss = content_loss
             out = [g_loss]
             
             for metric in self.gen_metrics:
