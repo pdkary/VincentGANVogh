@@ -2,7 +2,6 @@
 import keras.backend as K
 from trainers.AbstractTrainer import AbstractTrainer
 import tensorflow as tf
-import numpy as np
 
 class MatchedGanStyleTrainer(AbstractTrainer):
     def get_style_loss(self,content_loss_arr):
@@ -19,7 +18,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             std_loss = self.G.loss_function(gen_std,disc_std)
             mean_loss = self.G.loss_function(gen_mean,disc_mean)
             loss += std_loss + mean_loss
-        return np.full_like(content_loss_arr,loss)
+        return loss*tf.ones_like(content_loss_arr)
     
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
