@@ -44,10 +44,10 @@ class MatchedGanStyleTrainer(AbstractTrainer):
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
             
-            input_ada = adain(gen_input,source_input)
             gen_out = self.generator(gen_input,training=True)
             gen_images,gen_style = gen_out[0],gen_out[1:]
             
+            input_ada = adain(gen_images,source_input)
             disc_gen_out = self.discriminator(gen_images, training=False)
             disc_gen_content,disc_gen_style = disc_gen_out[0],disc_gen_out[1:]
             
@@ -57,8 +57,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             content_loss = self.G.loss_function(self.gen_label, disc_gen_content)
             
             style_losses = self.get_style_loss(gen_style,reversed(disc_real_style))
-            style_loss = tf.losses.mean_squared_error(input_ada,gen_input)
-            g_loss = [content_loss + style_loss,*style_losses]
+            style_loss = tf.losses.mean_squared_error(input_ada,gen_images)
+            g_loss = [content_loss + np.sum(style_loss),*style_losses]
             out = [g_loss[0]]
             
             for metric in self.gen_metrics:
@@ -81,7 +81,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             
             content_loss = (real_content_loss + fake_content_loss)/2
             d_loss = [content_loss,*self.null_style_loss]
-            out = [content_loss + np.sum(self.null_style_loss)]
+            out = [d_loss[0]]
             
             for metric in self.disc_metrics:
                 metric.update_state(self.real_label,disc_real)
