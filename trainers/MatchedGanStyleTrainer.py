@@ -47,6 +47,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         return [self.get_style_loss(s,d) for s,d in src_2_dest]
     
     def get_style_loss(self,content_img,style_img,axis=[1,2]):
+        print(content_img.shape,style_img.shape)
         mu_si = lambda x: (K.mean(x,axis),K.std(x,axis))
         mu_c, si_c = mu_si(content_img)
         mu_s, si_s = mu_si(style_img)
