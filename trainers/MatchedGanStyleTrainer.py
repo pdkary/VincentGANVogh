@@ -78,8 +78,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             print("disc_gen_content shape: ",disc_gen_content.shape)
             print("disc_gen_style shape: ",[x.shape for x in disc_gen_style])
             
-            real_content_loss = self.D.loss_function(self.disc_labels[0], disc_real_content)
-            fake_content_loss = self.D.loss_function(self.disc_labels[1], disc_gen_content)
+            real_content_loss = self.D.loss_function(self.real_label, disc_real_content)
+            fake_content_loss = self.D.loss_function(self.fake_label, disc_gen_content)
             
             style_losses = self.get_style_loss(disc_gen_style,disc_real_style)
             content_loss = (real_content_loss + fake_content_loss)/2
