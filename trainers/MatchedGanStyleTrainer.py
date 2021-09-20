@@ -1,5 +1,4 @@
 from typing import List
-import keras.backend as K
 import tensorflow as tf
 from config.TrainingConfig import GanTrainingConfig
 from layers.AdaptiveInstanceNormalization import adain
@@ -35,7 +34,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         src_2_dest = list(zip(source_style,desired_style))
         ada_outs = [adain(s,d) for s,d in src_2_dest]
         src_2_ada = list(zip(source_style,ada_outs))
-        return [self.G.loss_function(s,a) for s,a in src_2_ada]
+        return [tf.losses.mean_squared_error(s,a) for s,a in src_2_ada]
         
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
