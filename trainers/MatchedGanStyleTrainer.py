@@ -45,7 +45,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             disc_content,disc_style = disc_out[0],disc_out[1:]
             
             content_loss = self.G.loss_function(self.gen_label, disc_content)
-            style_losses = self.get_style_loss(gen_style,reversed(disc_style))
+            style_losses = [] #self.get_style_loss(gen_style,reversed(disc_style))
             
             g_loss = [content_loss,*style_losses]
             out = [content_loss]
