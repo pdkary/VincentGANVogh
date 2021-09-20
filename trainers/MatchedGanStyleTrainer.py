@@ -47,7 +47,6 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         return [self.get_style_loss(s,d) for s,d in src_2_dest]
     
     def get_style_loss(self,content_img,style_img,axis=[1,2]):
-        print(content_img.shape,style_img.shape)
         mu_si = lambda x: (K.mean(x,axis),K.std(x,axis))
         mu_c, si_c = mu_si(content_img)
         mu_s, si_s = mu_si(style_img)
@@ -63,10 +62,12 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             disc_out = self.discriminator(gen_images, training=False)
             disc_results,disc_deep_layers = disc_out[0],disc_out[1:]
             
+            output_style_loss = self.get_style_loss(gen_images,source_input)
             deep_style_losses = self.get_deep_style_loss(gen_deep_layers,disc_deep_layers)
             content_loss = self.G.loss_function(self.gen_label, disc_results)
-            g_loss = [content_loss,*deep_style_losses]
-            out = [content_loss]
+            output_loss = content_loss + output_style_loss
+            g_loss = [output_loss,*deep_style_losses]
+            out = [output_loss]
             
             for metric in self.gen_metrics:
                 metric.update_state(self.gen_label,disc_results)
