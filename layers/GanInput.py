@@ -8,7 +8,6 @@ from layers.CallableConfig import ActivationConfig
 from config.TrainingConfig import DataConfig
 from helpers.DataHelper import DataHelper
 from tensorflow.keras.layers import Activation, Dense, Input, Reshape
-from tensorflow.keras.regularizers import L2
 
 
 class GanInput(ABC):

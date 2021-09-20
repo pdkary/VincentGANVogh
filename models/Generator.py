@@ -63,7 +63,8 @@ class Generator():
     
     def build(self,print_summary=True):
         out = self.input_model.model
-        for layer_config in self.gen_layers:
+        for layer_config in self.gen_layers:            
+            self.layer_sizes.append(list(filter(None,out.shape)))
             out = self.generator_block(out,layer_config)
         self.functional_model = out
         gen_model = Model(inputs=self.input,outputs=out,name="Generator")
@@ -76,7 +77,6 @@ class Generator():
         out = input_tensor
         out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         for i in range(config.convolutions):
-            self.layer_sizes.append(list(filter(None,out.shape)))
             if config.transpose:
                 out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,
                                       padding='same',kernel_regularizer=self.kernel_regularizer.get(), 

@@ -36,12 +36,14 @@ class Discriminator():
     def build(self):
         out = self.input
         for layer_config in self.disc_conv_layers:
+            self.layer_sizes.append(list(filter(None,out.shape)))
             out = self.disc_conv_block(out, layer_config)
 
         out = Flatten()(out)
         out = MinibatchDiscrimination(self.minibatch_size, self.img_shape[-1])(out) if self.minibatch else out
 
         for layer_config in self.disc_dense_layers:
+            self.layer_sizes.append(list(filter(None,out.shape)))
             out = self.disc_dense_block(out, layer_config)
 
         self.functional_model = out
@@ -59,7 +61,6 @@ class Discriminator():
     def disc_conv_block(self, input_tensor, config: DiscConvLayerConfig):
         out_cb = input_tensor
         for i in range(config.convolutions):
-            self.layer_sizes.append(list(filter(None,out_cb.shape)))
             out_cb = Conv2D(config.filters, config.kernel_size, padding="same", 
                             kernel_regularizer=self.kernel_regularizer.get(), 
                             kernel_initializer=self.kernel_initializer)(out_cb)
