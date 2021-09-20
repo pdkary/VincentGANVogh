@@ -50,7 +50,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             out = [content_loss]
             
             for metric in self.gen_metrics:
-                metric.update_state(self.gen_label,disc_out)
+                metric.update_state(self.gen_label,disc_content)
                 out.append(metric.result())
             
             gradients_of_generator = gen_tape.gradient(g_loss, self.generator.trainable_variables)
