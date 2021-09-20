@@ -29,40 +29,28 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         self.generator = Model(inputs=self.G.input,outputs=[g_final,*self.g_features])
         self.discriminator = Model(inputs=self.D.input,outputs=[d_final,*self.d_features])
         
-    def get_style_loss(self,content_loss_arr):
-        loss = 0.0
-        for x in self.G.layer_sizes:
-            gen_activations = self.G.gen_layers[0].activation.find_by_size(x)
-            disc_activations = self.D.disc_conv_layers[0].activation.find_by_size(x)
-            assert len(gen_activations) == len(disc_activations)
-            if len(gen_activations) > 0:
-                gen_outs = [ga.output for ga in gen_activations]
-                print("gen_out_shapes: ",[x.shape for x in gen_outs])
-                disc_outs = [da.output for da in disc_activations]
-                print("disc_out_shapes: ",[x.shape for x in disc_outs])
-                gen_2_disc = list(zip(gen_outs,disc_outs))
-                ada_outs = [adain(g,d) for g,d in gen_2_disc]
-                print("ada_out_shapes: ",[x.shape for x in ada_outs])
-                gen_2_ada = list(zip(gen_outs,ada_outs))
-                layer_loss = [self.G.loss_function(g,a) for g,a in gen_2_ada]
-                print("layer_loss_shapes: ",[x.shape for x in layer_loss])
-                loss += K.sum(layer_loss)
-        out = loss*tf.ones_like(content_loss_arr)
-        print("style loss: ",out)
-        return out
-    
+    def get_style_loss(self,output_style,desired_style):
+        out_2_desired = list(zip(output_style,desired_style))
+        ada_outs = [adain(o,d) for o,d in out_2_desired]
+        gen_2_ada = list(zip(output_style,ada_outs))
+        return [self.G.loss_function(g,a) for g,a in gen_2_ada]
+        
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
-            generated_images = self.generator(gen_input, training=False)
-            fake_out = self.discriminator(generated_images, training=True)
+            gen_out = self.generator(gen_input,training=True)
+            gen_images,gen_style = gen_out[0],gen_out[1:]
             
-            content_loss = self.G.loss_function(self.gen_label, fake_out)
-            # style_loss = self.get_style_loss(content_loss)
-            g_loss = content_loss
-            out = [g_loss]
+            disc_out = self.discriminator(gen_images, training=False)
+            disc_content,disc_style = disc_out[0],disc_out[1:]
+            
+            content_loss = self.G.loss_function(self.gen_label, disc_content)
+            style_losses = self.get_style_loss(gen_style,reversed(disc_style))
+            
+            g_loss = [content_loss,*style_losses]
+            out = [content_loss]
             
             for metric in self.gen_metrics:
-                metric.update_state(self.gen_label,fake_out)
+                metric.update_state(self.gen_label,disc_out)
                 out.append(metric.result())
             
             gradients_of_generator = gen_tape.gradient(g_loss, self.generator.trainable_variables)
@@ -71,23 +59,27 @@ class MatchedGanStyleTrainer(AbstractTrainer):
 
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
-            gen_output = self.generator(gen_input, training=False)
-            generated_images,gen_style = gen_output[0],gen_output[1:]
+            gen_out = self.generator(gen_input,training=True)
+            gen_images,gen_style = gen_out[0],gen_out[1:]
             
-            print("gen_images shape: ",generated_images.shape)
+            print("gen_images shape: ",gen_images.shape)
             print("gen_style shape: ",[x.shape for x in gen_style])
             
-            real_out = self.discriminator(disc_input, training=True)
-            fake_out = self.discriminator(generated_images, training=True)
-
-            real_loss = self.D.loss_function(self.real_label,real_out)
-            fake_loss = self.D.loss_function(self.fake_label,fake_out)
-            d_loss = (real_loss + fake_loss)/2
-            out = [d_loss]
+            disc_real = self.discriminator(disc_input, training=True)
+            disc_gen_out = self.discriminator(gen_images, training=True)
+            disc_real_content, disc_real_style = disc_real[0],disc_real[1:]
+            disc_gen_content, disc_gen_style = disc_gen_out[0],disc_gen_out[1:]
+            
+            real_content_loss = self.D.loss_function(self.disc_labels[0], disc_real_content)
+            fake_content_loss = self.D.loss_function(self.disc_labels[1], disc_gen_content)
+            
+            style_losses = self.get_style_loss(disc_gen_style,disc_real_style)
+            content_loss = (real_content_loss + fake_content_loss)/2
+            out = [content_loss,*style_losses]
             
             for metric in self.disc_metrics:
-                metric.update_state(self.real_label,real_out)
-                metric.update_state(self.fake_label,fake_out)
+                metric.update_state(self.real_label,disc_real)
+                metric.update_state(self.fake_label,disc_gen_out)
                 out.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
