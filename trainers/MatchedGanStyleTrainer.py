@@ -32,8 +32,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         
         g_final = self.G.functional_model
         d_final = self.D.functional_model
-        self.generator = Model(inputs=self.G.input,outputs=[g_final])
-        self.discriminator = Model(inputs=self.D.input,outputs=[d_final])
+        self.generator = Model(inputs=self.G.input,outputs=[g_final,*self.gen_deep_layers])
+        self.discriminator = Model(inputs=self.D.input,outputs=[d_final,*self.disc_deep_layers])
     
     def save(self,epoch):
         preview_seed = self.G.get_validation_input(self.preview_size)
