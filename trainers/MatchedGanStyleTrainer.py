@@ -27,6 +27,11 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         d_final = self.D.functional_model
         self.generator = Model(inputs=self.G.input,outputs=[g_final,*self.g_features])
         self.discriminator = Model(inputs=self.D.input,outputs=[d_final,*self.d_features])
+    
+    def save(self,epoch):
+        preview_seed = self.G.get_validation_input(self.preview_size)
+        generated_images = np.array(self.generator.predict(preview_seed)[0])
+        self.image_sources[0].save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
         
     def get_style_loss(self,source_style,desired_style):
         print("source_style shapes: ",[x.shape for x in source_style])
@@ -44,7 +49,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             disc_content,disc_style = disc_out[0],disc_out[1:]
             
             content_loss = self.G.loss_function(self.gen_label, disc_content)
-            style_losses = [] #self.get_style_loss(gen_style,reversed(disc_style))
+            style_losses = self.get_style_loss(gen_style,reversed(disc_style))
             
             g_loss = [content_loss,*style_losses]
             out = [content_loss]

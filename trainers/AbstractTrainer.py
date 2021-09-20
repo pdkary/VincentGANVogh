@@ -86,10 +86,13 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                 self.gan_plotter.log_epoch()
                 
             if epoch % printerval == 0:
-                preview_seed = self.G.get_validation_input(self.preview_size)
-                generated_images = np.array(self.generator.predict(preview_seed))
-                self.image_sources[0].save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
+                self.save()
 
+    def save(self,epoch):
+        preview_seed = self.G.get_validation_input(self.preview_size)
+        generated_images = np.array(self.generator.predict(preview_seed))
+        self.image_sources[0].save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
+    
     def train_n_eras(self, eras, epochs, printerval, ma_size):
         if self.plot:
             from helpers.GanPlotter import GanPlotter
