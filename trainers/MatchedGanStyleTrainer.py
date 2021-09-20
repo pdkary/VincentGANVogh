@@ -43,6 +43,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
+            
+            input_ada = adain(gen_input,source_input)
             gen_out = self.generator(gen_input,training=True)
             gen_images,gen_style = gen_out[0],gen_out[1:]
             
@@ -53,8 +55,9 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             disc_real_content,disc_real_style = disc_real_out[0],disc_real_out[1:]
             
             content_loss = self.G.loss_function(self.gen_label, disc_gen_content)
+            
             style_losses = self.get_style_loss(gen_style,reversed(disc_real_style))
-            style_loss = np.sum(style_losses)
+            style_loss = tf.losses.mean_squared_error(input_ada,gen_input)
             g_loss = [content_loss,*style_losses]
             out = [content_loss + style_loss]
             
