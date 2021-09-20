@@ -48,8 +48,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         si = lambda x: K.std(x,axis)
         mu_c, mu_s = mu(content_img), mu(style_img)
         si_c, si_s = si(content_img), si(style_img)
-        mean_loss = self.style_loss_function(mu_c,mu_s)
-        std_loss = self.style_loss_function(si_c,si_s)
+        mean_loss = self.style_loss_function(mu_s,mu_c)
+        std_loss = self.style_loss_function(si_s,si_c)
         return mean_loss + std_loss
         
     def train_generator(self,source_input, gen_input):
