@@ -30,6 +30,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         self.disc_deep_layers = [x.output for y in self.disc_deep_layers for x in y]        
         self.gen_deep_layers = [x.output for y in self.gen_deep_layers for x in y]
         
+        self.null_style_loss = tf.zeros_like(self.disc_deep_layers)
+        
         g_final = self.G.functional_model
         d_final = self.D.functional_model
         self.generator = Model(inputs=self.G.input,outputs=[g_final,*self.gen_deep_layers])
