@@ -1,6 +1,7 @@
 from typing import List
 import tensorflow as tf
 import numpy as np
+from tensorflow.python.keras.losses import MSE
 from config.TrainingConfig import GanTrainingConfig
 from layers.AdaptiveInstanceNormalization import adain
 from layers.GanInput import RealImageInput
@@ -9,6 +10,7 @@ from models.Generator import Generator
 
 from trainers.AbstractTrainer import AbstractTrainer
 from tensorflow.keras.models import Model
+import tensorflow.keras.backend as K
 
 class MatchedGanStyleTrainer(AbstractTrainer):
     def __init__(self, 
@@ -39,8 +41,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         src_2_dest = list(zip(content_src,style_src))
         return [self.get_style_loss(s,d) for s,d in src_2_dest]
     
-    def get_style_loss(self,content_img,style_img):
-        ada_content = adain(content_img,style_img)
+    def get_style_loss(self,content_img,style_img,axis=[1,2]):
+        ada_content = adain(content_img,style_img,axis)
         return tf.losses.mean_squared_error(content_img,ada_content)
         
     def train_generator(self,source_input, gen_input):
@@ -52,7 +54,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             disc_real = self.discriminator(source_input, training=False)
             disc_real_out,disc_real_deep_layers = disc_real[0], disc_real[1:]
             
-            style_loss = self.get_style_loss(disc_real_out,disc_gen_out)
+            style_loss = self.get_style_loss(disc_real_out,disc_gen_out,axis=None])
             deep_style_losses = self.get_deep_style_loss(gen_deep_layers,reversed(disc_real_deep_layers))
             content_loss = self.G.loss_function(self.gen_label, disc_gen_out)
             g_loss = [content_loss + style_loss,*deep_style_losses]
