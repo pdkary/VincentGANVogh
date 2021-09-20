@@ -26,12 +26,12 @@ class GanTrainingConfig():
                  disc_labels: Tuple[float, float],
                  gen_label: float,
                  batch_size: int,
-                 disc_batches_per_epoch: int,
-                 gen_batches_per_epoch: int,
-                 metrics: List[Metric],
-                 preview_rows: int,
-                 preview_cols: int,
-                 preview_margin: int):
+                 disc_batches_per_epoch: int = 1,
+                 gen_batches_per_epoch: int = 1,
+                 metrics: List[Metric] = [],
+                 preview_rows: int = 4,
+                 preview_cols: int = 6,
+                 preview_margin: int = 16):
         self.plot = plot
         self.disc_labels = disc_labels
         self.gen_label = gen_label
