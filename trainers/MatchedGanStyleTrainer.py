@@ -68,7 +68,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
 
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
-            gen_out = self.generator(gen_input,training=True)[0]
+            gen_out = self.generator(gen_input,training=False)[0]
             
             disc_real = self.discriminator(disc_input, training=True)[0]
             disc_gen = self.discriminator(gen_out, training=True)[0]
