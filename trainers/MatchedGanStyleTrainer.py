@@ -26,6 +26,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         
         g_final = self.G.functional_model
         d_final = self.D.functional_model
+        self.null_style_loss = tf.constant([0.0 for i in self.d_features])
         self.generator = Model(inputs=self.G.input,outputs=[g_final,*self.g_features])
         self.discriminator = Model(inputs=self.D.input,outputs=[d_final,*self.d_features])
     
@@ -78,7 +79,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             real_content_loss = self.D.loss_function(self.real_label, disc_real_content)
             fake_content_loss = self.D.loss_function(self.fake_label, disc_gen_content)
             
-            style_losses = [0.0 for i in disc_real_style]
+            style_losses = self.null_style_loss
             content_loss = (real_content_loss + fake_content_loss)/2
             style_loss = np.sum(style_losses)
             d_loss = [content_loss,*style_losses]
