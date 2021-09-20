@@ -23,16 +23,17 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         self.style_loss_function = style_loss_function
         self.gen_act = self.G.gen_layers[0].activation
         self.disc_act = self.D.disc_conv_layers[0].activation
-        g_features = [self.gen_act.find_by_size(x) for x in self.G.layer_sizes]
-        self.g_features = [y.output for x in g_features for y in x]
-        d_features = [self.disc_act.find_by_size(x) for x in self.D.layer_sizes]
-        self.d_features = [y.output for x in d_features for y in x]
+        self.matched_layers = set(self.gen_act.layer_dict.keys()) & set(self.disc_act.layer_dict.keys())
+        
+        self.disc_deep_layers = [self.disc_act.layer_dict[x] for x in self.matched_layers]        
+        self.gen_deep_layers = [self.gen_act.layer_dict[x] for x in self.matched_layers]
+        self.disc_deep_layers = [x.output for y in self.disc_deep_layers for x in y]        
+        self.gen_deep_layers = [x.output for y in self.gen_deep_layers for x in y]
         
         g_final = self.G.functional_model
         d_final = self.D.functional_model
-        self.null_style_loss = tf.constant([0.0 for i in self.d_features])
-        self.generator = Model(inputs=self.G.input,outputs=[g_final,*self.g_features])
-        self.discriminator = Model(inputs=self.D.input,outputs=[d_final,*self.d_features])
+        self.generator = Model(inputs=self.G.input,outputs=[g_final])
+        self.discriminator = Model(inputs=self.D.input,outputs=[d_final])
     
     def save(self,epoch):
         preview_seed = self.G.get_validation_input(self.preview_size)

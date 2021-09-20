@@ -1,5 +1,5 @@
 from models.Generator import Generator
-from layers.GanInput import GanInput, GenLatentSpaceInput
+from layers.GanInput import GanInput
 from layers.CallableConfig import ActivationConfig, RegularizationConfig
 from models.NoiseModel import NoiseModelBase
 from models.StyleModel import StyleModelBase

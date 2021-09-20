@@ -1,6 +1,8 @@
 from typing import Callable, Dict
 import numbers
 
+from keras.backend import arange
+
 class CallableConfig():
     def __init__(self,
                  callable: Callable,
@@ -25,41 +27,31 @@ class RegularizationConfig(CallableConfig):
 
 NoneCallable = CallableConfig(None)
 
-class NamedCallableConfig(CallableConfig):
+class TrackedCallableConfig(CallableConfig):
     def __init__(self, callable: Callable, name: str, args: Dict = {}, kwargs: Dict = {}):
         super().__init__(callable, args=args, kwargs=kwargs)
         self.layer_dict = {}
-        self.shape_count = {}
         self.name = name
 
     def get(self,input_shape):
         if isinstance(input_shape,numbers.Number):
-            shape_name = "_" + str(input_shape)
+            shape_key = str(input_shape)
         else:
             input_shape = list(filter(None,input_shape))
-            input_shape = [str(x) for x in input_shape]
-            shape_name = "_" + "_".join(input_shape)
+            shape_key = "_".join(str(x) for x in input_shape)
             
-        if shape_name in self.shape_count.keys():
-            self.shape_count[shape_name] += 1
+        if shape_key in self.layer_dict.keys():
+            num_layers = len(self.layer_dict[shape_key])
+            self.kwargs["name"] = self.name + "_" + shape_key + "_" + str(num_layers)
+            layer = self.callable(**self.args,**self.kwargs)
+            self.layer_dict[shape_key].append(layer)
         else:
-            self.shape_count[shape_name] = 1
+            self.kwargs["name"] = self.name + "_" + shape_key + "_0"
+            layer = self.callable(**self.args,**self.kwargs)
+            self.layer_dict[shape_key] = [layer]
+        return layer
         
-        name = self.name + shape_name + "_" + str(self.shape_count[shape_name])
-        self.kwargs["name"] = name
-        self.layer_dict[name] = self.callable(**self.args, **self.kwargs)
-        return self.layer_dict[name]
-    
-    def find_by_size(self,input_shape):
-        if isinstance(input_shape,numbers.Number):
-            shape_name = "_" + str(input_shape)
-        else:
-            input_shape = list(filter(None,input_shape))
-            input_shape = [str(x) for x in input_shape]
-            shape_name = "_" + "_".join(input_shape)
-        return [self.layer_dict[n] for n in self.layer_dict.keys() if shape_name in n]
-        
-class ActivationConfig(NamedCallableConfig):
+class ActivationConfig(TrackedCallableConfig):
     def __init__(self, callable: Callable, name: str, args: Dict = {}, kwargs: Dict = {}):
         super().__init__(callable, name, args=args, kwargs=kwargs)
 

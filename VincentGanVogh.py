@@ -1,3 +1,5 @@
+from trainers.MatchedGanStyleTrainer import MatchedGanStyleTrainer
+from models.MatchedGan import get_matched_gan
 import numpy as np
 from tensorflow.keras.layers import Activation, BatchNormalization, LeakyReLU
 from tensorflow.keras.losses import binary_crossentropy,categorical_crossentropy, kl_divergence, mean_squared_error
@@ -9,14 +11,10 @@ from config.GanConfig import GenLayerConfig
 from config.TrainingConfig import DataConfig, GanTrainingConfig
 from layers.CallableConfig import ActivationConfig, NormalizationConfig,RegularizationConfig
 from layers.GanInput import GenConstantInput, GenLatentSpaceInput, RealImageInput
-from models.Discriminator import Discriminator
-from models.Generator import Generator
 from models.NoiseModel import ConstantNoiseModel, LatentNoiseModel
 from models.StyleModel import ImageStyleModel, LatentStyleModel
 from models.VGG19 import get_vgg19
 from third_party_layers.InstanceNormalization import InstanceNormalization
-from trainers.CombinedTrainer import CombinedTrainer
-from trainers.GenTapeTrainer import GenTapeTrainer
 
 # from google.colab import drive
 # drive.mount('/content/drive')
@@ -65,44 +63,37 @@ image_source = RealImageInput(data_config)
 
 ##style models
 # style_model = ImageStyleModel(image_source,32,2,3,3,100,gen_lr_dense,gen_lr_conv,l2,downsample_factor=4)
-# style_model = LatentStyleModel(100,3,512,gen_lr_dense)
-style_model = None
+style_model = LatentStyleModel(100,3,512,gen_lr_dense)
+# style_model = None
 
 ##noise model
-# noise_model = LatentNoiseModel(img_shape,gen_lr_conv,l2)
-noise_model = None
+noise_model = LatentNoiseModel(img_shape,gen_lr_conv,l2)
+# noise_model = None
 
 ##input models
-# input_model = GenConstantInput((4,4,512))
-input_model = GenLatentSpaceInput(100,(2,2,1024),512,3,gen_lr_dense)
+input_model = GenConstantInput((8,8,512))
+# input_model = GenLatentSpaceInput(100,(8,8,512),512,3,gen_lr_dense)
 
-## layer shorthands 
-gl = lambda f,c: GenLayerConfig(f,c,3,gen_lr_conv,upsampling=True,style=True,noise=True)
-glt = lambda f,c: GenLayerConfig(f,c,3,gen_lr_conv,upsampling=True,transpose=True,style=True,noise=True)
-output_layer = GenLayerConfig(img_shape[-1],1,1,tanh,style=True)
-
-#Generator model
-generator = Generator(
+discriminator,generator = get_matched_gan(
     img_shape = img_shape,
-    input_model = input_model,
-    gen_layers = [gl(512,3),gl(512,3),gl(256,3),gl(256,3),gl(128,3),gl(128,3),gl(64,3),output_layer],
+    gen_input_model = input_model,
+    layer_sizes = [(64,2),(128,2),(256,3),(512,3),(512,3)],
+    disc_optimizer = Adam(learning_rate=2e-3,beta_1=0.0),
+    disc_loss_func = binary_crossentropy,
+    disc_conv_activation = disc_lr_conv,
+    disc_dense_activation = disc_lr_dense,
+    disc_final_activation = sigmoid,
     gen_optimizer = Adam(learning_rate=2e-3,beta_1=0.0),
-    loss_function = binary_crossentropy,
-    normalization = batch_norm
+    gen_loss_func = binary_crossentropy,
+    gen_conv_activation = gen_lr_conv,
+    gen_final_activation = sigmoid,
+    normalization = instance_norm,
+    style_model = style_model,
+    noise_model = noise_model,
+    disc_output_dim = 1
 )
 
-#Discriminator Model
-discriminator = get_vgg19(
-    input_channels = img_shape[-1],
-    conv_activation = disc_lr_conv,
-    dense_activation = disc_lr_dense,
-    final_activation = softmax,
-    normalization = batch_norm,
-    optimizer = Adam(learning_rate=2e-3,beta_1=0.0),
-    loss_function = binary_crossentropy,
-    lite = True
-)
-
+style_loss_func = mean_squared_error
 #Training config
 gan_training_config = GanTrainingConfig(
     plot=True,
@@ -111,23 +102,18 @@ gan_training_config = GanTrainingConfig(
     #desired label
     gen_label=1.0,
     batch_size=4,
-    disc_batches_per_epoch = 1,
-    gen_batches_per_epoch = 1,
     metrics = [Accuracy,MeanSquaredError],
-    preview_rows=4,
-    preview_cols=6,
-    preview_margin=16
 )
 
 #Trainer
-VGV = GenTapeTrainer(generator,discriminator,gan_training_config,[image_source])
+# VGV = GenTapeTrainer(generator,discriminator,gan_training_config,[image_source])
+VGV = MatchedGanStyleTrainer(generator,discriminator,gan_training_config,style_loss_func,[image_source])
 
 
 #TRAINING
 ERAS = 1
 EPOCHS = 1
-BATCHES_PER_EPOCH = 1
 PRINT_EVERY = 10
 MOVING_AVERAGE_SIZE = 20
  
-VGV.train_n_eras(ERAS,EPOCHS,BATCHES_PER_EPOCH,PRINT_EVERY,MOVING_AVERAGE_SIZE)
+VGV.train_n_eras(ERAS,EPOCHS,PRINT_EVERY,MOVING_AVERAGE_SIZE)
