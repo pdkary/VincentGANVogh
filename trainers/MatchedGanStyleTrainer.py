@@ -76,8 +76,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             out = [content_loss]
             
             for metric in self.disc_metrics:
-                metric.update_state(self.real_label,disc_real)
-                metric.update_state(self.fake_label,disc_gen_out)
+                metric.update_state(self.real_label,disc_real_content)
+                metric.update_state(self.fake_label,disc_gen_content)
                 out.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
