@@ -44,11 +44,10 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         return [self.get_style_loss(s,d) for s,d in src_2_dest]
     
     def get_style_loss(self,content_img,style_img,axis=[1,2]):
-        MSE = lambda x: self.style_loss_function(x,tf.zeros_like(x))
         mu = lambda x: K.mean(x,axis)
         si = lambda x: K.std(x,axis)
-        mu_c,mu_s = mu(content_img),mu(style_img)
-        si_c,si_s = si(content_img),si(style_img)
+        mu_c, mu_s = mu(content_img), mu(style_img)
+        si_c, si_s = si(content_img), si(style_img)
         mean_loss = self.style_loss_function(mu_c,mu_s)
         std_loss = self.style_loss_function(si_c,si_s)
         return mean_loss + std_loss
