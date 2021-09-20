@@ -73,6 +73,13 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             disc_real_content, disc_real_style = disc_real[0],disc_real[1:]
             disc_gen_content, disc_gen_style = disc_gen_out[0],disc_gen_out[1:]
             
+            print("disc_real_content shape: ",disc_real_content.shape)
+            print("disc_real_style shape: ",[x.shape for x in disc_real_style])
+            
+            
+            print("disc_gen_content shape: ",disc_gen_content.shape)
+            print("disc_gen_style shape: ",[x.shape for x in disc_gen_style])
+            
             real_content_loss = self.D.loss_function(self.disc_labels[0], disc_real_content)
             fake_content_loss = self.D.loss_function(self.disc_labels[1], disc_gen_content)
             
