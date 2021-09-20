@@ -54,7 +54,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             disc_real = self.discriminator(source_input, training=False)
             disc_real_out,disc_real_deep_layers = disc_real[0], disc_real[1:]
             
-            style_loss = self.get_style_loss(disc_real_out,disc_gen_out,axis=None])
+            style_loss = self.get_style_loss(disc_real_out,disc_gen_out,axis=None)
             deep_style_losses = self.get_deep_style_loss(gen_deep_layers,reversed(disc_real_deep_layers))
             content_loss = self.G.loss_function(self.gen_label, disc_gen_out)
             g_loss = [content_loss + style_loss,*deep_style_losses]
