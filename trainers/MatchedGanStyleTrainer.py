@@ -35,11 +35,9 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         generated_images = np.array(self.generator.predict(preview_seed)[0])
         self.image_sources[0].save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
         
-    def get_deep_style_loss(self,source_style,desired_style):
-        src_2_dest = list(zip(source_style,desired_style))
-        ada_outs = [adain(s,d) for s,d in src_2_dest]
-        src_2_ada = list(zip(source_style,ada_outs))
-        return [tf.losses.mean_squared_error(s,a) for s,a in src_2_ada]
+    def get_deep_style_loss(self,content_src,style_src):
+        src_2_dest = list(zip(content_src,style_src))
+        return [self.get_style_loss(s,d) for s,d in src_2_dest]
     
     def get_style_loss(self,content_img,style_img):
         ada_content = adain(content_img,style_img)
@@ -51,9 +49,10 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             gen_images,gen_deep_layers = gen_out[0],gen_out[1:]
             
             disc_gen_out = self.discriminator(gen_images, training=False)[0]
-            disc_real_deep_layers = self.discriminator(source_input, training=False)[1:]
+            disc_real = self.discriminator(source_input, training=False)
+            disc_real_out,disc_real_deep_layers = disc_real[0], disc_real[1:]
             
-            style_loss = self.get_style_loss(gen_images,source_input)
+            style_loss = self.get_style_loss(disc_real_out,disc_gen_out)
             deep_style_losses = self.get_deep_style_loss(gen_deep_layers,reversed(disc_real_deep_layers))
             content_loss = self.G.loss_function(self.gen_label, disc_gen_out)
             g_loss = [content_loss + style_loss,*deep_style_losses]
