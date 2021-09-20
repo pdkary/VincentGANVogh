@@ -1,5 +1,6 @@
 from typing import List
 import tensorflow as tf
+import numpy as np
 from config.TrainingConfig import GanTrainingConfig
 from layers.AdaptiveInstanceNormalization import adain
 from layers.GanInput import RealImageInput

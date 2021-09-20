@@ -86,7 +86,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                 self.gan_plotter.log_epoch()
                 
             if epoch % printerval == 0:
-                self.save()
+                self.save(epoch)
 
     def save(self,epoch):
         preview_seed = self.G.get_validation_input(self.preview_size)
