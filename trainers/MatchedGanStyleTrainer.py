@@ -1,6 +1,7 @@
 from typing import List
 import tensorflow as tf
 import numpy as np
+from tensorflow.python.keras.losses import Loss
 from config.TrainingConfig import GanTrainingConfig
 from layers.AdaptiveInstanceNormalization import adain
 from layers.GanInput import RealImageInput
@@ -15,8 +16,10 @@ class MatchedGanStyleTrainer(AbstractTrainer):
                  generator: Generator,
                  discriminator: Discriminator,
                  gan_training_config: GanTrainingConfig,
+                 style_loss_function: Loss,
                  image_sources: List[RealImageInput]):
         super().__init__(generator, discriminator, gan_training_config, image_sources)
+        self.style_loss_function = style_loss_function
         self.gen_act = self.G.gen_layers[0].activation
         self.disc_act = self.D.disc_conv_layers[0].activation
         g_features = [self.gen_act.find_by_size(x) for x in self.G.layer_sizes]
@@ -41,7 +44,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
     
     def get_style_loss(self,content_img,style_img,axis=[1,2]):
         ada_content = adain(content_img,style_img,axis)
-        return tf.losses.mean_squared_error(content_img,ada_content)
+        return self.style_loss_function(content_img,ada_content)
         
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
@@ -54,7 +57,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             deep_style_losses = self.get_deep_style_loss(gen_deep_layers,reversed(disc_deep_layers))
             content_loss = self.G.loss_function(self.gen_label, disc_results)
             g_loss = [content_loss,*deep_style_losses]
-            out = [content_loss + np.sum(deep_style_losses)]
+            out = [content_loss]
             
             for metric in self.gen_metrics:
                 metric.update_state(self.gen_label,disc_results)
