@@ -1,7 +1,6 @@
 from typing import List
 import tensorflow as tf
 import numpy as np
-from tensorflow.python.keras.losses import MSE
 from config.TrainingConfig import GanTrainingConfig
 from layers.AdaptiveInstanceNormalization import adain
 from layers.GanInput import RealImageInput
@@ -10,7 +9,6 @@ from models.Generator import Generator
 
 from trainers.AbstractTrainer import AbstractTrainer
 from tensorflow.keras.models import Model
-import tensorflow.keras.backend as K
 
 class MatchedGanStyleTrainer(AbstractTrainer):
     def __init__(self, 
@@ -50,18 +48,16 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             gen_out = self.generator(gen_input,training=True)
             gen_images,gen_deep_layers = gen_out[0],gen_out[1:]
             
-            disc_gen_out = self.discriminator(gen_images, training=False)[0]
-            disc_real = self.discriminator(source_input, training=False)
-            disc_real_out,disc_real_deep_layers = disc_real[0], disc_real[1:]
+            disc_out = self.discriminator(gen_images, training=False)
+            disc_results,disc_deep_layers = disc_out[0],disc_out[1:]
             
-            style_loss = self.get_style_loss(disc_real_out,disc_gen_out,axis=None)
-            deep_style_losses = self.get_deep_style_loss(gen_deep_layers,reversed(disc_real_deep_layers))
-            content_loss = self.G.loss_function(self.gen_label, disc_gen_out)
-            g_loss = [content_loss + style_loss,*deep_style_losses]
-            out = [g_loss[0]]
+            deep_style_losses = self.get_deep_style_loss(gen_deep_layers,reversed(disc_deep_layers))
+            content_loss = self.G.loss_function(self.gen_label, disc_results)
+            g_loss = [content_loss,*deep_style_losses]
+            out = [content_loss + np.sum(deep_style_losses)]
             
             for metric in self.gen_metrics:
-                metric.update_state(self.gen_label,disc_gen_out)
+                metric.update_state(self.gen_label,disc_results)
                 out.append(metric.result())
             
             gradients_of_generator = gen_tape.gradient(g_loss, self.generator.trainable_variables)
