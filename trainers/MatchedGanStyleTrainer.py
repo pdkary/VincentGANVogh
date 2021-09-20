@@ -68,26 +68,23 @@ class MatchedGanStyleTrainer(AbstractTrainer):
 
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
-            gen_out = self.generator(gen_input,training=True)
-            gen_images,gen_style = gen_out[0],gen_out[1:]
+            gen_out = self.generator(gen_input,training=True)[0]
             
-            disc_real = self.discriminator(disc_input, training=True)
-            disc_gen_out = self.discriminator(gen_images, training=True)
-            disc_real_content, disc_real_style = disc_real[0],disc_real[1:]
-            disc_gen_content, disc_gen_style = disc_gen_out[0],disc_gen_out[1:]
+            disc_real = self.discriminator(disc_input, training=True)[0]
+            disc_gen = self.discriminator(gen_out, training=True)[0]
             
-            real_content_loss = self.D.loss_function(self.real_label, disc_real_content)
-            fake_content_loss = self.D.loss_function(self.fake_label, disc_gen_content)
+            real_content_loss = self.D.loss_function(self.real_label, disc_real)
+            fake_content_loss = self.D.loss_function(self.fake_label, disc_gen)
             
-            style_losses = self.null_style_loss
             content_loss = (real_content_loss + fake_content_loss)/2
+            style_losses = self.null_style_loss
             style_loss = np.sum(style_losses)
             d_loss = [content_loss,*style_losses]
             out = [content_loss + style_loss]
             
             for metric in self.disc_metrics:
-                metric.update_state(self.real_label,disc_real_content)
-                metric.update_state(self.fake_label,disc_gen_content)
+                metric.update_state(self.real_label,disc_real)
+                metric.update_state(self.fake_label,disc_gen)
                 out.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
