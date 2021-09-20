@@ -35,8 +35,6 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         self.image_sources[0].save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
         
     def get_style_loss(self,source_style,desired_style):
-        print("source_style shapes: ",[x.shape for x in source_style])
-        print("desired_style shapes: ",[x.shape for x in desired_style])
         src_2_dest = list(zip(source_style,desired_style))
         ada_outs = [adain(s,d) for s,d in src_2_dest]
         src_2_ada = list(zip(source_style,ada_outs))
