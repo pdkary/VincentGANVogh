@@ -68,8 +68,9 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                         d_metrics[i] += batch_metrics[i]
                     
                 for i in range(self.gen_batches_per_epoch):
+                    source_input = source.get_training_batch(self.batch_size)
                     gen_input = self.G.get_training_input(self.batch_size)
-                    batch_out = self.train_generator(None,gen_input)
+                    batch_out = self.train_generator(source_input,gen_input)
                     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                     g_loss += batch_loss
                     for i in range(len(self.metrics)):
