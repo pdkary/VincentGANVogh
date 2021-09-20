@@ -58,8 +58,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             
             style_losses = self.get_style_loss(gen_style,reversed(disc_real_style))
             style_loss = tf.losses.mean_squared_error(input_ada,gen_input)
-            g_loss = [content_loss,*style_losses]
-            out = [content_loss + style_loss]
+            g_loss = [content_loss + style_loss,*style_losses]
+            out = [g_loss[0]]
             
             for metric in self.gen_metrics:
                 metric.update_state(self.gen_label,disc_gen_content)
@@ -80,10 +80,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             fake_content_loss = self.D.loss_function(self.fake_label, disc_gen)
             
             content_loss = (real_content_loss + fake_content_loss)/2
-            style_losses = self.null_style_loss
-            style_loss = np.sum(style_losses)
-            d_loss = [content_loss,*style_losses]
-            out = [content_loss + style_loss]
+            d_loss = [content_loss,*self.null_style_loss]
+            out = [content_loss + np.sum(self.null_style_loss)]
             
             for metric in self.disc_metrics:
                 metric.update_state(self.real_label,disc_real)
