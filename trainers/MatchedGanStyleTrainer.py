@@ -78,7 +78,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             real_content_loss = self.D.loss_function(self.real_label, disc_real_content)
             fake_content_loss = self.D.loss_function(self.fake_label, disc_gen_content)
             
-            style_losses = self.get_style_loss(disc_gen_style,disc_real_style)
+            style_losses = [0.0 for i in disc_real_style]
             content_loss = (real_content_loss + fake_content_loss)/2
             style_loss = np.sum(style_losses)
             d_loss = [content_loss,*style_losses]
