@@ -83,11 +83,11 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                     g_metrics = [g/self.gen_batches_per_epoch for g in g_metrics]
                     self.gan_plotter.batch_update([d_loss, g_loss, *d_metrics, *g_metrics])
             
-            if epoch >= 10 and self.plot:
-                self.gan_plotter.log_epoch()
-                
             if epoch % printerval == 0:
                 self.save(epoch)
+                
+            if epoch >= 10 and self.plot:
+                self.gan_plotter.log_epoch()
 
     def save(self,epoch):
         preview_seed = self.G.get_validation_input(self.preview_size)
