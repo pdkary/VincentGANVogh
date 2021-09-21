@@ -51,7 +51,7 @@ class LatentNoiseModel(NoiseModelBase):
     def __init__(self, 
                  noise_image_size: Tuple[int, int, int], 
                  activation: ActivationConfig, 
-                 kernel_regularizer: RegularizationConfig, 
+                 kernel_regularizer: RegularizationConfig = NoneCallable, 
                  kernel_initializer: str = "glorot_uniform", 
                  kernel_size: int = 1, 
                  max_std_dev: float = 1.0):

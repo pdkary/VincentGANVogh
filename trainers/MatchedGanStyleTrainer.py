@@ -81,14 +81,17 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         with tf.GradientTape() as disc_tape:
             gen_out = self.generator(gen_input,training=False)[0]
             
-            disc_real = self.discriminator(disc_input, training=True)[0]
-            disc_gen = self.discriminator(gen_out, training=True)[0]
+            disc_real, disc_real_deep_layers = self.discriminator(disc_input, training=True)
+            disc_gen, disc_gen_deep_layers = self.discriminator(gen_out, training=True)
             
             real_content_loss = self.D.loss_function(self.real_label, disc_real)
             fake_content_loss = self.D.loss_function(self.fake_label, disc_gen)
             
-            content_loss = (real_content_loss + fake_content_loss)/2
-            d_loss = [content_loss,*self.null_style_loss]
+            style_loss = self.get_style_loss(gen_out,disc_input)
+            deep_style_losses = self.get_deep_style_loss(disc_real_deep_layers,disc_gen_deep_layers)
+            
+            content_loss = (real_content_loss + fake_content_loss)/2 + style_loss
+            d_loss = [content_loss, *deep_style_losses]
             out = [d_loss[0]]
             
             for metric in self.disc_metrics:
