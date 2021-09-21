@@ -35,7 +35,7 @@ def get_matched_gan(img_shape:Tuple[int,int,int],
     dout = DiscDenseLayerConfig(disc_output_dim,disc_final_activation,0.0)
     
     gl = lambda f,c: GenLayerConfig(f,c,3,gen_conv_activation,upsampling=True,style=True,noise=True)
-    gen_output_layer = GenLayerConfig(img_shape[-1],1,3,gen_final_activation,style=True)
+    gen_output_layer = GenLayerConfig(img_shape[-1],1,1,gen_final_activation,style=True)
     ff,fc = layer_sizes[-1]
     disc_conv_layers = [dcl(f,c) for f,c in layer_sizes] + 2*[dcl(ff,fc)]
     disc_dense_layers = [ddl(4096),ddl(4096),ddl(1000),dout]
