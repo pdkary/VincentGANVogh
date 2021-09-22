@@ -1,3 +1,6 @@
+from typing import List
+
+from tensorflow.python.keras.metrics import Metric
 from models.Discriminator import Discriminator
 from config.GanConfig import DiscConvLayerConfig,DiscDenseLayerConfig
 from layers.CallableConfig import ActivationConfig, NoneCallable, NormalizationConfig, RegularizationConfig
@@ -11,6 +14,7 @@ def get_vgg19(input_channels:int,
               normalization:NormalizationConfig,
               optimizer: Optimizer,
               loss_function: Loss,
+              metrics: List[Metric],
               kernel_regularizer: RegularizationConfig = NoneCallable,
               kernel_initializer: str = "glorot_uniform",
               output_dim: int = 1,
@@ -28,6 +32,7 @@ def get_vgg19(input_channels:int,
         minibatch_size = minibatch_size,
         disc_optimizer = optimizer,
         loss_function = loss_function,
+        metrics=metrics,
         kernel_regularizer=kernel_regularizer,
         kernel_initializer=kernel_initializer)
     
