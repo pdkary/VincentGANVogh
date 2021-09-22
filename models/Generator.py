@@ -1,5 +1,7 @@
 from typing import Tuple, List
 
+from tensorflow.python.keras.metrics import Metric
+
 from config.GanConfig import GenLayerConfig
 from layers.CallableConfig import NormalizationConfig, RegularizationConfig, NoneCallable
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
@@ -21,6 +23,7 @@ class Generator():
                  gen_layers: List[GenLayerConfig],
                  gen_optimizer: Optimizer,
                  loss_function: Loss,
+                 metrics: List[Metric],
                  style_model: StyleModelBase = None,
                  noise_model: NoiseModelBase = None,
                  normalization: NormalizationConfig = NoneCallable,
@@ -31,6 +34,8 @@ class Generator():
         self.gen_layers = gen_layers
         self.gen_optimizer = gen_optimizer
         self.loss_function = loss_function
+        self.metrics = [m() for m in metrics]
+        self.metric_labels = ["G_" + str(m.name) for m in metrics]
         self.style_model = style_model
         self.noise_model = noise_model
         self.normalization = normalization
@@ -68,7 +73,9 @@ class Generator():
             out = self.generator_block(out,layer_config)
         self.functional_model = out
         gen_model = Model(inputs=self.input,outputs=out,name="Generator")
-        gen_model.compile(optimizer=self.gen_optimizer,loss=self.loss_function)
+        gen_model.compile(optimizer=self.gen_optimizer,
+                          loss=self.loss_function,
+                          metrics=self.metrics)
         if print_summary:
             gen_model.summary()
         return gen_model

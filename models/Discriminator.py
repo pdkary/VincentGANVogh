@@ -1,5 +1,7 @@
 from typing import List, Tuple
 
+from tensorflow.python.eager.monitoring import Metric
+
 from config.GanConfig import DiscConvLayerConfig, DiscDenseLayerConfig
 from layers.CallableConfig import NoneCallable, RegularizationConfig
 from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, Input, MaxPooling2D
@@ -17,6 +19,7 @@ class Discriminator():
                  minibatch_size: int,
                  disc_optimizer: Optimizer,
                  loss_function: Loss,
+                 metrics: List[Metric],
                  kernel_regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_uniform"):
         self.img_shape = img_shape
@@ -26,10 +29,11 @@ class Discriminator():
         self.minibatch = minibatch_size > 0
         self.disc_optimizer = disc_optimizer
         self.loss_function = loss_function
+        self.metrics = [m() for m in metrics]
+        self.metric_labels = ["D_" + str(m.name)for m in self.metrics]
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.output_dim = self.disc_dense_layers[-1].size
-        self.output_dim = self.output_dim
         self.input = Input(shape=self.img_shape, name="discriminator_input")
         self.layer_sizes = [self.img_shape]
 
@@ -48,7 +52,9 @@ class Discriminator():
 
         self.functional_model = out
         disc_model = Model(inputs=self.input, outputs=out,name="Discriminator")
-        disc_model.compile(optimizer=self.disc_optimizer,loss=self.loss_function)
+        disc_model.compile(optimizer=self.disc_optimizer,
+                           loss=self.loss_function,
+                           metrics=self.metrics)
         disc_model.summary()
         return disc_model
 

@@ -7,7 +7,6 @@ from config.TrainingConfig import GanTrainingConfig
 from layers.GanInput import RealImageInput
 from models.Discriminator import Discriminator
 from models.Generator import Generator
-from tensorflow.keras.metrics import Metric
 
 
 class AbstractTrainer(GanTrainingConfig, ABC):
@@ -31,19 +30,15 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.discriminator = self.D.build()
         self.model_output_path = self.image_sources[0].data_path + "/models"
         
-        self.disc_metrics: List[Metric] = [m() for m in self.metrics]
-        self.gen_metrics: List[Metric] = [m() for m in self.metrics]
-        d_metric_labels = ["D_" + str(m.name) for m in self.disc_metrics]
-        g_metric_labels = ["G_" + str(m.name) for m in self.gen_metrics]
-        self.plot_labels = ["D_Loss","G_Loss",*d_metric_labels,*g_metric_labels]
+        self.plot_labels = ["D_Loss","G_Loss",*self.D.metric_labels,*self.G.metric_labels]
 
     @abstractmethod
     def train_generator(self, source_input, gen_input):
-        return 2*[0.0] + len(self.metrics)*[0.0]
+        return 2*[0.0] + len(self.G.metrics)*[0.0]
 
     @abstractmethod
     def train_discriminator(self, source_input, gen_input):
-        return 2*[0.0] + len(self.metrics)*[0.0]
+        return 2*[0.0] + len(self.D.metrics)*[0.0]
 
     def save_generator(self, epoch):
         filename = self.image_sources[0].data_helper.model_name + str(epoch)
@@ -55,8 +50,8 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                 self.gan_plotter.start_epoch()
 
             for source in self.image_sources:
-                d_loss, d_metrics = 0.0, [0.0 for i in self.metrics]
-                g_loss, g_metrics = 0.0, [0.0 for i in self.metrics]
+                d_loss, d_metrics = 0.0, [0.0 for i in self.D.metrics]
+                g_loss, g_metrics = 0.0, [0.0 for i in self.G.metrics]
                 
                 for i in range(self.disc_batches_per_epoch):
                     source_input = source.get_validation_batch(self.batch_size)
@@ -64,7 +59,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                     batch_out = self.train_discriminator(source_input, gen_input)
                     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                     d_loss += batch_loss
-                    for i in range(len(self.metrics)):
+                    for i in range(len(self.D.metrics)):
                         d_metrics[i] += batch_metrics[i]
                     
                 for i in range(self.gen_batches_per_epoch):
@@ -73,7 +68,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                     batch_out = self.train_generator(source_input,gen_input)
                     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                     g_loss += batch_loss
-                    for i in range(len(self.metrics)):
+                    for i in range(len(self.G.metrics)):
                         g_metrics[i] += batch_metrics[i]
 
                 if self.plot:

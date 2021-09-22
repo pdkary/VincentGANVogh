@@ -35,7 +35,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         d_final = self.D.functional_model
         self.generator = Model(inputs=self.G.input,outputs=[g_final,*self.gen_deep_layers])
         self.discriminator = Model(inputs=self.D.input,outputs=[d_final,*self.disc_deep_layers])
-    
+        
     def save(self,epoch):
         preview_seed = self.G.get_validation_input(self.preview_size)
         generated_images = np.array(self.generator.predict(preview_seed)[0])
@@ -64,9 +64,9 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             deep_style_losses = self.get_deep_style_loss(gen_deep_layers,disc_deep_layers)
             content_loss = self.G.loss_function(self.gen_label, disc_results)
             g_loss = [content_loss,*deep_style_losses]
-            out = [content_loss]
+            out = [content_loss,np.sum(deep_style_losses)]
             
-            for metric in self.gen_metrics:
+            for metric in self.G.metrics:
                 metric.update_state(self.gen_label,disc_results)
                 out.append(metric.result())
             
@@ -88,7 +88,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             d_loss = [loss, *self.null_style_loss]
             out = [loss]
             
-            for metric in self.disc_metrics:
+            for metric in self.D.metrics:
                 metric.update_state(self.real_label,disc_real_out)
                 metric.update_state(self.fake_label,disc_gen_out)
                 out.append(metric.result())

@@ -28,7 +28,6 @@ class GanTrainingConfig():
                  batch_size: int,
                  disc_batches_per_epoch: int = 1,
                  gen_batches_per_epoch: int = 1,
-                 metrics: List[Metric] = [],
                  preview_rows: int = 4,
                  preview_cols: int = 6,
                  preview_margin: int = 16):
@@ -38,7 +37,6 @@ class GanTrainingConfig():
         self.batch_size = batch_size
         self.disc_batches_per_epoch = disc_batches_per_epoch
         self.gen_batches_per_epoch = gen_batches_per_epoch
-        self.metrics = metrics
         self.preview_rows = preview_rows
         self.preview_cols = preview_cols
         self.preview_margin = preview_margin
