@@ -1,8 +1,6 @@
 from typing import Callable, Dict
 import numbers
 
-from keras.backend import arange
-
 class CallableConfig():
     def __init__(self,
                  callable: Callable,
