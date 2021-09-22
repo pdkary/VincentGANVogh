@@ -30,7 +30,7 @@ class Discriminator():
         self.disc_optimizer = disc_optimizer
         self.loss_function = loss_function
         self.metrics = [m() for m in metrics]
-        self.metric_labels = ["D_" + str(m.name)for m in self.metrics]
+        self.metric_labels = ["D_" + str(m.name) for m in self.metrics]
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.output_dim = self.disc_dense_layers[-1].size

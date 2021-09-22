@@ -1,20 +1,24 @@
-from trainers.MatchedGanStyleTrainer import MatchedGanStyleTrainer
-from models.MatchedGan import get_matched_gan
-import numpy as np
-from tensorflow.keras.layers import Activation, BatchNormalization, LeakyReLU
-from tensorflow.keras.losses import binary_crossentropy,categorical_crossentropy, kl_divergence, mean_squared_error
-from tensorflow.keras.metrics import Accuracy, Mean, MeanSquaredError
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.regularizers import L2
+from helpers.DataHelper import map_to_range
 
-from config.GanConfig import GenLayerConfig
-from config.TrainingConfig import DataConfig, GanTrainingConfig
-from layers.CallableConfig import ActivationConfig, NormalizationConfig,RegularizationConfig
 from layers.GanInput import GenConstantInput, GenLatentSpaceInput, RealImageInput
-from models.NoiseModel import ConstantNoiseModel, LatentNoiseModel
-from models.StyleModel import ImageStyleModel, LatentStyleModel
-from models.VGG19 import get_vgg19
+from layers.CallableConfig import ActivationConfig,NormalizationConfig,RegularizationConfig,NoneCallable
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.metrics import Accuracy,Mean,MeanSquaredError,TopKCategoricalAccuracy
+from tensorflow.keras.losses import binary_crossentropy, mean_squared_error, kl_divergence, categorical_crossentropy
+from tensorflow.keras.regularizers import L2
 from third_party_layers.InstanceNormalization import InstanceNormalization
+from tensorflow.keras.layers import BatchNormalization, LeakyReLU, Activation
+from models.StyleModel import ImageStyleModel, LatentStyleModel
+from models.NoiseModel import LatentNoiseModel, ConstantNoiseModel
+from config.TrainingConfig import DataConfig, GanTrainingConfig
+from config.GanConfig import GenLayerConfig
+from trainers.GenTapeTrainer import GenTapeTrainer
+from trainers.MatchedGanStyleTrainer import MatchedGanStyleTrainer
+from trainers.CombinedTrainer import CombinedTrainer
+from models.Generator import Generator
+from models.Discriminator import Discriminator
+
+from models.VGG19 import get_vgg19
 
 # from google.colab import drive
 # drive.mount('/content/drive')
@@ -39,13 +43,6 @@ batch_norm = NormalizationConfig(BatchNormalization,dict(momentum=0.8))
 l2 = RegularizationConfig(L2)
 ##desired image shape
 img_shape = (256,256,3)
-
-def map_to_range(input_arr,new_max,new_min):
-  img_max = float(np.max(input_arr))
-  img_min = float(np.min(input_arr))
-  old_range = float(img_max - img_min + 1e-6)
-  new_range = (new_max - new_min)
-  return new_range*(input_arr - img_min)/old_range + float(new_min)
 
 #data input
 data_config = DataConfig(
