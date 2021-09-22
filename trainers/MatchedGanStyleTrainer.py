@@ -3,7 +3,6 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.python.keras.losses import Loss
 from config.TrainingConfig import GanTrainingConfig
-from layers.AdaptiveInstanceNormalization import adain
 from layers.GanInput import RealImageInput
 from models.Discriminator import Discriminator
 from models.Generator import Generator
