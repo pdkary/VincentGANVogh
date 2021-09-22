@@ -35,7 +35,7 @@ class Generator():
         self.gen_optimizer = gen_optimizer
         self.loss_function = loss_function
         self.metrics = [m() for m in metrics]
-        self.metric_labels = ["G_" + str(m.name) for m in metrics]
+        self.metric_labels = ["G_" + str(m.name) for m in self.metrics]
         self.style_model = style_model
         self.noise_model = noise_model
         self.normalization = normalization
