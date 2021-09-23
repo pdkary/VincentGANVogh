@@ -35,8 +35,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         d_final = self.D.functional_model
         self.generator = Model(inputs=self.G.input,outputs=[g_final,*self.gen_deep_layers])
         self.discriminator = Model(inputs=self.D.input,outputs=[d_final,*self.disc_deep_layers])
-        self.plot_labels = ["D_Loss","G_Loss","Style_Loss",*self.D.metric_labels,*self.G.metric_labels]
-
+        
+        self.G.metric_labels = ["G_Style_loss"] + self.G.metric_labels
         
     def save(self,epoch):
         preview_seed = self.G.get_validation_input(self.preview_size)

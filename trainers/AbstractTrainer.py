@@ -30,7 +30,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.discriminator = self.D.build()
         self.model_output_path = self.image_sources[0].data_path + "/models"
         
-        self.plot_labels = ["D_Loss","G_Loss",*self.D.metric_labels,*self.G.metric_labels]
+        self.plot_labels = ["G_Loss","D_Loss",*self.G.metric_labels,*self.D.metric_labels]
 
     @abstractmethod
     def train_generator(self, source_input, gen_input):
@@ -76,7 +76,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                     g_loss /= self.gen_batches_per_epoch
                     d_metrics = [d/self.disc_batches_per_epoch for d in d_metrics]
                     g_metrics = [g/self.gen_batches_per_epoch for g in g_metrics]
-                    self.gan_plotter.batch_update([d_loss, g_loss, *d_metrics, *g_metrics])
+                    self.gan_plotter.batch_update([g_loss, d_loss, *g_metrics, *d_metrics])
             
             if epoch % printerval == 0:
                 self.save(epoch)
