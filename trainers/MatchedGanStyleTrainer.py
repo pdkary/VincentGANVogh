@@ -23,6 +23,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         gen_act = self.G.conv_activation
         disc_act = self.D.conv_activation
         self.matched_layers = set(gen_act.layer_dict.keys()) & set(disc_act.layer_dict.keys())
+        print("MATCHING LAYERS: \n",self.matched_layers)
         
         self.disc_deep_layers = [disc_act.layer_dict[x] for x in self.matched_layers]        
         self.gen_deep_layers = [gen_act.layer_dict[x] for x in self.matched_layers]
