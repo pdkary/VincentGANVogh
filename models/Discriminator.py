@@ -3,7 +3,7 @@ from typing import List, Tuple
 from tensorflow.python.eager.monitoring import Metric
 
 from config.GanConfig import DiscConvLayerConfig, DiscDenseLayerConfig
-from layers.CallableConfig import NoneCallable, RegularizationConfig
+from layers.CallableConfig import ActivationConfig, NoneCallable, RegularizationConfig
 from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, Input, MaxPooling2D
 from tensorflow.keras.losses import Loss
 from tensorflow.keras.models import Model
@@ -16,15 +16,17 @@ class Discriminator():
                  img_shape: Tuple[int, int, int],
                  disc_conv_layers: List[DiscConvLayerConfig],
                  disc_dense_layers: List[DiscDenseLayerConfig],
-                 minibatch_size: int,
+                 conv_activation: ActivationConfig,
                  disc_optimizer: Optimizer,
                  loss_function: Loss,
-                 metrics: List[Metric],
+                 metrics: List[Metric] = [],
+                 minibatch_size: int = 0,
                  kernel_regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_uniform"):
         self.img_shape = img_shape
         self.disc_conv_layers = disc_conv_layers
         self.disc_dense_layers = disc_dense_layers
+        self.conv_activation = conv_activation
         self.minibatch_size = minibatch_size
         self.minibatch = minibatch_size > 0
         self.disc_optimizer = disc_optimizer
@@ -71,7 +73,7 @@ class Discriminator():
                             kernel_regularizer=self.kernel_regularizer.get(), 
                             kernel_initializer=self.kernel_initializer)(out_cb)
             out_cb = config.normalization.get()(out_cb)
-            out_cb = config.activation.get(out_cb.shape)(out_cb)
+            out_cb = self.conv_activation.get(out_cb.shape)(out_cb)
             out_cb = Dropout(config.dropout_rate)(out_cb) if config.dropout_rate > 0 else out_cb
-        out_cb = MaxPooling2D()(out_cb)
+        out_cb = MaxPooling2D()(out_cb) if config.downsampling else out_cb
         return out_cb

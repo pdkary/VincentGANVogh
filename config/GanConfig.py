@@ -1,21 +1,20 @@
 from typing import Tuple
-from layers.CallableConfig import ActivationConfig, NormalizationConfig
+from layers.CallableConfig import ActivationConfig, NoneCallable, NormalizationConfig
 
 class DiscConvLayerConfig():
     def __init__(self,
                  filters: int,
                  convolutions: int,
                  kernel_size: int,
-                 dropout_rate: float,
-                 activation: ActivationConfig,
-                 normalization: NormalizationConfig):
+                 dropout_rate: float = 0.5,
+                 downsampling: bool = True,
+                 normalization: NormalizationConfig = NoneCallable):
         self.filters = filters
         self.convolutions = convolutions
         self.kernel_size = kernel_size
         self.dropout_rate = dropout_rate
-        self.activation = activation
+        self.downsampling = downsampling
         self.normalization = normalization
-
 
 class DiscDenseLayerConfig():
     def __init__(self,
@@ -31,7 +30,6 @@ class GenLayerConfig():
                  filters: int,
                  convolutions: int,
                  kernel_size: int,
-                 activation: ActivationConfig,
                  strides: Tuple[int, int] = (1, 1),
                  transpose: bool = False,
                  upsampling: bool = False,
@@ -40,7 +38,6 @@ class GenLayerConfig():
         self.filters = filters
         self.convolutions = convolutions
         self.kernel_size = kernel_size
-        self.activation = activation
         self.strides = strides
         self.transpose = transpose
         self.upsampling = upsampling

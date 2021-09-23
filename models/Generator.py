@@ -3,7 +3,7 @@ from typing import Tuple, List
 from tensorflow.python.keras.metrics import Metric
 
 from config.GanConfig import GenLayerConfig
-from layers.CallableConfig import NormalizationConfig, RegularizationConfig, NoneCallable
+from layers.CallableConfig import ActivationConfig, NormalizationConfig, RegularizationConfig, NoneCallable
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from layers.GanInput import GanInput
 
@@ -21,9 +21,10 @@ class Generator():
                  img_shape: Tuple[int,int,int],
                  input_model: GanInput,
                  gen_layers: List[GenLayerConfig],
+                 conv_activation: ActivationConfig,
                  gen_optimizer: Optimizer,
                  loss_function: Loss,
-                 metrics: List[Metric],
+                 metrics: List[Metric] = [],
                  style_model: StyleModelBase = None,
                  noise_model: NoiseModelBase = None,
                  normalization: NormalizationConfig = NoneCallable,
@@ -32,6 +33,7 @@ class Generator():
         self.img_shape = img_shape
         self.input_model = input_model
         self.gen_layers = gen_layers
+        self.conv_activation = conv_activation
         self.gen_optimizer = gen_optimizer
         self.loss_function = loss_function
         self.metrics = [m() for m in metrics]
@@ -102,5 +104,5 @@ class Generator():
                 out = AdaptiveInstanceNormalization()([out,beta,gamma])
             else:
                 out = self.normalization.get()(out)
-            out =  config.activation.get(out.shape)(out)
+            out = self.conv_activation.get(out.shape)(out)
         return out
