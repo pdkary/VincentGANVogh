@@ -5,6 +5,12 @@ from PIL import Image, ImageOps
 import numpy as np
 import matplotlib.pyplot as plt
 
+def map_to_std_mean(input_arr,std,mean):
+    img_std = np.std(input_arr)
+    img_mean = np.mean(input_arr)
+    normalized_arr = (input_arr - img_mean)/img_std
+    return normalized_arr*std + mean
+
 def map_to_range(input_arr,new_max,new_min):
     img_max = float(np.max(input_arr))
     img_min = float(np.min(input_arr))
