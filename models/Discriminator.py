@@ -35,7 +35,7 @@ class Discriminator():
         self.metric_labels = ["D_" + str(m.name) for m in self.metrics]
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
-        self.output_dim = self.disc_dense_layers[-1].size
+        self.output_dim = self.disc_dense_layers[-1].size + self.minibatch_size
         self.input = Input(shape=self.img_shape, name="discriminator_input")
         self.layer_sizes = [self.img_shape]
 
