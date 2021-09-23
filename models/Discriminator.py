@@ -46,7 +46,6 @@ class Discriminator():
             out = self.disc_conv_block(out, layer_config)
 
         out = Flatten()(out)
-        out = MinibatchDiscrimination(self.minibatch_size, self.img_shape[-1])(out) if self.minibatch else out
 
         for layer_config in self.disc_dense_layers:
             self.layer_sizes.append(list(filter(None,out.shape)))
@@ -62,6 +61,7 @@ class Discriminator():
 
     def disc_dense_block(self, input_tensor, config: DiscDenseLayerConfig):
         out_db = Dense(config.size)(input_tensor)
+        out_db = MinibatchDiscrimination(self.minibatch_size, self.img_shape[-1])(out_db) if self.minibatch else out_db
         out_db = Dropout(config.dropout_rate)(out_db) if config.dropout_rate > 0 else out_db
         out_db = config.activation.get(config.size)(out_db)
         return out_db
