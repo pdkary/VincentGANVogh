@@ -50,8 +50,8 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                 self.gan_plotter.start_epoch()
 
             for source in self.image_sources:
-                d_loss, d_metrics = 0.0, [0.0 for i in self.D.metrics]
-                g_loss, g_metrics = 0.0, [0.0 for i in self.G.metrics]
+                d_loss, d_metrics = 0.0, [0.0 for i in self.D.metric_labels]
+                g_loss, g_metrics = 0.0, [0.0 for i in self.G.metric_labels]
                 
                 for i in range(self.disc_batches_per_epoch):
                     source_input = source.get_validation_batch(self.batch_size)
