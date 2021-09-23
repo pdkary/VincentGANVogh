@@ -22,9 +22,9 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.preview_size = self.preview_cols*self.preview_rows
 
         label_shape = (self.batch_size, self.D.output_dim)
-        self.real_label = tf.fill(label_shape,self.disc_labels[0])
-        self.fake_label = tf.fill(label_shape,self.disc_labels[1])
-        self.gen_label = tf.fill(label_shape,self.gen_label)
+        self.real_label = np.full(label_shape,self.disc_labels[0])
+        self.fake_label = np.full(label_shape,self.disc_labels[1])
+        self.gen_label = np.full(label_shape,self.gen_label)
 
         self.generator = self.G.build()
         self.discriminator = self.D.build()
