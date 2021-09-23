@@ -20,8 +20,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
                  image_sources: List[RealImageInput]):
         super().__init__(generator, discriminator, gan_training_config, image_sources)
         self.style_loss_function = style_loss_function
-        self.gen_act = self.G.gen_layers[0].activation
-        self.disc_act = self.D.disc_conv_layers[0].activation
+        self.gen_act = self.G.conv_activation
+        self.disc_act = self.D.conv_activation
         self.matched_layers = set(self.gen_act.layer_dict.keys()) & set(self.disc_act.layer_dict.keys())
         
         self.disc_deep_layers = [self.disc_act.layer_dict[x] for x in self.matched_layers]        

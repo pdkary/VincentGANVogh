@@ -1,24 +1,29 @@
-from helpers.DataHelper import map_to_range
-
-from layers.GanInput import GenConstantInput, GenLatentSpaceInput, RealImageInput
-from layers.CallableConfig import ActivationConfig,NormalizationConfig,RegularizationConfig,NoneCallable
+from tensorflow.keras.layers import Activation, BatchNormalization, LeakyReLU
+from tensorflow.keras.losses import (binary_crossentropy,
+                                     categorical_crossentropy, kl_divergence,
+                                     mean_squared_error)
+from tensorflow.keras.metrics import (Accuracy, Mean, MeanSquaredError,
+                                      TopKCategoricalAccuracy)
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.metrics import Accuracy,Mean,MeanSquaredError,TopKCategoricalAccuracy
-from tensorflow.keras.losses import binary_crossentropy, mean_squared_error, kl_divergence, categorical_crossentropy
 from tensorflow.keras.regularizers import L2
-from third_party_layers.InstanceNormalization import InstanceNormalization
-from tensorflow.keras.layers import BatchNormalization, LeakyReLU, Activation
-from models.StyleModel import ImageStyleModel, LatentStyleModel
-from models.NoiseModel import LatentNoiseModel, ConstantNoiseModel
-from config.TrainingConfig import DataConfig, GanTrainingConfig
+
 from config.GanConfig import GenLayerConfig
+from config.TrainingConfig import DataConfig, GanTrainingConfig
+from helpers.DataHelper import map_to_range
+from layers.CallableConfig import (ActivationConfig, NoneCallable,
+                                   NormalizationConfig, RegularizationConfig)
+from layers.GanInput import (GenConstantInput, GenLatentSpaceInput,
+                             RealImageInput)
+from models.Discriminator import Discriminator
+from models.Generator import Generator
+from models.MatchedGan import get_matched_gan
+from models.NoiseModel import ConstantNoiseModel, LatentNoiseModel
+from models.StyleModel import ImageStyleModel, LatentStyleModel
+from models.VGG19 import get_vgg19
+from third_party_layers.InstanceNormalization import InstanceNormalization
+from trainers.CombinedTrainer import CombinedTrainer
 from trainers.GenTapeTrainer import GenTapeTrainer
 from trainers.MatchedGanStyleTrainer import MatchedGanStyleTrainer
-from trainers.CombinedTrainer import CombinedTrainer
-from models.Generator import Generator
-from models.Discriminator import Discriminator
-
-from models.VGG19 import get_vgg19
 
 # from google.colab import drive
 # drive.mount('/content/drive')
