@@ -74,7 +74,7 @@ class Generator():
             self.layer_sizes.append(list(filter(None,out.shape)))
             out = self.generator_block(out,layer_config)
         self.functional_model = out
-        gen_model = Model(inputs=self.input,outputs=out,name="Generator")
+        gen_model = Model(inputs=self.input, outputs=out, name="Generator")
         gen_model.compile(optimizer=self.gen_optimizer,
                           loss=self.loss_function,
                           metrics=self.metrics)

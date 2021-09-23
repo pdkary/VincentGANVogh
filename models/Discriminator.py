@@ -53,7 +53,7 @@ class Discriminator():
             out = self.disc_dense_block(out, layer_config)
 
         self.functional_model = out
-        disc_model = Model(inputs=self.input, outputs=out,name="Discriminator")
+        disc_model = Model(inputs=self.input, outputs=out, name="Discriminator")
         disc_model.compile(optimizer=self.disc_optimizer,
                            loss=self.loss_function,
                            metrics=self.metrics)

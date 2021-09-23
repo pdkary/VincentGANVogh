@@ -20,21 +20,23 @@ class MatchedGanStyleTrainer(AbstractTrainer):
                  image_sources: List[RealImageInput]):
         super().__init__(generator, discriminator, gan_training_config, image_sources)
         self.style_loss_function = style_loss_function
-        self.gen_act = self.G.conv_activation
-        self.disc_act = self.D.conv_activation
+        gen_act = self.G.conv_activation
+        disc_act = self.D.conv_activation
         self.matched_layers = set(self.gen_act.layer_dict.keys()) & set(self.disc_act.layer_dict.keys())
         
-        self.disc_deep_layers = [self.disc_act.layer_dict[x] for x in self.matched_layers]        
-        self.gen_deep_layers = [self.gen_act.layer_dict[x] for x in self.matched_layers]
+        self.disc_deep_layers = [disc_act.layer_dict[x] for x in self.matched_layers]        
+        self.gen_deep_layers = [gen_act.layer_dict[x] for x in self.matched_layers]
         self.disc_deep_layers = [x.output for y in self.disc_deep_layers for x in y]        
         self.gen_deep_layers = [x.output for y in self.gen_deep_layers for x in y]
         
-        self.null_style_loss = tf.constant([0.0 for x in self.disc_deep_layers])
+        self.null_style_loss = tf.constant(tf.zeros_like(self.disc_deep_layers))
         
         g_final = self.G.functional_model
         d_final = self.D.functional_model
         self.generator = Model(inputs=self.G.input,outputs=[g_final,*self.gen_deep_layers])
         self.discriminator = Model(inputs=self.D.input,outputs=[d_final,*self.disc_deep_layers])
+        self.plot_labels = ["D_Loss","G_Loss","Style_Loss",*self.D.metric_labels,*self.G.metric_labels]
+
         
     def save(self,epoch):
         preview_seed = self.G.get_validation_input(self.preview_size)
