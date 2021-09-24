@@ -74,7 +74,10 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             out = [content_loss, np.sum(deep_style_losses)]
             
             for metric in self.G.metrics:
-                metric.update_state(self.gen_label,disc_results)
+                if metric.name == "mean":
+                    metric.update_state(disc_results)
+                else:
+                    metric.update_state(self.gen_label,disc_results)
                 out.append(metric.result())
             
             gradients_of_generator = gen_tape.gradient(g_loss, self.generator.trainable_variables)
