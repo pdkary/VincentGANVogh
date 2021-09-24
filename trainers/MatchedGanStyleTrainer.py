@@ -91,13 +91,14 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             disc_real_out = self.discriminator(disc_input, training=True)[0]
             disc_gen_out = self.discriminator(gen_out, training=True)[0]
             
-            labels = tf.concat([self.real_label,self.fake_label],axis=0)
-            disc_out = tf.concat([disc_real_out,disc_gen_out],axis=0)
-            loss = self.D.loss_function(labels, disc_out)
+            loss = self.D.loss_function(self.real_label, disc_real_out)
+            loss += self.D.loss_function(self.fake_label, disc_gen_out)
             
             d_loss = [loss, *self.null_style_loss]
             out = [loss]
             
+            labels = tf.concat([self.real_label,self.fake_label],axis=0)
+            disc_out = tf.concat([disc_real_out,disc_gen_out],axis=0)
             for metric in self.D.metrics:
                 if metric.name == "mean":
                     metric.update_state(disc_out)
