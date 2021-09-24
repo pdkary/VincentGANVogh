@@ -16,7 +16,6 @@ class MatchedGanStyleTrainer(AbstractTrainer):
                  generator: Generator,
                  discriminator: Discriminator,
                  gan_training_config: GanTrainingConfig,
-                 style_loss_function: Loss,
                  image_sources: List[RealImageInput]):
         super().__init__(generator, discriminator, gan_training_config, image_sources)
         self.style_loss_function = style_loss_function
@@ -50,8 +49,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         src_2_dest = list(zip(content_src,style_src))
         return [self.get_style_loss(s,d) for s,d in src_2_dest]
     
-    def get_style_loss(self,content_img,style_img,axis=[-1]):
-        mu_si = lambda x: (K.mean(x,axis),K.std(x,axis))
+    def get_style_loss(self,content_img,style_img):
+        mu_si = lambda x: (K.mean(x,self.style_loss_mean_std_axis),K.std(x,self.style_loss_mean_std_axis))
         mu_c, si_c = mu_si(content_img)
         mu_s, si_s = mu_si(style_img)
         mean_loss = self.style_loss_function(mu_s,mu_c)
