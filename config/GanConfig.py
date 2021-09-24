@@ -56,7 +56,7 @@ class GenLayerConfig(ConvLayerConfig):
                  upsampling: bool = False,
                  style: bool = False,
                  noise: bool = False):
-        super().__init__(filters,convolutions,kernel_size,strides,transpose,upsampling)
+        super().__init__(filters,convolutions,kernel_size,stides=strides,transpose=transpose,upsampling=upsampling)
         self.style = style
         self.noise = noise
         
