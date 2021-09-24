@@ -26,8 +26,8 @@ class ConvLayerConfig():
         self.convolutions = convolutions
         self.kernel_size = kernel_size
         self.strides = strides
-        self.transpose = transpose,
-        self.upsampling = upsampling,
+        self.transpose = transpose
+        self.upsampling = upsampling
         self.downsampling = downsampling
         self.normalization = normalization 
         self.regularizer = regularizer
