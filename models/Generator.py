@@ -86,7 +86,7 @@ class Generator():
         out = input_tensor
         out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
         for i in range(config.convolutions):
-            print(config)
+            print(config.__dict__)
             if config.transpose:
                 out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,
                                       padding='same',kernel_regularizer=self.kernel_regularizer.get(), 
