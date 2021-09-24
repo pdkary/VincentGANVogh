@@ -93,18 +93,20 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             
             real_content_loss = self.D.loss_function(self.real_label, disc_real_out)
             fake_content_loss = self.D.loss_function(self.fake_label, disc_gen_out)
+
             
             loss = (real_content_loss + fake_content_loss)/2
             d_loss = [loss, *self.null_style_loss]
             out = [loss]
             
+            
+            labels = tf.concatenate([self.real_label,self.fake_label])
+            disc_out = tf.concatenate([disc_real_out,disc_gen_out)])
             for metric in self.D.metrics:
                 if metric.name == "mean":
-                    metric.update_state(disc_real_out)
-                    metric.update_state(disc_gen_out)
+                    metric.update_state(disc_out)
                 else:
-                    metric.update_state(self.real_label,disc_real_out)
-                    metric.update_state(self.fake_label,disc_gen_out)
+                    metric.update_state(labels,disc_out)
                 out.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
