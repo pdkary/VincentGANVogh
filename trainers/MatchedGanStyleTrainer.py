@@ -40,7 +40,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         self.G.metric_labels = ["G_Style_loss"] + self.G.metric_labels
         self.plot_labels = ["G_Loss","D_Loss",*self.G.metric_labels,*self.D.metric_labels]
 
-        
+    
     def save(self,epoch):
         preview_seed = self.G.get_validation_input(self.preview_size)
         generated_images = np.array(self.generator.predict(preview_seed)[0])
