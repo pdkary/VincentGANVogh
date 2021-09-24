@@ -24,7 +24,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         label_shape = (self.batch_size, self.D.output_dim)
         self.real_label = np.full(label_shape,self.disc_labels[0])
         self.fake_label = np.full(label_shape,self.disc_labels[1])
-        self.gen_label = np.full(label_shape,self.gen_label)
+        self.gen_label = np.full(label_shape, self.gen_label)
 
         self.generator = self.G.build()
         self.discriminator = self.D.build()
@@ -59,7 +59,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                     batch_out = self.train_discriminator(source_input, gen_input)
                     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                     d_loss += batch_loss
-                    for i in range(len(self.D.metrics)):
+                    for i in range(len(self.D.metric_labels)):
                         d_metrics[i] += batch_metrics[i]
                     
                 for i in range(self.gen_batches_per_epoch):
@@ -68,7 +68,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                     batch_out = self.train_generator(source_input,gen_input)
                     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                     g_loss += batch_loss
-                    for i in range(len(self.G.metrics)):
+                    for i in range(len(self.G.metric_labels)):
                         g_metrics[i] += batch_metrics[i]
 
                 if self.plot:

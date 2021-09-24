@@ -27,6 +27,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         
         self.disc_deep_layers = [disc_act.layer_dict[x] for x in self.matched_layers]        
         self.gen_deep_layers = [gen_act.layer_dict[x] for x in self.matched_layers]
+        ##flatten 
         self.disc_deep_layers = [x.output for y in self.disc_deep_layers for x in y]        
         self.gen_deep_layers = [x.output for y in self.gen_deep_layers for x in y]
         
@@ -70,7 +71,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             
             total_loss = content_loss
             g_loss = [total_loss,*deep_style_losses]
-            out = [total_loss,np.sum(deep_style_losses)]
+            out = [content_loss, np.sum(deep_style_losses)]
             
             for metric in self.G.metrics:
                 metric.update_state(self.gen_label,disc_results)
