@@ -1,5 +1,5 @@
 from typing import Callable, Tuple, List
-from tensorflow.keras.metrics import Metric
+from tensorflow.keras.losses import Loss
 
 class DataConfig():
     def __init__(self,
