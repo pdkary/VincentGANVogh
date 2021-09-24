@@ -99,8 +99,12 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             out = [loss]
             
             for metric in self.D.metrics:
-                metric.update_state(self.real_label,disc_real_out)
-                metric.update_state(self.fake_label,disc_gen_out)
+                if metric.name == "mean":
+                    metric.update_state(disc_real_out)
+                    metric.update_state(disc_gen_out)
+                else:
+                    metric.update_state(self.real_label,disc_real_out)
+                    metric.update_state(self.fake_label,disc_gen_out)
                 out.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
