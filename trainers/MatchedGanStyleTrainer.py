@@ -100,8 +100,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             out = [loss]
             
             
-            labels = tf.concat([self.real_label,self.fake_label])
-            disc_out = tf.concat([disc_real_out,disc_gen_out])
+            labels = tf.concat([self.real_label,self.fake_label],axis=0)
+            disc_out = tf.concat([disc_real_out,disc_gen_out],axis=0)
             for metric in self.D.metrics:
                 if metric.name == "mean":
                     metric.update_state(disc_out)
