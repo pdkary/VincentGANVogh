@@ -2,6 +2,8 @@ from typing import List
 import tensorflow as tf
 import numpy as np
 from tensorflow.python.keras.losses import Loss
+from tensorflow.python.keras.metrics import MeanSquaredError
+from tensorflow.python.keras.utils.metrics_utils import Reduction
 from config.TrainingConfig import GanTrainingConfig
 from layers.GanInput import RealImageInput
 from models.Discriminator import Discriminator
@@ -49,11 +51,12 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         return [self.get_style_loss(s,d) for s,d in src_2_dest]
     
     def get_style_loss(self,content_img,style_img):
-        mu_si = lambda x: (K.mean(x,self.style_loss_mean_std_axis),K.std(x,self.style_loss_mean_std_axis))
+        mu_si = lambda x: (K.mean(x,self.style_loss_mean_std_axis,keepdims=True),
+                           K.std(x,self.style_loss_mean_std_axis,keepdims=True))
         c_mu, c_si = mu_si(content_img)
         s_mu, s_si = mu_si(style_img)
         adapted_content = s_si*(content_img - c_mu)/c_si + s_mu
-        return self.style_loss_function(style_img,adapted_content)
+        return MeanSquaredError(reduction=Reduction.SUM)(style_img,adapted_content)
         
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
