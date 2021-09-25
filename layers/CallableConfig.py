@@ -10,7 +10,7 @@ class CallableConfig():
         self.args = args
         self.kwargs = kwargs
 
-    def get(self):
+    def get(self,input_shape=None):
         if self.callable is None:
             return lambda x: x
         else:
