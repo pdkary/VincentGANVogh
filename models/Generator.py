@@ -89,11 +89,11 @@ class Generator():
             if config.transpose:
                 out = Conv2DTranspose(config.filters,config.kernel_size,config.strides,
                                       padding='same',kernel_regularizer=self.kernel_regularizer.get(), 
-                                      kernel_initializer = self.kernel_initializer)(out)
+                                      kernel_initializer = self.kernel_initializer, use_bias=False)(out)
             else:
                 out = Conv2D(config.filters,config.kernel_size,
                              padding='same',kernel_regularizer=self.kernel_regularizer.get(), 
-                             kernel_initializer = self.kernel_initializer)(out)
+                             kernel_initializer = self.kernel_initializer, use_bias=False)(out)
             
             if self.noise_model is not None and config.noise:
                 out = self.noise_model.add(out)
