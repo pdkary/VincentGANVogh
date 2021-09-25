@@ -21,7 +21,7 @@ class Generator():
                  img_shape: Tuple[int,int,int],
                  input_model: GanInput,
                  gen_layers: List[GenLayerConfig],
-                 conv_activation: ActivationConfig,
+                 tracking_activation: ActivationConfig,
                  gen_optimizer: Optimizer,
                  loss_function: Loss,
                  metrics: List[Metric] = [],
@@ -33,7 +33,7 @@ class Generator():
         self.img_shape = img_shape
         self.input_model = input_model
         self.gen_layers = gen_layers
-        self.conv_activation = conv_activation
+        self.tracking_activation = tracking_activation
         self.gen_optimizer = gen_optimizer
         self.loss_function = loss_function
         self.metrics = [m() for m in metrics]
@@ -104,5 +104,5 @@ class Generator():
                 out = AdaptiveInstanceNormalization()([out,beta,gamma])
             else:
                 out = self.normalization.get()(out)
-            out = self.conv_activation.get(out.shape)(out)
+            out = config.activation.get(out.shape)(out)
         return out

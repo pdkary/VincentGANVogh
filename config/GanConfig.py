@@ -19,6 +19,7 @@ class ConvLayerConfig():
                  transpose: bool = False,
                  upsampling: bool = False,
                  downsampling: bool = False,
+                 activation: ActivationConfig = NoneCallable,
                  normalization: NormalizationConfig = NoneCallable,
                  regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_uniform"):
@@ -29,6 +30,7 @@ class ConvLayerConfig():
         self.transpose = transpose
         self.upsampling = upsampling
         self.downsampling = downsampling
+        self.activation = activation
         self.normalization = normalization 
         self.regularizer = regularizer
         self.kernel_initializer = kernel_initializer
@@ -40,10 +42,11 @@ class DiscConvLayerConfig(ConvLayerConfig):
                  kernel_size: int,
                  dropout_rate: float = 0.5,
                  downsampling: bool = True,
+                 activation: ActivationConfig = NoneCallable,
                  normalization: NormalizationConfig = NoneCallable,
                  regularizer: RegularizationConfig = NoneCallable):
         super().__init__(filters,convolutions,kernel_size,downsampling=downsampling,
-                         normalization=normalization,regularizer=regularizer)
+                         activation=activation,normalization=normalization,regularizer=regularizer)
         self.dropout_rate = dropout_rate
         
 class GenLayerConfig(ConvLayerConfig):
@@ -51,12 +54,13 @@ class GenLayerConfig(ConvLayerConfig):
                  filters: int,
                  convolutions: int,
                  kernel_size: int,
+                 activation: ActivationConfig = NoneCallable,
                  strides: Tuple[int, int] = (1, 1),
                  transpose: bool = False,
                  upsampling: bool = False,
                  style: bool = False,
                  noise: bool = False):
-        super().__init__(filters,convolutions,kernel_size,strides=strides,transpose=transpose,upsampling=upsampling)
+        super().__init__(filters,convolutions,kernel_size,activation=activation,strides=strides,transpose=transpose,upsampling=upsampling)
         self.style = style
         self.noise = noise
         

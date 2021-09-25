@@ -16,7 +16,7 @@ class Discriminator():
                  img_shape: Tuple[int, int, int],
                  disc_conv_layers: List[DiscConvLayerConfig],
                  disc_dense_layers: List[DiscDenseLayerConfig],
-                 conv_activation: ActivationConfig,
+                 tracking_activation: ActivationConfig,
                  disc_optimizer: Optimizer,
                  loss_function: Loss,
                  metrics: List[Metric] = [],
@@ -26,7 +26,7 @@ class Discriminator():
         self.img_shape = img_shape
         self.disc_conv_layers = disc_conv_layers
         self.disc_dense_layers = disc_dense_layers
-        self.conv_activation = conv_activation
+        self.tracking_activation = tracking_activation
         self.minibatch_size = minibatch_size
         self.minibatch = minibatch_size > 0
         self.disc_optimizer = disc_optimizer
@@ -74,6 +74,6 @@ class Discriminator():
                             kernel_regularizer=self.kernel_regularizer.get(), 
                             kernel_initializer=self.kernel_initializer,use_bias=False)(out_cb)
             out_cb = config.normalization.get()(out_cb)
-            out_cb = self.conv_activation.get(out_cb.shape)(out_cb)
+            out_cb = config.activation.get(out_cb.shape)(out_cb)
             out_cb = Dropout(config.dropout_rate)(out_cb) if config.dropout_rate > 0 else out_cb
         return out_cb
