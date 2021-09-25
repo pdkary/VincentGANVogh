@@ -18,8 +18,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
                  gan_training_config: GanTrainingConfig,
                  image_sources: List[RealImageInput]):
         super().__init__(generator, discriminator, gan_training_config, image_sources)
-        gen_act = self.G.conv_activation
-        disc_act = self.D.conv_activation
+        gen_act = self.G.tracking_activation
+        disc_act = self.D.tracking_activation
         self.matched_layers = set(gen_act.layer_dict.keys()) & set(disc_act.layer_dict.keys())
         print("MATCHING LAYERS: \n",self.matched_layers)
         
