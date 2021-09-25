@@ -72,7 +72,7 @@ class Discriminator():
         for i in range(config.convolutions):
             out_cb = Conv2D(config.filters, config.kernel_size, padding="same", 
                             kernel_regularizer=self.kernel_regularizer.get(), 
-                            kernel_initializer=self.kernel_initializer)(out_cb)
+                            kernel_initializer=self.kernel_initializer,use_bias=False)(out_cb)
             out_cb = config.normalization.get()(out_cb)
             out_cb = self.conv_activation.get(out_cb.shape)(out_cb)
             out_cb = Dropout(config.dropout_rate)(out_cb) if config.dropout_rate > 0 else out_cb
