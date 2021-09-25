@@ -50,11 +50,10 @@ class MatchedGanStyleTrainer(AbstractTrainer):
     
     def get_style_loss(self,content_img,style_img):
         mu_si = lambda x: (K.mean(x,self.style_loss_mean_std_axis),K.std(x,self.style_loss_mean_std_axis))
-        mu_c, si_c = mu_si(content_img)
-        mu_s, si_s = mu_si(style_img)
-        mean_error_squared = (mu_c - mu_s)**2
-        std_error_squared = (si_c - si_s)**2
-        return K.sqrt(mean_error_squared + std_error_squared)
+        c_mu, c_si = mu_si(content_img)
+        s_mu, s_si = mu_si(style_img)
+        adapted_content = s_si*(content_img - c_mu)/c_si + s_mu
+        return self.style_loss_function(style_img,adapted_content)
         
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
