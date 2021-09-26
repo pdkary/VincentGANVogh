@@ -1,15 +1,16 @@
 from typing import List
-import tensorflow as tf
+
 import numpy as np
-from tensorflow.python.keras.losses import BinaryCrossentropy, MeanSquaredError, losses_utils
+import tensorflow as tf
+import tensorflow.keras.backend as K
 from config.TrainingConfig import GanTrainingConfig
 from layers.GanInput import RealImageInput
 from models.Discriminator import Discriminator
 from models.Generator import Generator
+from tensorflow.keras.models import Model
 
 from trainers.AbstractTrainer import AbstractTrainer
-from tensorflow.keras.models import Model
-import tensorflow.keras.backend as K
+
 
 class MatchedGanStyleTrainer(AbstractTrainer):
     def __init__(self, 
@@ -33,8 +34,10 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         d_final = self.D.functional_model
         self.generator = Model(inputs=self.G.input,outputs=[g_final,*self.gen_deep_layers])
         self.discriminator = Model(inputs=self.D.input,outputs=[d_final,*self.disc_deep_layers])
+
+        self.nil_disc_style_loss = tf.constant([0.0 for i in self.disc_deep_layers],dtype=tf.float32)
+
         self.G.metric_labels = ["G_Style_loss"] + self.G.metric_labels
-        self.D.metric_labels = ["D_Style_loss"] + self.D.metric_labels
         self.plot_labels = ["G_Loss","D_Loss",*self.G.metric_labels,*self.D.metric_labels]
 
     
@@ -85,20 +88,15 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         with tf.GradientTape() as disc_tape:
             gen_out = self.generator(gen_input,training=False)[0]
             
-            disc_real_out = self.discriminator(disc_input, training=True)
-            disc_real_results, disc_real_deep_layers = disc_real_out[0], disc_real_out[1:]
-
-            disc_gen_out = self.discriminator(gen_out, training=True)
-            disc_gen_results, disc_gen_deep_layers = disc_gen_out[0], disc_gen_out[1:]
+            disc_real_results = self.discriminator(disc_input, training=True)[0]
+            disc_gen_results = self.discriminator(gen_out, training=True)[0]
             
             content_loss = self.D.loss_function(self.real_label, disc_real_results)
             content_loss += self.D.loss_function(self.fake_label, disc_gen_results)
-            deep_style_losses = self.get_deep_style_loss(disc_real_deep_layers,disc_gen_deep_layers)
-            deep_style_loss = np.sum(deep_style_losses)
 
-            total_loss = content_loss + self.style_loss_coeff*deep_style_loss
-            d_loss = [total_loss, *deep_style_losses]
-            out = [content_loss,deep_style_loss]
+            total_loss = content_loss
+            d_loss = [total_loss, *self.nil_disc_style_loss]
+            out = [content_loss]
             
             labels = tf.concat([self.real_label,self.fake_label],axis=0)
             disc_results = tf.concat([disc_real_results,disc_gen_results],axis=0)
