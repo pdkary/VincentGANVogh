@@ -1,7 +1,7 @@
 from typing import List
 import tensorflow as tf
 import numpy as np
-from tensorflow.python.keras.losses import MeanSquaredError, losses_utils
+from tensorflow.python.keras.losses import BinaryCrossentropy MeanSquaredError, losses_utils
 from config.TrainingConfig import GanTrainingConfig
 from layers.GanInput import RealImageInput
 from models.Discriminator import Discriminator
@@ -53,7 +53,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         c_mu, c_si = mu_si(content_img)
         s_mu, s_si = mu_si(style_img)
         adapted_content = s_si*(content_img - c_mu)/c_si + s_mu
-        return MeanSquaredError(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE)(style_img,adapted_content)
+        return self.style_loss_function(style_img,adapted_content)
         
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
