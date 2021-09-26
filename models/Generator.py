@@ -1,6 +1,6 @@
 from typing import Tuple, List
 
-from tensorflow.python.keras.metrics import Metric
+from tensorflow.python.keras.metrics import Accuracy, Metric
 
 from config.GanConfig import GenLayerConfig
 from layers.CallableConfig import ActivationConfig, NormalizationConfig, RegularizationConfig, NoneCallable
@@ -44,7 +44,6 @@ class Generator():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.layer_sizes = [self.input_model.input_shape]
-        
         self.input = [self.input_model.input]
         if self.style_model is not None:
             self.input.append(self.style_model.input)
