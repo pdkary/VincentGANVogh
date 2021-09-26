@@ -1,7 +1,7 @@
 from typing import List
 import tensorflow as tf
 import numpy as np
-from tensorflow.python.keras.losses import BinaryCrossentropy MeanSquaredError, losses_utils
+from tensorflow.python.keras.losses import BinaryCrossentropy, MeanSquaredError, losses_utils
 from config.TrainingConfig import GanTrainingConfig
 from layers.GanInput import RealImageInput
 from models.Discriminator import Discriminator
