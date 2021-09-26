@@ -14,7 +14,7 @@ class CallableConfig():
         if self.callable is None:
             return lambda x: x
         else:
-            return lambda x: self.callable(**self.args, **self.kwargs)(x)
+            return self.callable(**self.args, **self.kwargs)
         
 class NormalizationConfig(CallableConfig):
     pass
