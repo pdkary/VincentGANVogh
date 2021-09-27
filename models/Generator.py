@@ -22,7 +22,6 @@ class Generator():
                  img_shape: Tuple[int,int,int],
                  input_model: GanInput,
                  gen_layers: List[GenLayerConfig],
-                 tracking_activation: ActivationConfig,
                  gen_optimizer: Optimizer,
                  loss_function: Loss,
                  metrics: List[Metric] = [],
@@ -34,7 +33,6 @@ class Generator():
         self.img_shape = img_shape
         self.input_model = input_model
         self.gen_layers = gen_layers
-        self.tracking_activation = tracking_activation
         self.gen_optimizer = gen_optimizer
         self.loss_function = loss_function
         self.metrics = [m() for m in metrics]
@@ -45,6 +43,8 @@ class Generator():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.layer_sizes = [self.input_model.input_shape]
+
+        self.tracked_layers = []
 
         self.input = [self.input_model.input]
         if self.style_model is not None:
@@ -81,6 +81,14 @@ class Generator():
         if print_summary:
             gen_model.summary()
         return gen_model
+    
+    def get_beta_gamma(self,filters,shape,i):
+        beta_name = "_".join(["std", shape_to_key(shape), str(i)])
+        gamma_name = "_".join(["mean", shape_to_key(shape), str(i)])
+        beta = Dense(filters,bias_initializer='ones',name=beta_name)(self.style_model.model)
+        gamma = Dense(filters,bias_initializer='zeros',name=gamma_name)(self.style_model.model)
+        self.tracked_layers.append([beta,gamma])
+        return beta,gamma
 
     def generator_block(self,input_tensor,config: GenLayerConfig):
         out = input_tensor
@@ -99,10 +107,7 @@ class Generator():
                 out = self.noise_model.add(out)
             
             if self.style_model is not None and config.style:
-                beta_name = "_".join(["std", shape_to_key(out.shape), str(i)])
-                gamma_name = "_".join(["mean", shape_to_key(out.shape), str(i)])
-                beta = Dense(config.filters,bias_initializer='ones',name=beta_name)(self.style_model.model)
-                gamma = Dense(config.filters,bias_initializer='zeros',name=gamma_name)(self.style_model.model)
+                beta,gamma = self.get_beta_gamma(config.filters,out.shape,i)
                 out = AdaptiveInstanceNormalization()([out,beta,gamma])
             else:
                 out = self.normalization.get()(out)

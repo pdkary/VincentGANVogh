@@ -1,3 +1,4 @@
+from os import name
 from typing import List
 
 import numpy as np
@@ -19,16 +20,22 @@ class MatchedGanStyleTrainer(AbstractTrainer):
                  gan_training_config: GanTrainingConfig,
                  image_sources: List[RealImageInput]):
         super().__init__(generator, discriminator, gan_training_config, image_sources)
-        gen_act = self.G.tracking_activation
-        disc_act = self.D.tracking_activation
-        self.matched_layers = set(gen_act.layer_dict.keys()) & set(disc_act.layer_dict.keys())
-        print("MATCHING LAYERS: \n",self.matched_layers)
+        g_tracked = self.G.tracked_layers
         
-        self.disc_deep_layers = [disc_act.layer_dict[x] for x in self.matched_layers]        
-        self.gen_deep_layers = [gen_act.layer_dict[x] for x in self.matched_layers]
-        ##flatten 
-        self.disc_deep_layers = [x.output for y in self.disc_deep_layers for x in y]        
-        self.gen_deep_layers = [x.output for y in self.gen_deep_layers for x in y]
+        g_tracked_std = [l for l in g_tracked if "std" in l.name]
+        g_tracked_mean = [l for l in g_tracked if "mean" in l.name]
+        g_keys = [l.name.split("_")[1:] for l in g_tracked_std]
+        
+        d_tracked = self.D.tracked_layers
+        disc_keys = [l.name.split("_")[1:] for l in d_tracked]
+
+        match_indicies = [i for i,val in enumerate(g_keys) if val in disc_keys]
+        self.matched_layers = [(g_tracked[i].name,d_tracked[i].name) for i in match_indicies]
+        print("MATCHING LAYERS: \n",self.matched_layers)
+
+        self.gen_deep_layers = [[g_tracked_std[i],g_tracked_mean[i]] for i in match_indicies]
+        self.gen_deep_layers = [x for y in self.gen_deep_layers for x in y]
+        self.disc_deep_layers = [d_tracked[i] for i in match_indicies]
         
         g_final = self.G.functional_model
         d_final = self.D.functional_model
@@ -39,7 +46,6 @@ class MatchedGanStyleTrainer(AbstractTrainer):
 
         self.G.metric_labels = ["G_Style_loss"] + self.G.metric_labels
         self.plot_labels = ["G_Loss","D_Loss",*self.G.metric_labels,*self.D.metric_labels]
-
     
     def save(self,epoch):
         preview_seed = self.G.get_validation_input(self.preview_size)
@@ -48,26 +54,26 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         
     def get_deep_style_loss(self,content_src,style_src):
         src_2_dest = list(zip(content_src,style_src))
-        return [self.get_style_loss(s,d) for s,d in src_2_dest]
+        unflat_result = [self.get_style_loss(s,d) for s,d in src_2_dest]
+        return [x for y in unflat_result for x in y]
     
-    def get_style_loss(self,content_img,style_img):
-        mu_si = lambda x: (K.mean(x,self.style_loss_mean_std_axis,keepdims=True),
-                           K.std(x,self.style_loss_mean_std_axis,keepdims=True))
-        c_mu, c_si = mu_si(content_img)
-        s_mu, s_si = mu_si(style_img)
-        adapted_content = s_si*(content_img - c_mu)/c_si + s_mu
-        return self.style_loss_function(style_img,adapted_content)
+    def get_style_loss(self,content_std,content_mean,style_img):
+        s_mean = K.mean(style_img,[1,2],keepdims=True)
+        s_std = K.std(style_img,[1,2],keepdims=True)
+        mean_error = self.style_loss_function(s_mean,content_mean)
+        std_error = self.style_loss_function(s_std,content_std)
+        return [mean_error,std_error]
         
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
             gen_out = self.generator(gen_input,training=True)
-            gen_images,gen_deep_layers = gen_out[0],gen_out[1:]
-            
+            gen_images,gen_deep_std_layers,gen_deep_mean_layers = gen_out[0],gen_out[1::2],gen_out[2::2]
+
             disc_out = self.discriminator(gen_images, training=False)
             disc_results,disc_deep_layers = disc_out[0],disc_out[1:]
             
             content_loss = self.G.loss_function(self.gen_label, disc_results)
-            deep_style_losses = self.get_deep_style_loss(gen_deep_layers,disc_deep_layers)
+            deep_style_losses = self.get_deep_style_loss(gen_deep_std_layers,gen_deep_mean_layers,disc_deep_layers)
             
             total_loss = content_loss + self.style_loss_coeff*np.sum(deep_style_losses)
             g_loss = [total_loss,*deep_style_losses]

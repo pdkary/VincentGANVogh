@@ -1,3 +1,4 @@
+from helpers.DataHelper import shape_to_key
 from typing import List, Tuple
 
 from tensorflow.python.eager.monitoring import Metric
@@ -16,7 +17,6 @@ class Discriminator():
                  img_shape: Tuple[int, int, int],
                  disc_conv_layers: List[DiscConvLayerConfig],
                  disc_dense_layers: List[DiscDenseLayerConfig],
-                 tracking_activation: ActivationConfig,
                  disc_optimizer: Optimizer,
                  loss_function: Loss,
                  metrics: List[Metric] = [],
@@ -26,7 +26,6 @@ class Discriminator():
         self.img_shape = img_shape
         self.disc_conv_layers = disc_conv_layers
         self.disc_dense_layers = disc_dense_layers
-        self.tracking_activation = tracking_activation
         self.minibatch_size = minibatch_size
         self.minibatch = minibatch_size > 0
         self.disc_optimizer = disc_optimizer
@@ -38,6 +37,8 @@ class Discriminator():
         self.output_dim = self.disc_dense_layers[-1].size
         self.layer_sizes = [self.img_shape]
         self.input = Input(shape=self.img_shape, name="discriminator_input")
+
+        self.tracked_layers = []
 
     def build(self):
         out = self.input
@@ -74,6 +75,8 @@ class Discriminator():
                             kernel_regularizer=self.kernel_regularizer.get(), 
                             kernel_initializer=self.kernel_initializer,use_bias=False)(out_cb)
             out_cb = config.normalization.get()(out_cb)
-            out_cb = config.activation.get(out_cb.shape)(out_cb)
+            act_name = "_".join(["activation", shape_to_key(out_cb.shape), str(i)])
+            out_cb = config.activation.get(name=act_name)(out_cb)
+            self.tracked_layers.append(out_cb)
             out_cb = Dropout(config.dropout_rate)(out_cb) if config.dropout_rate > 0 else out_cb
         return out_cb
