@@ -24,10 +24,10 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         
         g_tracked_std = [l for l in g_tracked if "std" in l.name]
         g_tracked_mean = [l for l in g_tracked if "mean" in l.name]
-        g_keys = [l.name.split("_")[1:] for l in g_tracked_std]
+        g_keys = [l.name.split("_")[-2:] for l in g_tracked_std]
         
         d_tracked = self.D.tracked_layers
-        disc_keys = [l.name.split("_")[1:] for l in d_tracked]
+        disc_keys = [l.name.split("_")[-2:] for l in d_tracked]
 
         match_indicies = [i for i,val in enumerate(g_keys) if val in disc_keys]
         self.matched_layers = [(g_tracked[i].name,d_tracked[i].name) for i in match_indicies]
