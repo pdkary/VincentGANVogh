@@ -11,7 +11,7 @@ def shape_to_key(input_shape):
         shape_key = str(input_shape)
     else:
         input_shape = list(filter(None,input_shape))
-        shape_key = "_".join(input_shape)
+        shape_key = "_".join(str(x) for x in input_shape)
     return shape_key    
 
 def map_to_std_mean(input_arr,std,mean):
