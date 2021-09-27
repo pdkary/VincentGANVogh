@@ -20,17 +20,19 @@ class MatchedGanStyleTrainer(AbstractTrainer):
                  gan_training_config: GanTrainingConfig,
                  image_sources: List[RealImageInput]):
         super().__init__(generator, discriminator, gan_training_config, image_sources)
-        g_tracked = self.G.tracked_layers
-        
+        g_tracked = [x for y in self.G.tracked_layers for x in y]
+
         g_tracked_std = [l for l in g_tracked if "std" in l.name]
         g_tracked_mean = [l for l in g_tracked if "mean" in l.name]
-        g_keys = [l.name.split("_")[-2:] for l in g_tracked_std]
+        g_shapes = [list(filter(None,l.shape))[0] for l in g_tracked_std]
+        print(g_shapes)
         
         d_tracked = self.D.tracked_layers
-        disc_keys = [l.name.split("_")[-2:] for l in d_tracked]
+        d_shapes = [list(filter(None,l.shape))[-1]for l in reversed(d_tracked)]
+        print(d_shapes)
 
-        match_indicies = [i for i,val in enumerate(g_keys) if val in disc_keys]
-        self.matched_layers = [(g_tracked[i].name,d_tracked[i].name) for i in match_indicies]
+        match_indicies = [i for i,val in enumerate(d_shapes) if val == g_shapes[i]]
+        self.matched_layers = [(g_tracked_std[i].name,g_tracked_mean[i].name,d_tracked[i].name) for i in match_indicies]
         print("MATCHING LAYERS: \n",self.matched_layers)
 
         self.gen_deep_layers = [[g_tracked_std[i],g_tracked_mean[i]] for i in match_indicies]

@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Tuple
 
 import tensorflow as tf
+from tensorflow.keras.models import Model
 from layers.CallableConfig import ActivationConfig, NoneCallable, RegularizationConfig
 from layers.GanInput import RealImageInput
 from tensorflow.keras.layers import Dense, Flatten, Input, Conv2D, MaxPooling2D, Activation
@@ -40,7 +41,8 @@ class LatentStyleModel(StyleModelBase):
         for i in range(self.style_layers):
             model = Dense(self.style_layer_size)(model)
             model = self.activation.get()(model)
-        self.model = model
+
+        self.model = Model(inputs=self.input,outputs=model,name="StyleModel")
 
     def get_training_batch(self, batch_size: int):
         return tf.random.normal(shape=(batch_size, self.input_shape), dtype=tf.float32)

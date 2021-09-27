@@ -9,12 +9,10 @@ class CallableConfig():
         self.args = args
         self.kwargs = kwargs
 
-    def get(self,name=None):
+    def get(self):
         if self.callable is None:
             return lambda x: x
         else:
-            if name is not None:
-                self.kwargs["name"] = name
             return self.callable(**self.args, **self.kwargs)
         
 class NormalizationConfig(CallableConfig):

@@ -48,6 +48,7 @@ class Generator():
 
         self.input = [self.input_model.input]
         if self.style_model is not None:
+            self.style_out = self.style_model.model(self.style_model.input)
             self.input.append(self.style_model.input)
         if self.noise_model is not None:
             self.input.append(self.noise_model.input)
@@ -85,8 +86,8 @@ class Generator():
     def get_beta_gamma(self,filters,shape,i):
         beta_name = "_".join(["std", shape_to_key(shape), str(i)])
         gamma_name = "_".join(["mean", shape_to_key(shape), str(i)])
-        beta = Dense(filters,bias_initializer='ones',name=beta_name)(self.style_model.model)
-        gamma = Dense(filters,bias_initializer='zeros',name=gamma_name)(self.style_model.model)
+        beta = Dense(filters,bias_initializer='ones',name=beta_name)(self.style_out)
+        gamma = Dense(filters,bias_initializer='zeros',name=gamma_name)(self.style_out)
         self.tracked_layers.append([beta,gamma])
         return beta,gamma
 
