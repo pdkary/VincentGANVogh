@@ -1,10 +1,9 @@
-from helpers.DataHelper import shape_to_key
 from typing import List, Tuple
 
 from tensorflow.python.eager.monitoring import Metric
 
 from config.GanConfig import DiscConvLayerConfig, DiscDenseLayerConfig
-from layers.CallableConfig import ActivationConfig, NoneCallable, RegularizationConfig
+from layers.CallableConfig import NoneCallable, RegularizationConfig
 from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, Input, MaxPooling2D
 from tensorflow.keras.losses import Loss
 from tensorflow.keras.models import Model

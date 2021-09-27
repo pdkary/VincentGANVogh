@@ -1,5 +1,3 @@
-from layers.AdaptiveAdd import AdaptiveAdd
-from tensorflow.python.keras.layers.convolutional import Cropping2D
 from helpers.DataHelper import shape_to_key
 from typing import Tuple, List
 
@@ -53,7 +51,6 @@ class Generator():
             self.style_out = self.style_model.model(self.style_model.input)
             self.input.append(self.style_model.input)
         if self.noise_model is not None:
-            self.noise_out = self.noise_model.model(self.noise_model.input)
             self.input.append(self.noise_model.input)
     
     def get_training_input(self,batch_size):
@@ -94,14 +91,6 @@ class Generator():
         self.tracked_layers.append([beta,gamma])
         return beta,gamma
 
-    def get_noise(self,filters,h_w):
-        n_size = self.noise_model.noise_image_size[1]
-        noise = Cropping2D((n_size - h_w)//2)(self.noise_out)
-        noise = Conv2D(filters,self.noise_model.kernel_size,padding="same",
-                        kernel_regularizer=self.kernel_regularizer.get(),
-                        kernel_initializer=self.kernel_initializer,use_bias=False)(noise)
-        return noise
-
     def generator_block(self,input_tensor,config: GenLayerConfig):
         out = input_tensor
         out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
@@ -116,8 +105,7 @@ class Generator():
                              kernel_initializer = self.kernel_initializer, use_bias=False)(out)
             
             if self.noise_model is not None and config.noise:
-                noise = self.get_noise(config.filters,out.shape[1])
-                return AdaptiveAdd()([out,noise])
+                out = self.noise_model.add(out)
             
             if self.style_model is not None and config.style:
                 beta,gamma = self.get_beta_gamma(config.filters,out.shape,i)
