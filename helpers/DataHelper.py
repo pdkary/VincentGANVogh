@@ -1,9 +1,18 @@
 from config.TrainingConfig import DataConfig
 import os
 import glob
-from PIL import Image, ImageOps
+from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
+import numbers
+
+def shape_to_key(input_shape):
+    if isinstance(input_shape,numbers.Number):
+        shape_key = str(input_shape)
+    else:
+        input_shape = list(filter(None,input_shape))
+        shape_key = "_".join(str(x) for x in input_shape)
+    return shape_key    
 
 def map_to_std_mean(input_arr,std,mean):
     img_std = np.std(input_arr)

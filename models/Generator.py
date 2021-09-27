@@ -1,3 +1,4 @@
+from helpers.DataHelper import shape_to_key
 from typing import Tuple, List
 
 from tensorflow.python.keras.metrics import Accuracy, Metric
@@ -44,10 +45,10 @@ class Generator():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.layer_sizes = [self.input_model.input_shape]
+
         self.input = [self.input_model.input]
         if self.style_model is not None:
             self.input.append(self.style_model.input)
-            
         if self.noise_model is not None:
             self.input.append(self.noise_model.input)
     
@@ -98,8 +99,10 @@ class Generator():
                 out = self.noise_model.add(out)
             
             if self.style_model is not None and config.style:
-                beta = Dense(config.filters,bias_initializer='ones')(self.style_model.model)
-                gamma = Dense(config.filters,bias_initializer='zeros')(self.style_model.model)
+                beta_name = "_".join(["std", shape_to_key(out.shape), str(i)])
+                gamma_name = "_".join(["mean", shape_to_key(out.shape), str(i)])
+                beta = Dense(config.filters,bias_initializer='ones',name=beta_name)(self.style_model.model)
+                gamma = Dense(config.filters,bias_initializer='zeros',name=gamma_name)(self.style_model.model)
                 out = AdaptiveInstanceNormalization()([out,beta,gamma])
             else:
                 out = self.normalization.get()(out)
