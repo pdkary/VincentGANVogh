@@ -35,7 +35,6 @@ class Discriminator():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.output_dim = self.disc_dense_layers[-1].size
-        self.layer_sizes = [self.img_shape]
         self.input = Input(shape=self.img_shape, name="discriminator_input")
 
         self.tracked_layers = []
@@ -43,13 +42,11 @@ class Discriminator():
     def build(self):
         out = self.input
         for layer_config in self.disc_conv_layers:
-            self.layer_sizes.append(list(filter(None,out.shape)))
             out = self.disc_conv_block(out, layer_config)
 
         out = Flatten()(out)
 
         for layer_config in self.disc_dense_layers:
-            self.layer_sizes.append(list(filter(None,out.shape)))
             out = self.disc_dense_block(out, layer_config)
 
         self.functional_model = out
@@ -75,7 +72,7 @@ class Discriminator():
                             kernel_regularizer=self.kernel_regularizer.get(), 
                             kernel_initializer=self.kernel_initializer,use_bias=False)(out_cb)
             out_cb = config.normalization.get()(out_cb)
-            act_name = "_".join(["activation", shape_to_key(out_cb.shape), str(i)])
+            act_name = "_".join([config.activation.callable.__name__, shape_to_key(out_cb.shape), str(i)])
             out_cb = config.activation.get(name=act_name)(out_cb)
             self.tracked_layers.append(out_cb)
             out_cb = Dropout(config.dropout_rate)(out_cb) if config.dropout_rate > 0 else out_cb
