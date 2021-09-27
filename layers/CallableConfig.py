@@ -14,7 +14,7 @@ class CallableConfig():
             return lambda x: x
         else:
             if name is not None:
-                self.kwargs["name"] = name
+                self.kwargs["name"] = self.callable.__name__
             return self.callable(**self.args, **self.kwargs)
         
 class NormalizationConfig(CallableConfig):
