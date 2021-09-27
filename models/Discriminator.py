@@ -38,6 +38,7 @@ class Discriminator():
         self.input = Input(shape=self.img_shape, name="discriminator_input")
 
         self.tracked_layers = []
+        self.tracked_layer_keys = []
 
     def build(self):
         out = self.input
@@ -56,6 +57,15 @@ class Discriminator():
                            metrics=self.metrics)
         disc_model.summary()
         return disc_model
+    
+    def add_tracked_activation_layer(self,pre_activation_layer,config: DiscConvLayerConfig,i: int):
+        layer_name = "_".join([config.activation.callable.__name__,shape_to_key(pre_activation_layer.shape),str(i)])
+        if layer_name in self.tracked_layer_keys:
+            return self.add_tracked_activation_layer(pre_activation_layer,config,i+1)
+        else:
+            layer = config.activation.get(name=layer_name)(pre_activation_layer)
+            self.tracked_layers.append(layer)
+            return layer
 
     def disc_dense_block(self, input_tensor, config: DiscDenseLayerConfig):
         out_db = MinibatchDiscrimination(self.minibatch_size, self.img_shape[-1])(input_tensor) if self.minibatch else input_tensor
@@ -72,8 +82,6 @@ class Discriminator():
                             kernel_regularizer=self.kernel_regularizer.get(), 
                             kernel_initializer=self.kernel_initializer,use_bias=False)(out_cb)
             out_cb = config.normalization.get()(out_cb)
-            act_name = "_".join([config.activation.callable.__name__, shape_to_key(out_cb.shape), str(i)])
-            out_cb = config.activation.get(name=act_name)(out_cb)
-            self.tracked_layers.append(out_cb)
+            out_cb = self.add_tracked_activation_layer(out_cb,config,i)
             out_cb = Dropout(config.dropout_rate)(out_cb) if config.dropout_rate > 0 else out_cb
         return out_cb
