@@ -39,7 +39,7 @@ class LatentStyleModel(StyleModelBase):
         model = self.input
         for i in range(self.style_layers):
             model = Dense(self.style_layer_size)(model)
-            model = self.activation.get(self.style_layer_size)(model)
+            model = self.activation.get()(model)
         self.model = model
 
     def get_training_batch(self, batch_size: int):
