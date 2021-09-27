@@ -27,8 +27,8 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         g_shapes = [list(filter(None,l.shape))[0] for l in g_tracked_std]
         print(g_shapes)
         
-        d_tracked = self.D.tracked_layers
-        d_shapes = [list(filter(None,l.shape))[-1]for l in reversed(d_tracked)]
+        d_tracked = list(reversed(self.D.tracked_layers))
+        d_shapes = [list(filter(None,l.shape))[-1]for l in d_tracked]
         print(d_shapes)
 
         match_indicies = [i for i,val in enumerate(d_shapes) if val == g_shapes[i]]
