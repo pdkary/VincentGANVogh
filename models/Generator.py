@@ -111,5 +111,5 @@ class Generator():
                 out = AdaptiveInstanceNormalization()([out,beta,gamma])
             else:
                 out = self.normalization.get()(out)
-            out = config.activation.get(out.shape)(out)
+            out = config.activation.get()(out)
         return out

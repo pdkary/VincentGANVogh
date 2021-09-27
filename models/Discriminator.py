@@ -64,7 +64,7 @@ class Discriminator():
         out_db = MinibatchDiscrimination(self.minibatch_size, self.img_shape[-1])(input_tensor) if self.minibatch else input_tensor
         out_db = Dense(config.size)(out_db)
         out_db = Dropout(config.dropout_rate)(out_db) if config.dropout_rate > 0 else out_db
-        out_db = config.activation.get(config.size)(out_db)
+        out_db = config.activation.get()(out_db)
         return out_db
 
     def disc_conv_block(self, input_tensor, config: DiscConvLayerConfig):
