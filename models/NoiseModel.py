@@ -25,7 +25,7 @@ class NoiseModelBase(ABC):
         self.max_std_dev = max_std_dev
 
         self.input = Input(shape=self.noise_image_size,name="noise_model_input")
-        self.model = self.activation.get(self.noise_image_size)(self.input)
+        self.model = self.activation.get()(self.input)
 
     def add(self, input_tensor):
         n_size = self.model.shape[1]
