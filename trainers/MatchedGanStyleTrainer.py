@@ -54,9 +54,9 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         generated_images = np.array(self.generator.predict(preview_seed)[0])
         self.image_sources[0].save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
         
-    def get_deep_style_loss(self,content_src,style_src):
-        src_2_dest = list(zip(content_src,style_src))
-        unflat_result = [self.get_style_loss(s,d) for s,d in src_2_dest]
+    def get_deep_style_loss(self,content_std,content_mean,style_src):
+        src_2_dest = list(zip(content_std,content_mean,style_src))
+        unflat_result = [self.get_style_loss(si,mu,s) for si,mu,s in src_2_dest]
         return [x for y in unflat_result for x in y]
     
     def get_style_loss(self,content_std,content_mean,style_img):
