@@ -6,6 +6,7 @@ import tensorflow as tf
 from layers.CallableConfig import ActivationConfig
 from layers.GanInput import RealImageInput
 from tensorflow.python.keras.models import Model
+from tensorflow.python.keras.layers import Input
 
 
 class NoiseModelBase(ABC):
