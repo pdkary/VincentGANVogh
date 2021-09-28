@@ -46,6 +46,7 @@ class Generator():
         self.tracked_layers = []
 
         self.input = [self.input_model.input]
+        self.input_out = self.input_model.model(self.input_model.input)
         if self.style_model is not None:
             self.style_out = self.style_model.model(self.style_model.input)
             self.input.append(self.style_model.input)
@@ -69,7 +70,7 @@ class Generator():
         return inp
     
     def build(self,print_summary=True):
-        out = self.input_model.model
+        out = self.input_out
         for layer_config in self.gen_layers:            
             self.layer_sizes.append(list(filter(None,out.shape)))
             out = self.generator_block(out,layer_config)
