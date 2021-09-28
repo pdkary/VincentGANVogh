@@ -8,7 +8,6 @@ from layers.CallableConfig import ActivationConfig, NoneCallable, Regularization
 from layers.AdaptiveAdd import AdaptiveAdd
 from tensorflow.keras.layers import Conv2D, Cropping2D, Input
 
-
 class NoiseModelBase(ABC):
     def __init__(self,
                  noise_image_size: Tuple[int, int, int],

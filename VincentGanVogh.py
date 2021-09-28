@@ -21,7 +21,7 @@ from third_party_layers.InstanceNormalization import InstanceNormalization
 
 # from trainers.CombinedTrainer import CombinedTrainer
 # from trainers.GenTapeTrainer import GenTapeTrainer
-from trainers.MatchedGanStyleTrainer import MatchedGanStyleTrainer
+from trainers.GradTapeStyleTrainer import GradTapeStyleTrainer
 
 # from google.colab import drive
 # drive.mount('/content/drive')
@@ -118,7 +118,7 @@ gan_training_config = GanTrainingConfig(
     style_loss_coeff = 1.0
 )
 #Trainer
-VGV = MatchedGanStyleTrainer(generator,discriminator,gan_training_config,[image_source])
+VGV = GradTapeStyleTrainer(generator,discriminator,gan_training_config,[image_source])
 
 #TRAINING
 ERAS = 100

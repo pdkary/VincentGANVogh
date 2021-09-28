@@ -13,7 +13,7 @@ from tensorflow.keras.models import Model
 from trainers.AbstractTrainer import AbstractTrainer
 
 
-class MatchedGanStyleTrainer(AbstractTrainer):
+class GradTapeStyleTrainer(AbstractTrainer):
     def __init__(self, 
                  generator: Generator,
                  discriminator: Discriminator,
@@ -64,7 +64,7 @@ class MatchedGanStyleTrainer(AbstractTrainer):
         s_std = K.std(style_img,[1,2],keepdims=True)
         mean_error = self.style_loss_function(s_mean,content_mean)
         std_error = self.style_loss_function(s_std,content_std)
-        return [mean_error,std_error]
+        return [std_error,mean_error]
         
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
@@ -106,13 +106,13 @@ class MatchedGanStyleTrainer(AbstractTrainer):
             d_loss = [total_loss, *self.nil_disc_style_loss]
             out = [content_loss]
             
-            labels = tf.concat([self.real_label,self.fake_label],axis=0)
-            disc_results = tf.concat([disc_real_results,disc_gen_results],axis=0)
             for metric in self.D.metrics:
                 if metric.name == "mean":
-                    metric.update_state(disc_results)
+                    metric.update_state(disc_real_results)
+                    metric.update_state(disc_gen_results)
                 else:
-                    metric.update_state(labels,disc_results)
+                    metric.update_state(self.real_label,disc_real_results)
+                    metric.update_state(self.fake_label,disc_gen_results)
                 out.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)

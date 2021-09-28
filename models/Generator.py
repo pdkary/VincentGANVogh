@@ -1,17 +1,16 @@
-from helpers.DataHelper import shape_to_key
-from typing import Tuple, List
-
-from tensorflow.python.keras.metrics import Accuracy, Metric
+from typing import List, Tuple
 
 from config.GanConfig import GenLayerConfig
-from layers.CallableConfig import ActivationConfig, NormalizationConfig, RegularizationConfig, NoneCallable
+from helpers.DataHelper import shape_to_key
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
+from layers.CallableConfig import NoneCallable, NormalizationConfig, RegularizationConfig
 from layers.GanInput import GanInput
+from tensorflow.keras.layers import Conv2D, Conv2DTranspose, Dense, UpSampling2D
 
-from tensorflow.keras.layers import Conv2D, Conv2DTranspose, Dense,UpSampling2D
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Optimizer
 from tensorflow.python.keras.losses import Loss
+from tensorflow.python.keras.metrics import Metric
 
 from models.NoiseModel import NoiseModelBase
 from models.StyleModel import StyleModelBase

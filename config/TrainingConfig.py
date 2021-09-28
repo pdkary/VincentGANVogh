@@ -27,7 +27,6 @@ class GanTrainingConfig():
                  gen_label: float,
                  batch_size: int,
                  style_loss_function: Loss = None,
-                 style_loss_mean_std_axis: List[int] = [1,2,3],
                  style_loss_coeff: float = 0.25,
                  disc_batches_per_epoch: int = 1,
                  gen_batches_per_epoch: int = 1,
@@ -39,7 +38,6 @@ class GanTrainingConfig():
         self.gen_label = gen_label
         self.batch_size = batch_size
         self.style_loss_function = style_loss_function
-        self.style_loss_mean_std_axis = style_loss_mean_std_axis
         self.style_loss_coeff = style_loss_coeff
         self.disc_batches_per_epoch = disc_batches_per_epoch
         self.gen_batches_per_epoch = gen_batches_per_epoch
