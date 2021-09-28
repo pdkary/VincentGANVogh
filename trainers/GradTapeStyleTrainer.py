@@ -1,4 +1,3 @@
-from os import name
 from typing import List
 
 import numpy as np
@@ -11,7 +10,6 @@ from models.Generator import Generator
 from tensorflow.keras.models import Model
 
 from trainers.AbstractTrainer import AbstractTrainer
-
 
 class GradTapeStyleTrainer(AbstractTrainer):
     def __init__(self, 
@@ -109,10 +107,8 @@ class GradTapeStyleTrainer(AbstractTrainer):
             for metric in self.D.metrics:
                 if metric.name == "mean":
                     metric.update_state(disc_real_results)
-                    metric.update_state(disc_gen_results)
                 else:
                     metric.update_state(self.real_label,disc_real_results)
-                    metric.update_state(self.fake_label,disc_gen_results)
                 out.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
