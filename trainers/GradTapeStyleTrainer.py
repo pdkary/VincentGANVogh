@@ -29,7 +29,7 @@ class GradTapeStyleTrainer(AbstractTrainer):
         d_shapes = [list(filter(None,l.shape))[-1]for l in d_tracked]
         print(d_shapes)
 
-        match_indicies = [i for i,val in enumerate(d_shapes) if val == g_shapes[i]]
+        match_indicies = [i for i,val in enumerate(g_shapes) if val == d_shapes[i]]
         self.matched_layers = [(g_tracked_std[i].name,g_tracked_mean[i].name,d_tracked[i].name) for i in match_indicies]
         print("MATCHING LAYERS: \n",self.matched_layers)
 
