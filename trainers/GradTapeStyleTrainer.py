@@ -24,7 +24,7 @@ class GradTapeStyleTrainer(AbstractTrainer):
 
         self.matched_keys = [g for g in self.G.tracked_layers.keys() if g in self.D.tracked_layers]
         self.gen_deep_layers = flatten([self.G.tracked_layers[i] for i in self.matched_keys])
-        self.disc_deep_layers = [self.D.tracked_layers[i] for i in self.matched_keys]
+        self.disc_deep_layers = flatten([self.D.tracked_layers[i] for i in self.matched_keys])
         
         self.generator = Model(inputs=self.G.input,outputs=[self.G.functional_model,*self.gen_deep_layers])
         self.discriminator = Model(inputs=self.D.input,outputs=[self.D.functional_model,*self.disc_deep_layers])

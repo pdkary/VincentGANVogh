@@ -54,7 +54,7 @@ data_config = DataConfig(
     image_shape=img_shape,
     model_name='/test_generator_model_',
     flip_lr=False,
-    load_n_percent=3,
+    load_n_percent=10,
     load_scale_function=lambda x: map_to_range(x,1.0,-1.0),
     save_scale_function=lambda x: map_to_range(x,255.0,0.0)
 )
