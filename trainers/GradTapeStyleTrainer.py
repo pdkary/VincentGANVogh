@@ -56,10 +56,16 @@ class GradTapeStyleTrainer(AbstractTrainer):
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
             gen_out = self.generator(gen_input,training=True)
-            gen_images,gen_deep_std_layers,gen_deep_mean_layers = gen_out[0],gen_out[1::2],gen_out[2::2]
+            if len(self.matched_keys) > 0:
+                gen_images,gen_deep_std_layers,gen_deep_mean_layers = gen_out[0],gen_out[1::2],gen_out[2::2]
+            else: 
+                gen_images,gen_deep_std_layers,gen_deep_mean_layers = gen_out,None,None
 
             disc_out = self.discriminator(gen_images, training=False)
-            disc_results,disc_deep_layers = disc_out[0],disc_out[1:]
+            if len(self.matched_keys) > 0:
+                disc_results,disc_deep_layers = disc_out[0],disc_out[1:]
+            else:
+                disc_results,disc_deep_layers = disc_out,None
             
             content_loss = self.G.loss_function(self.gen_label, disc_results)
             deep_style_losses = self.get_deep_style_loss(gen_deep_std_layers,gen_deep_mean_layers,disc_deep_layers)
@@ -82,9 +88,12 @@ class GradTapeStyleTrainer(AbstractTrainer):
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
             gen_out = self.generator(gen_input,training=False)[0]
-            
-            disc_real_results = self.discriminator(disc_input, training=True)[0]
-            disc_gen_results = self.discriminator(gen_out, training=True)[0]
+            if len(self.matched_keys) > 0:
+                disc_real_results = self.discriminator(disc_input, training=True)[0]
+                disc_gen_results = self.discriminator(gen_out, training=True)[0]
+            else:
+                disc_real_results = self.discriminator(disc_input, training=True)
+                disc_gen_results = self.discriminator(gen_out, training=True)
             
             content_loss = self.D.loss_function(self.real_label, disc_real_results)
             content_loss += self.D.loss_function(self.fake_label, disc_gen_results)
