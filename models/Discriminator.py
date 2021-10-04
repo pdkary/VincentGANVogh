@@ -65,7 +65,6 @@ class Discriminator():
 
     def disc_conv_block(self, input_tensor, config: DiscConvLayerConfig):
         out_cb = input_tensor
-        out_cb = MaxPooling2D()(out_cb) if config.downsampling else out_cb
         for i in range(config.convolutions):
             out_cb = Conv2D(config.filters, config.kernel_size, padding="same", 
                             kernel_regularizer=self.kernel_regularizer.get(), 
@@ -76,4 +75,5 @@ class Discriminator():
                 name = config.track_id + "_" + str(config.filters) + "_" + str(i)
                 self.tracked_layers[name] = [out_cb]
             out_cb = Dropout(config.dropout_rate)(out_cb) if config.dropout_rate > 0 else out_cb
+        out_cb = MaxPooling2D()(out_cb) if config.downsampling else out_cb
         return out_cb
