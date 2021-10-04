@@ -11,6 +11,9 @@ from tensorflow.keras.models import Model
 
 from trainers.AbstractTrainer import AbstractTrainer
 
+def flatten(arr: List):
+    return [x for y in arr for x in y]
+
 class GradTapeStyleTrainer(AbstractTrainer):
     def __init__(self, 
                  generator: Generator,
@@ -18,29 +21,13 @@ class GradTapeStyleTrainer(AbstractTrainer):
                  gan_training_config: GanTrainingConfig,
                  image_sources: List[RealImageInput]):
         super().__init__(generator, discriminator, gan_training_config, image_sources)
-        g_tracked = [x for y in self.G.tracked_layers for x in y]
 
-        g_tracked_std = [l for l in g_tracked if "std" in l.name]
-        g_tracked_mean = [l for l in g_tracked if "mean" in l.name]
-        g_shapes = [list(filter(None,l.shape))[0] for l in g_tracked_std]
-        print(g_shapes)
+        self.matched_keys = [g for g in self.G.tracked_layers.keys() if g in self.D.tracked_layers]
+        self.gen_deep_layers = flatten([self.G.tracked_layers[i] for i in self.matched_keys])
+        self.disc_deep_layers = [self.D.tracked_layers[i] for i in self.matched_keys]
         
-        d_tracked = list(reversed(self.D.tracked_layers))
-        d_shapes = [list(filter(None,l.shape))[-1]for l in d_tracked]
-        print(d_shapes)
-
-        match_indicies = [i for i,val in enumerate(g_shapes) if val == d_shapes[i]]
-        self.matched_layers = [(g_tracked_std[i].name,g_tracked_mean[i].name,d_tracked[i].name) for i in match_indicies]
-        print("MATCHING LAYERS: \n",self.matched_layers)
-
-        self.gen_deep_layers = [[g_tracked_std[i],g_tracked_mean[i]] for i in match_indicies]
-        self.gen_deep_layers = [x for y in self.gen_deep_layers for x in y]
-        self.disc_deep_layers = [d_tracked[i] for i in match_indicies]
-        
-        g_final = self.G.functional_model
-        d_final = self.D.functional_model
-        self.generator = Model(inputs=self.G.input,outputs=[g_final,*self.gen_deep_layers])
-        self.discriminator = Model(inputs=self.D.input,outputs=[d_final,*self.disc_deep_layers])
+        self.generator = Model(inputs=self.G.input,outputs=[self.G.functional_model,*self.gen_deep_layers])
+        self.discriminator = Model(inputs=self.D.input,outputs=[self.D.functional_model,*self.disc_deep_layers])
 
         self.nil_disc_style_loss = tf.constant([0.0 for i in self.disc_deep_layers],dtype=tf.float32)
 

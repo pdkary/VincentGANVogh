@@ -43,7 +43,7 @@ class Generator():
         self.kernel_initializer = kernel_initializer
         self.layer_sizes = [self.input_model.input_shape]
 
-        self.tracked_layers = []
+        self.tracked_layers = {}
 
         self.input = [self.input_model.input]
         self.input_out = self.input_model.model(self.input_model.input)
@@ -83,12 +83,9 @@ class Generator():
             gen_model.summary()
         return gen_model
     
-    def get_beta_gamma(self,filters,shape,i):
-        beta_name = "_".join(["std", shape_to_key(shape), str(i)])
-        gamma_name = "_".join(["mean", shape_to_key(shape), str(i)])
-        beta = Dense(filters,bias_initializer='ones',name=beta_name)(self.style_out)
-        gamma = Dense(filters,bias_initializer='zeros',name=gamma_name)(self.style_out)
-        self.tracked_layers.append([beta,gamma])
+    def get_beta_gamma(self,filters,name):
+        beta = Dense(filters,bias_initializer='ones',name=name+"_std")(self.style_out)
+        gamma = Dense(filters,bias_initializer='zeros',name=name+"_mean")(self.style_out)
         return beta,gamma
 
     def generator_block(self,input_tensor,config: GenLayerConfig):
@@ -108,7 +105,18 @@ class Generator():
                 out = self.noise_model.add(out)
             
             if self.style_model is not None and config.style:
-                beta,gamma = self.get_beta_gamma(config.filters,out.shape,i)
+                name, b_name, g_name = None, None, None
+                if config.track_id is not None:
+                    name = config.track_id + "_" + str(config.filters) + "_" + str(i)
+                    b_name = name + "_std"
+                    g_name = name + "_mean"
+                
+                beta = Dense(config.filters,bias_initializer='ones',name=b_name)(self.style_out)
+                gamma = Dense(config.filters,bias_initializer='zeros',name=g_name)(self.style_out)
+                
+                if config.track_id is not None:
+                    self.tracked_layers[name] = [beta,gamma]
+                    
                 out = AdaptiveInstanceNormalization()([out,beta,gamma])
             else:
                 out = self.normalization.get()(out)

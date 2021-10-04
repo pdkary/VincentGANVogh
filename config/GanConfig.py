@@ -44,10 +44,12 @@ class DiscConvLayerConfig(ConvLayerConfig):
                  dropout_rate: float = 0.5,
                  downsampling: bool = True,
                  normalization: NormalizationConfig = NoneCallable,
-                 regularizer: RegularizationConfig = NoneCallable):
+                 regularizer: RegularizationConfig = NoneCallable,
+                 track_id: str = None):
         super().__init__(filters,convolutions,kernel_size,activation=activation,
                          downsampling=downsampling,normalization=normalization,regularizer=regularizer)
         self.dropout_rate = dropout_rate
+        self.track_id = track_id
         
 class GenLayerConfig(ConvLayerConfig):
     def __init__(self,
@@ -59,9 +61,11 @@ class GenLayerConfig(ConvLayerConfig):
                  transpose: bool = False,
                  upsampling: bool = False,
                  style: bool = False,
-                 noise: bool = False):
+                 noise: bool = False,
+                 track_id: str = None):
         super().__init__(filters,convolutions,kernel_size,activation=activation,
                          strides=strides,transpose=transpose,upsampling=upsampling)
         self.style = style
         self.noise = noise
+        self.track_id = track_id
         

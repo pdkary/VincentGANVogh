@@ -36,8 +36,7 @@ class Discriminator():
         self.output_dim = self.disc_dense_layers[-1].size
         self.input = Input(shape=self.img_shape, name="discriminator_input")
 
-        self.tracked_layers = []
-        self.tracked_layer_keys = []
+        self.tracked_layers = {}
 
     def build(self):
         out = self.input
@@ -73,6 +72,8 @@ class Discriminator():
                             kernel_initializer=self.kernel_initializer,use_bias=False)(out_cb)
             out_cb = config.normalization.get()(out_cb)
             out_cb = config.activation.get()(out_cb)
-            self.tracked_layers.append(out_cb)
+            if config.track_id is not None:
+                name = config.track_id + "_" + str(config.filters) + "_" + str(i)
+                self.tracked_layers[name] = [out_cb]
             out_cb = Dropout(config.dropout_rate)(out_cb) if config.dropout_rate > 0 else out_cb
         return out_cb

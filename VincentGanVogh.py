@@ -62,30 +62,46 @@ data_config = DataConfig(
 image_source = RealImageInput(data_config)
 
 ##style models // noise_models // input models
-# input_model = GenLatentSpaceInput(100,(2,2,512),512,8,sigmoid)
-# noise_model = None
-
 # style_model = None
-style_model = LatentStyleModel(100,3,512,dense_lr)
+# noise_model = None
+# input_model = GenLatentSpaceInput(100,(2,2,1024),1024,2,dense_lr)
+
+style_model = LatentStyleModel(100,8,512,dense_lr)
 noise_model = LatentNoiseModel(img_shape,dense_lr,max_std_dev=1.0)
-input_model = GenConstantInput((4,4,512))
+input_model = GenConstantInput((2,2,1024))
 
-## layer shorthands 
-gl_tracked = lambda f,c: GenLayerConfig(f,c,3,gen_lr,upsampling=True,style=True)
-gl_untracked = lambda f,c: GenLayerConfig(f,c,3,untracked_lr,upsampling=True,noise=True,style=True)
-gl_out = GenLayerConfig(img_shape[-1],1,1,tanh)
+## layer shorthands
 
-dcl_nodown = lambda f,c: DiscConvLayerConfig(f,c,3,disc_lr,dropout_rate=0.4,downsampling=False,normalization=instance_norm)
-dcl = lambda f,c: DiscConvLayerConfig(f,c,3,   disc_lr,dropout_rate=0.4,normalization=instance_norm)
+# matched gen layers
+mgl_un = lambda f,c,id: GenLayerConfig(f,c,3,gen_lr,upsampling=True,noise=True,style=True,track_id=id)
+mgl_u = lambda f,c,id: GenLayerConfig(f,c,3,gen_lr,upsampling=True,style=True,track_id=id)
+mgl = lambda f,c,id: GenLayerConfig(f,c,3,gen_lr,style=True,track_id=id)
+# unmatched gen layers
+gl_un = lambda f,c: GenLayerConfig(f,c,3,gen_lr,upsampling=True,noise=True)
+gl_u = lambda f,c: GenLayerConfig(f,c,3,gen_lr,upsampling=True)
+gl = lambda f,c: GenLayerConfig(f,c,3,gen_lr)
+
+#gen out
+g_out = GenLayerConfig(img_shape[-1],1,3,sigmoid)
+
+## NOTE: ALL discriminator layers will be tracked, generator must have equivalent tracked layers
+dcl = lambda f,c,id: DiscConvLayerConfig(f,c,3,   disc_lr,dropout_rate=0.4,normalization=instance_norm,track_id=id)
 ddl = lambda s : DiscDenseLayerConfig(s,dense_lr,0.4)
-d_out = DiscDenseLayerConfig(1, sigmoid, 0.0)
+d_out = DiscDenseLayerConfig(25, sigmoid, 0.0)
 
 #Generator model
 generator = Generator(
     img_shape = img_shape,
     input_model = input_model,
-    gen_layers = [gl_untracked(512,4),gl_untracked(512,4),gl_tracked(256,4),gl_tracked(128,2),gl_untracked(64,2),gl_tracked(64,2),gl_out],
-    gen_optimizer = Adam(learning_rate=2e-3),
+    gen_layers = [mgl_un(512,2,"0"),
+                  mgl_un(512,2,"1"),
+                  mgl_un(512,2,"2"),
+                  mgl_un(512,2,"3"),
+                  mgl_u(256,2,"4"),
+                  mgl_u(128,2,"5"),
+                  mgl_u(64,2,"6"),
+                  g_out],
+    gen_optimizer = Adam(learning_rate=2e-3,beta_1=0.0,beta_2=0.9,epsilon=1e-7),
     loss_function = BinaryCrossentropy(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE),
     metrics = [Mean, Accuracy],
     style_model = style_model,
@@ -96,10 +112,10 @@ generator = Generator(
 #Discriminator Model
 discriminator = Discriminator(
     img_shape = img_shape,
-    disc_conv_layers = [dcl(64,2),dcl(128,2),dcl(256,4),dcl(512,4),dcl(512,4)],
+    disc_conv_layers = [dcl(64,2,"6"),dcl(128,2,"5"),dcl(256,2,"4"),dcl(512,2,"3"),dcl(512,2,"2"),dcl(512,2,"1"),dcl(512,2,"0")],
     disc_dense_layers = [ddl(4096),ddl(4096),ddl(1000),d_out],
-    minibatch_size = 4,
-    disc_optimizer = Adam(learning_rate=2e-3),
+    minibatch_size = 8,
+    disc_optimizer = Adam(learning_rate=2e-3,beta_1=0.0,beta_2=0.9,epsilon=1e-7),
     loss_function = BinaryCrossentropy(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE),
     metrics = [Mean,Accuracy],
 )
@@ -111,11 +127,10 @@ gan_training_config = GanTrainingConfig(
     disc_labels=[1.0,0.0],
     #desired label
     gen_label=1.0,
-    batch_size=4,
+    batch_size=8,
     disc_batches_per_epoch = 1,
     style_loss_function = MeanSquaredError(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE),
-    style_loss_mean_std_axis = [1,2],
-    style_loss_coeff = 1.0
+    style_loss_coeff = 0.0
 )
 #Trainer
 VGV = GradTapeStyleTrainer(generator,discriminator,gan_training_config,[image_source])
