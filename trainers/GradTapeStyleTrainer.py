@@ -23,6 +23,8 @@ class GradTapeStyleTrainer(AbstractTrainer):
         super().__init__(generator, discriminator, gan_training_config, image_sources)
 
         self.matched_keys = [g for g in self.G.tracked_layers.keys() if g in self.D.tracked_layers]
+        print("MATCHED LAYERS: ")
+        print(self.matched_keys)
         self.gen_deep_layers = flatten([self.G.tracked_layers[i] for i in self.matched_keys])
         self.disc_deep_layers = flatten([self.D.tracked_layers[i] for i in self.matched_keys])
         

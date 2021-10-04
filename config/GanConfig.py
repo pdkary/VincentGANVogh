@@ -22,7 +22,8 @@ class ConvLayerConfig():
                  downsampling: bool = False,
                  normalization: NormalizationConfig = NoneCallable,
                  regularizer: RegularizationConfig = NoneCallable,
-                 kernel_initializer: str = "glorot_uniform"):
+                 kernel_initializer: str = "glorot_uniform",
+                 track_id: str = None):
         self.filters = filters 
         self.convolutions = convolutions
         self.kernel_size = kernel_size
@@ -34,6 +35,7 @@ class ConvLayerConfig():
         self.normalization = normalization 
         self.regularizer = regularizer
         self.kernel_initializer = kernel_initializer
+        self.track_id = track_id
         
 class DiscConvLayerConfig(ConvLayerConfig):
     def __init__(self,
@@ -46,10 +48,9 @@ class DiscConvLayerConfig(ConvLayerConfig):
                  normalization: NormalizationConfig = NoneCallable,
                  regularizer: RegularizationConfig = NoneCallable,
                  track_id: str = None):
-        super().__init__(filters,convolutions,kernel_size,activation=activation,
-                         downsampling=downsampling,normalization=normalization,regularizer=regularizer)
+        super().__init__(filters,convolutions,kernel_size,activation=activation,downsampling=downsampling,
+                         normalization=normalization,regularizer=regularizer, track_id=track_id)
         self.dropout_rate = dropout_rate
-        self.track_id = track_id
         
 class GenLayerConfig(ConvLayerConfig):
     def __init__(self,
@@ -64,8 +65,7 @@ class GenLayerConfig(ConvLayerConfig):
                  noise: bool = False,
                  track_id: str = None):
         super().__init__(filters,convolutions,kernel_size,activation=activation,
-                         strides=strides,transpose=transpose,upsampling=upsampling)
+                         strides=strides,transpose=transpose,upsampling=upsampling,
+                         track_id=track_id)
         self.style = style
         self.noise = noise
-        self.track_id = track_id
-        
