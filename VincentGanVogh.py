@@ -7,10 +7,10 @@ from tensorflow.keras.regularizers import L2
 
 from config.GanConfig import GenLayerConfig, DiscConvLayerConfig, DiscDenseLayerConfig
 from config.TrainingConfig import DataConfig, GanTrainingConfig
+from helpers.DataHelper import map_to_range
+from inputs.GanInput import ConstantInput, LatentSpaceInput, RealImageInput
 
-from models.InputModel import GenConstantInput, GenLatentSpaceInput,RealImageInput
 from layers.CallableConfig import ActivationConfig, NormalizationConfig, RegularizationConfig
-from helpers.DataHelper import map_to_range, map_to_std_mean
 
 from models.Discriminator import Discriminator
 from models.Generator import Generator
@@ -66,9 +66,11 @@ image_source = RealImageInput(data_config)
 # noise_model = None
 # input_model = GenLatentSpaceInput(100,(2,2,1024),1024,2,dense_lr)
 
-style_model = LatentStyleModel(100,8,512,dense_lr)
-noise_model = LatentNoiseModel(img_shape,dense_lr,max_std_dev=1.0)
-input_model = GenConstantInput((2,2,1024))
+
+latent_input = LatentSpaceInput(100)
+constant_input = ConstantInput((2,2,1024))
+
+style_model = LatentStyleModel(latent_input,8,512,dense_lr)
 
 ## layer shorthands
 
@@ -87,12 +89,10 @@ g_out = GenLayerConfig(img_shape[-1],1,3,sigmoid)
 ## NOTE: ALL discriminator layers will be tracked, generator must have equivalent tracked layers
 dcl = lambda f,c,id: DiscConvLayerConfig(f,c,3,   disc_lr,dropout_rate=0.4,normalization=instance_norm,track_id=id)
 ddl = lambda s : DiscDenseLayerConfig(s,dense_lr,0.4)
-d_out = DiscDenseLayerConfig(25, sigmoid, 0.0)
 
 #Generator model
 generator = Generator(
-    img_shape = img_shape,
-    input_model = input_model,
+    gan_input = constant_input,
     gen_layers = [mgl_un(512,2,"0"),
                   mgl_un(512,2,"1"),
                   mgl_un(512,2,"2"),
@@ -101,23 +101,24 @@ generator = Generator(
                   mgl_u(128,2,"5"),
                   mgl_u(64,2,"6"),
                   g_out],
-    gen_optimizer = Adam(learning_rate=2e-3,beta_1=0.0,beta_2=0.9,epsilon=1e-7),
+    optimizer = Adam(learning_rate=2e-3,beta_1=0.0,beta_2=0.9,epsilon=1e-7),
     loss_function = BinaryCrossentropy(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE),
     metrics = [Mean, Accuracy],
     style_model = style_model,
-    noise_model = noise_model,
-    normalization=instance_norm
+    normalization = instance_norm
 )
     
 #Discriminator Model
 discriminator = Discriminator(
-    img_shape = img_shape,
+    real_image_input = image_source,
     disc_conv_layers = [dcl(64,2,"6"),dcl(128,2,"5"),dcl(256,2,"4"),dcl(512,2,"3"),dcl(512,2,"2"),dcl(512,2,"1"),dcl(512,2,"0")],
-    disc_dense_layers = [ddl(4096),ddl(4096),ddl(1000),d_out],
-    minibatch_size = 8,
-    disc_optimizer = Adam(learning_rate=2e-3,beta_1=0.0,beta_2=0.9,epsilon=1e-7),
+    disc_dense_layers = [4096,4096,1000,1],
+    optimizer = Adam(learning_rate=2e-3,beta_1=0.0,beta_2=0.9,epsilon=1e-7),
     loss_function = BinaryCrossentropy(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE),
     metrics = [Mean,Accuracy],
+    minibatch_size = 8,
+    dropout_rate = 0.1,
+    activation_config=sigmoid
 )
 
 #Training config
@@ -133,12 +134,12 @@ gan_training_config = GanTrainingConfig(
     style_loss_coeff = 0.0
 )
 #Trainer
-VGV = GradTapeStyleTrainer(generator,discriminator,gan_training_config,[image_source])
+VGV = GradTapeStyleTrainer(generator,discriminator,gan_training_config)
 
 #TRAINING
-ERAS = 100
-EPOCHS = 5000
-PRINT_EVERY = 10
-MOVING_AVERAGE_SIZE = 100
+# ERAS = 100
+# EPOCHS = 5000
+# PRINT_EVERY = 10
+# MOVING_AVERAGE_SIZE = 100
 
-VGV.train_n_eras(ERAS,EPOCHS,PRINT_EVERY,MOVING_AVERAGE_SIZE)
+# VGV.train_n_eras(ERAS,EPOCHS,PRINT_EVERY,MOVING_AVERAGE_SIZE)

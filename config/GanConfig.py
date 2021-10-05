@@ -20,10 +20,13 @@ class ConvLayerConfig():
                  transpose: bool = False,
                  upsampling: bool = False,
                  downsampling: bool = False,
+                 noise: bool = False,
+                 style: bool = False,
+                 dropout_rate: float = 0.0,
                  normalization: NormalizationConfig = NoneCallable,
                  regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_uniform",
-                 track_id: str = None):
+                 track_id: str = ""):
         self.filters = filters 
         self.convolutions = convolutions
         self.kernel_size = kernel_size
@@ -32,6 +35,9 @@ class ConvLayerConfig():
         self.transpose = transpose
         self.upsampling = upsampling
         self.downsampling = downsampling
+        self.noise = noise
+        self.style = style
+        self.dropout_rate = dropout_rate
         self.normalization = normalization 
         self.regularizer = regularizer
         self.kernel_initializer = kernel_initializer
@@ -47,10 +53,9 @@ class DiscConvLayerConfig(ConvLayerConfig):
                  downsampling: bool = True,
                  normalization: NormalizationConfig = NoneCallable,
                  regularizer: RegularizationConfig = NoneCallable,
-                 track_id: str = None):
+                 track_id: str = ""):
         super().__init__(filters,convolutions,kernel_size,activation=activation,downsampling=downsampling,
-                         normalization=normalization,regularizer=regularizer, track_id=track_id)
-        self.dropout_rate = dropout_rate
+                         dropout_rate=dropout_rate,normalization=normalization,regularizer=regularizer, track_id=track_id)
         
 class GenLayerConfig(ConvLayerConfig):
     def __init__(self,
@@ -63,9 +68,7 @@ class GenLayerConfig(ConvLayerConfig):
                  upsampling: bool = False,
                  style: bool = False,
                  noise: bool = False,
-                 track_id: str = None):
+                 track_id: str = ""):
         super().__init__(filters,convolutions,kernel_size,activation=activation,
                          strides=strides,transpose=transpose,upsampling=upsampling,
-                         track_id=track_id)
-        self.style = style
-        self.noise = noise
+                         style=style,noise=noise,track_id=track_id)

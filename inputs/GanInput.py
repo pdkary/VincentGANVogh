@@ -4,67 +4,50 @@ from typing import Tuple
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.data import Dataset
-from tensorflow.python.keras.models import Model
-from layers.CallableConfig import ActivationConfig, NoneCallable
+from tensorflow.python.keras.layers import Input
 from config.TrainingConfig import DataConfig
 from helpers.DataHelper import DataHelper
-from tensorflow.keras.layers import Dense, Input, Reshape
 
-
-class InputModel(ABC):
-    def __init__(self,
-                input_shape: Tuple[int,int,int],
-                activation: ActivationConfig = NoneCallable,
-                name: str = "input_model"):
+class GanInput(ABC):
+    def __init__(self,input_shape: Tuple[int,int,int],name="input"):
         self.input_shape = input_shape
-        self.activation = activation
-        self.input = Input(shape=input_shape,dtype=tf.float32,name=name)
+        self.input: Input = Input(shape=input_shape,name=name)
     
     @abstractmethod    
     def get_training_batch(self,batch_size):
         pass
-    
+
     @abstractmethod    
     def get_validation_batch(self,batch_size):
-        pass
+        return self.get_training_batch(batch_size)
 
-class GenConstantInput(InputModel):
-    def __init__(self, input_shape: Tuple):
-        super().__init__(input_shape,name="gen_constant_input")
+class ConstantInput(GanInput):
+    def __init__(self, input_shape: Tuple[int,int,int]):
+        super().__init__(input_shape,name="constant_input")
         self.constant = tf.constant(tf.random.normal(shape=input_shape,dtype=tf.float32))
-        model = self.activation.get()(self.input)
-        self.model = Model(inputs=self.input,outputs=model)
     
     def get_training_batch(self, batch_size):
         gc_batch = np.full((batch_size,*self.input_shape),0.0,dtype=np.float32)
         for i in range(batch_size):
             gc_batch[i] = self.constant
         return gc_batch
-    
-    def get_validation_batch(self, batch_size):
+
+    def get_validation_batch(self,batch_size):
         return self.get_training_batch(batch_size)
-        
-class GenLatentSpaceInput(InputModel):
-    def __init__(self, input_shape: int,output_shape:Tuple,layer_size,layers, activation: ActivationConfig):
-        super().__init__(input_shape,activation=activation,name="latent_space_input")
-        model = self.input
-        for i in range(layers):
-            model = Dense(layer_size)(model)
-            model = self.activation.get()(model)
-        model = Dense(np.prod(output_shape))(model)
-        model = self.activation.get()(model)
-        model = Reshape(output_shape)(model)
-        self.model = Model(inputs=self.input,outputs=model)
+    
+class LatentSpaceInput(GanInput):
+    def __init__(self, input_shape):
+        super().__init__(input_shape,name="latent_space_input")
     
     def get_training_batch(self, batch_size):
         return tf.random.normal(shape=(batch_size,self.input_shape))
     
-    def get_validation_batch(self, batch_size):
+    def get_validation_batch(self,batch_size):
         return self.get_training_batch(batch_size)
-
-class RealImageInput(InputModel,DataConfig):
+    
+class RealImageInput(GanInput,DataConfig):
     def __init__(self,data_config: DataConfig):
-        InputModel.__init__(self,data_config.image_shape,name="real_image_input")
+        GanInput.__init__(self,data_config.image_shape,name="real_image_input")
         DataConfig.__init__(self,**data_config.__dict__)
         self.data_helper = DataHelper(data_config)
         self.images = self.data_helper.load_data()

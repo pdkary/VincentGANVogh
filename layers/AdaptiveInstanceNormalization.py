@@ -1,4 +1,4 @@
-from tensorflow.keras.layers import Layer
+from tensorflow.keras.layers import Layer, Dense
 import tensorflow.keras.backend as K
 
 class AdaptiveInstanceNormalization(Layer):
@@ -13,4 +13,9 @@ class AdaptiveInstanceNormalization(Layer):
         std = K.std(input_tensor, axis = [1,2], keepdims = True) + 1e-7
         normed = (input_tensor - mean)/std
         return normed * gamma + beta
-        
+
+class AdaINConfig():
+    def get(self,style_out,filters,name):
+        beta =  Dense(filters,bias_initializer='ones', name=name + "_std")(style_out)
+        gamma = Dense(filters,bias_initializer='zeros',name=name + "_mean")(style_out)
+        return lambda x: [AdaptiveInstanceNormalization()([x,beta,gamma]), beta, gamma]

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from models.InputModel import RealImageInput
+from inputs.GanInput import RealImageInput
 from typing import Tuple
 
 import numpy as np

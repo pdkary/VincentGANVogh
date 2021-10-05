@@ -1,6 +1,6 @@
 from config.TrainingConfig import DataConfig, GanTrainingConfig
 from config.DiscriminatorConfig import *
-from models.InputModel import RealImageInput
+from inputs.GanInput import RealImageInput
 from config.GeneratorConfig import *
 from config.CallableConfig import *
 from tensorflow.keras.optimizers import Adam

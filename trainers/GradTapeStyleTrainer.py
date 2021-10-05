@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
 from config.TrainingConfig import GanTrainingConfig
-from models.InputModel import RealImageInput
+from inputs.GanInput import RealImageInput
 from models.Discriminator import Discriminator
 from models.Generator import Generator
 from tensorflow.keras.models import Model
@@ -18,9 +18,8 @@ class GradTapeStyleTrainer(AbstractTrainer):
     def __init__(self, 
                  generator: Generator,
                  discriminator: Discriminator,
-                 gan_training_config: GanTrainingConfig,
-                 image_sources: List[RealImageInput]):
-        super().__init__(generator, discriminator, gan_training_config, image_sources)
+                 gan_training_config: GanTrainingConfig):
+        super().__init__(generator, discriminator, gan_training_config)
 
         self.matched_keys = [g for g in self.G.tracked_layers.keys() if g in self.D.tracked_layers]
         print("MATCHED LAYERS: ")
@@ -28,8 +27,8 @@ class GradTapeStyleTrainer(AbstractTrainer):
         self.gen_deep_layers = flatten([self.G.tracked_layers[i] for i in self.matched_keys])
         self.disc_deep_layers = flatten([self.D.tracked_layers[i] for i in self.matched_keys])
         
-        self.generator = Model(inputs=self.G.input,outputs=[self.G.functional_model,*self.gen_deep_layers])
-        self.discriminator = Model(inputs=self.D.input,outputs=[self.D.functional_model,*self.disc_deep_layers])
+        self.generator = Model(inputs=self.G.inputs,outputs=[self.G.functional_model,*self.gen_deep_layers])
+        self.discriminator = Model(inputs=self.D.gan_input.input,outputs=[self.D.functional_model,*self.disc_deep_layers])
 
         self.nil_disc_style_loss = tf.constant([0.0 for i in self.disc_deep_layers],dtype=tf.float32)
 
@@ -37,9 +36,9 @@ class GradTapeStyleTrainer(AbstractTrainer):
         self.plot_labels = ["G_Loss","D_Loss",*self.G.metric_labels,*self.D.metric_labels]
     
     def save(self,epoch):
-        preview_seed = self.G.get_validation_input(self.preview_size)
+        preview_seed = self.G.get_validation_batch(self.preview_size)
         generated_images = np.array(self.generator.predict(preview_seed)[0])
-        self.image_sources[0].save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
+        self.D.gan_input.save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
         
     def get_deep_style_loss(self,content_std,content_mean,style_src):
         src_2_dest = list(zip(content_std,content_mean,style_src))
@@ -83,7 +82,7 @@ class GradTapeStyleTrainer(AbstractTrainer):
                 out.append(metric.result())
             
             gradients_of_generator = gen_tape.gradient(g_loss, self.generator.trainable_variables)
-            self.G.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
+            self.G.optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
         return out
 
     def train_discriminator(self, disc_input, gen_input):
@@ -112,5 +111,5 @@ class GradTapeStyleTrainer(AbstractTrainer):
                 out.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
-            self.D.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.discriminator.trainable_variables))
+            self.D.optimizer.apply_gradients(zip(gradients_of_discriminator, self.discriminator.trainable_variables))
         return out

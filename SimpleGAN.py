@@ -1,7 +1,7 @@
 from trainers.GenTapeTrainer import GenTapeTrainer
 from helpers.GanValidator import GanValidator
 from config.TrainingConfig import DataConfig, GanTrainingConfig
-from models.InputModel import GenLatentSpaceInput
+from inputs.GanInput import GenLatentSpaceInput
 from config.GeneratorConfig import *
 from config.CallableConfig import *
 from tensorflow.keras.optimizers import Adam
