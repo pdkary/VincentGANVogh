@@ -24,7 +24,7 @@ class Discriminator(ConvolutionalModel, DenseModel):
                  metrics: List[Metric] = [],
                  minibatch_size: int = 0,
                  dropout_rate: float = 0.0,
-                 activation_config: ActivationConfig = NoneCallable,
+                 activation: ActivationConfig = NoneCallable,
                  kernel_regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_uniform"):
         ConvolutionalModel.__init__(self,
@@ -39,7 +39,7 @@ class Discriminator(ConvolutionalModel, DenseModel):
         DenseModel.__init__(self,
                             dense_input=CM,
                             dense_layers=disc_dense_layers,
-                            activation=activation_config,
+                            activation=activation,
                             minibatch_size=minibatch_size,
                             dropout_rate=dropout_rate)
 

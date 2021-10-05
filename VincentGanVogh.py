@@ -19,8 +19,6 @@ from models.StyleModel import LatentStyleModel
 
 from third_party_layers.InstanceNormalization import InstanceNormalization
 
-# from trainers.CombinedTrainer import CombinedTrainer
-# from trainers.GenTapeTrainer import GenTapeTrainer
 from trainers.GradTapeStyleTrainer import GradTapeStyleTrainer
 
 # from google.colab import drive
@@ -118,7 +116,7 @@ discriminator = Discriminator(
     metrics = [Mean,Accuracy],
     minibatch_size = 8,
     dropout_rate = 0.1,
-    activation_config=sigmoid
+    activation = sigmoid
 )
 
 #Training config
