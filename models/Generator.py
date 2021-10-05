@@ -4,7 +4,7 @@ from config.GanConfig import GenLayerConfig
 from helpers.DataHelper import shape_to_key
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from layers.CallableConfig import NoneCallable, NormalizationConfig, RegularizationConfig
-from layers.GanInput import GanInput
+from models.InputModel import InputModel
 from tensorflow.keras.layers import Conv2D, Conv2DTranspose, Dense, UpSampling2D
 
 from tensorflow.keras.models import Model
@@ -19,7 +19,7 @@ from models.StyleModel import StyleModelBase
 class Generator():
     def __init__(self,
                  img_shape: Tuple[int,int,int],
-                 input_model: GanInput,
+                 input_model: InputModel,
                  gen_layers: List[GenLayerConfig],
                  gen_optimizer: Optimizer,
                  loss_function: Loss,

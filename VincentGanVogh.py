@@ -8,7 +8,7 @@ from tensorflow.keras.regularizers import L2
 from config.GanConfig import GenLayerConfig, DiscConvLayerConfig, DiscDenseLayerConfig
 from config.TrainingConfig import DataConfig, GanTrainingConfig
 
-from layers.GanInput import GenConstantInput, GenLatentSpaceInput,RealImageInput
+from models.InputModel import GenConstantInput, GenLatentSpaceInput,RealImageInput
 from layers.CallableConfig import ActivationConfig, NormalizationConfig, RegularizationConfig
 from helpers.DataHelper import map_to_range, map_to_std_mean
 

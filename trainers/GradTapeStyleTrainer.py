@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
 from config.TrainingConfig import GanTrainingConfig
-from layers.GanInput import RealImageInput
+from models.InputModel import RealImageInput
 from models.Discriminator import Discriminator
 from models.Generator import Generator
 from tensorflow.keras.models import Model

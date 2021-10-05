@@ -4,7 +4,7 @@ from typing import Tuple
 import tensorflow as tf
 from tensorflow.keras.models import Model
 from layers.CallableConfig import ActivationConfig, NoneCallable, RegularizationConfig
-from layers.GanInput import RealImageInput
+from models.InputModel import RealImageInput
 from tensorflow.keras.layers import Dense, Flatten, Input, Conv2D, MaxPooling2D, Activation
 
 

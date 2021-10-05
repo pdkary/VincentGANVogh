@@ -5,15 +5,19 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.data import Dataset
 from tensorflow.python.keras.models import Model
-from layers.CallableConfig import ActivationConfig
+from layers.CallableConfig import ActivationConfig, NoneCallable
 from config.TrainingConfig import DataConfig
 from helpers.DataHelper import DataHelper
-from tensorflow.keras.layers import Activation, Dense, Input, Reshape
+from tensorflow.keras.layers import Dense, Input, Reshape
 
 
-class GanInput(ABC):
-    def __init__(self,input_shape: Tuple[int,int,int],name="gan_input"):
+class InputModel(ABC):
+    def __init__(self,
+                input_shape: Tuple[int,int,int],
+                activation: ActivationConfig = NoneCallable,
+                name: str = "input_model"):
         self.input_shape = input_shape
+        self.activation = activation
         self.input = Input(shape=input_shape,dtype=tf.float32,name=name)
     
     @abstractmethod    
@@ -24,11 +28,11 @@ class GanInput(ABC):
     def get_validation_batch(self,batch_size):
         pass
 
-class GenConstantInput(GanInput):
+class GenConstantInput(InputModel):
     def __init__(self, input_shape: Tuple):
         super().__init__(input_shape,name="gen_constant_input")
         self.constant = tf.constant(tf.random.normal(shape=input_shape,dtype=tf.float32))
-        model = Activation('linear')(self.input)
+        model = self.activation.get()(self.input)
         self.model = Model(inputs=self.input,outputs=model)
     
     def get_training_batch(self, batch_size):
@@ -40,15 +44,15 @@ class GenConstantInput(GanInput):
     def get_validation_batch(self, batch_size):
         return self.get_training_batch(batch_size)
         
-class GenLatentSpaceInput(GanInput):
+class GenLatentSpaceInput(InputModel):
     def __init__(self, input_shape: int,output_shape:Tuple,layer_size,layers, activation: ActivationConfig):
-        super().__init__(input_shape,name="gen_latent_space_input")
+        super().__init__(input_shape,activation=activation,name="latent_space_input")
         model = self.input
         for i in range(layers):
             model = Dense(layer_size)(model)
-            model = activation.get()(model)
+            model = self.activation.get()(model)
         model = Dense(np.prod(output_shape))(model)
-        model = activation.get()(model)
+        model = self.activation.get()(model)
         model = Reshape(output_shape)(model)
         self.model = Model(inputs=self.input,outputs=model)
     
@@ -58,9 +62,9 @@ class GenLatentSpaceInput(GanInput):
     def get_validation_batch(self, batch_size):
         return self.get_training_batch(batch_size)
 
-class RealImageInput(GanInput,DataConfig):
+class RealImageInput(InputModel,DataConfig):
     def __init__(self,data_config: DataConfig):
-        GanInput.__init__(self,data_config.image_shape,name="real_image_input")
+        InputModel.__init__(self,data_config.image_shape,name="real_image_input")
         DataConfig.__init__(self,**data_config.__dict__)
         self.data_helper = DataHelper(data_config)
         self.images = self.data_helper.load_data()
@@ -70,8 +74,6 @@ class RealImageInput(GanInput,DataConfig):
         self.validation_images = self.images[self.num_training_imgs:]
         self.training_dataset = tf.data.Dataset.from_tensor_slices(self.training_images)
         self.validation_dataset = tf.data.Dataset.from_tensor_slices(self.validation_images)
-        model = Activation("linear")(self.input)
-        self.model = Model(inputs=self.input,outputs=model)
         print("DATASET LOADED")
     
     def save(self,epoch,images,preview_rows,preview_cols,preview_margin):
