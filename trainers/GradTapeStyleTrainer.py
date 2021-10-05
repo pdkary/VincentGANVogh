@@ -27,8 +27,8 @@ class GradTapeStyleTrainer(AbstractTrainer):
         self.gen_deep_layers = flatten([self.G.tracked_layers[i] for i in self.matched_keys])
         self.disc_deep_layers = flatten([self.D.tracked_layers[i] for i in self.matched_keys])
         
-        self.generator = Model(inputs=self.G.inputs,outputs=[self.G.functional_model,*self.gen_deep_layers])
-        self.discriminator = Model(inputs=self.D.gan_input.input,outputs=[self.D.functional_model,*self.disc_deep_layers])
+        self.generator = Model(inputs=self.G.conv_model.inputs,outputs=[self.G.functional_model,*self.gen_deep_layers])
+        self.discriminator = Model(inputs=self.D.conv_model.inputs,outputs=[self.D.functional_model,*self.disc_deep_layers])
 
         self.nil_disc_style_loss = tf.constant([0.0 for i in self.disc_deep_layers],dtype=tf.float32)
 
@@ -38,7 +38,7 @@ class GradTapeStyleTrainer(AbstractTrainer):
     def save(self,epoch):
         preview_seed = self.G.get_validation_batch(self.preview_size)
         generated_images = np.array(self.generator.predict(preview_seed)[0])
-        self.D.gan_input.save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
+        self.D.conv_model.gan_input.save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
         
     def get_deep_style_loss(self,content_std,content_mean,style_src):
         src_2_dest = list(zip(content_std,content_mean,style_src))

@@ -14,7 +14,7 @@ from models.ConvolutionalModel import ConvolutionalModel
 from models.DenseModel import DenseModel
 
 
-class Discriminator(ConvolutionalModel, DenseModel):
+class Discriminator():
     def __init__(self,
                  real_image_input: GanInput,
                  disc_conv_layers: List[DiscConvLayerConfig],
@@ -27,30 +27,29 @@ class Discriminator(ConvolutionalModel, DenseModel):
                  activation: ActivationConfig = NoneCallable,
                  kernel_regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_uniform"):
-        ConvolutionalModel.__init__(self,
-                                    gan_input=real_image_input,
-                                    conv_layers=disc_conv_layers,
-                                    kernel_regularizer=kernel_regularizer,
-                                    kernel_initializer=kernel_initializer)
-
-        self.CM = ConvolutionalModel.build(self)
-        CM = Flatten()(self.CM)
         
-        DenseModel.__init__(self,
-                            dense_input=CM,
-                            dense_layers=disc_dense_layers,
-                            activation=activation,
-                            minibatch_size=minibatch_size,
-                            dropout_rate=dropout_rate)
+        self.conv_model = ConvolutionalModel(gan_input=real_image_input,
+                                             conv_layers=disc_conv_layers,
+                                             kernel_regularizer=kernel_regularizer,
+                                             kernel_initializer=kernel_initializer)
 
-        self.functional_model = DenseModel.build(self)
+        self.conv_out = self.conv_model.build()
+        CM = Flatten()(self.conv_out)
+        
+        self.dense_model = DenseModel(dense_input=CM,
+                                      dense_layers=disc_dense_layers,
+                                      activation=activation,
+                                      minibatch_size=minibatch_size,
+                                      dropout_rate=dropout_rate)
         self.optimizer = optimizer
         self.loss_function = loss_function
         self.metrics = [m() for m in metrics]
         self.metric_labels = ["D_" + str(m.name) for m in self.metrics]
+        self.tracked_layers = self.conv_model.tracked_layers
 
     def build(self):
-        disc_model = Model(inputs=self.inputs, outputs=self.functional_model, name="Discriminator")
+        self.functional_model = self.dense_model.build()
+        disc_model = Model(inputs=self.conv_model.inputs, outputs=self.functional_model, name="Discriminator")
         disc_model.compile(optimizer=self.optimizer,
                            loss=self.loss_function,
                            metrics=self.metrics)

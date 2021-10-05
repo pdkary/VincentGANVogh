@@ -15,7 +15,7 @@ from models.ConvolutionalModel import ConvolutionalModel
 from models.StyleModel import LatentStyleModel
 
 
-class Generator(ConvolutionalModel):
+class Generator():
     def __init__(self,
                  gan_input: GanInput,
                  gen_layers: List[GenLayerConfig],
@@ -26,7 +26,12 @@ class Generator(ConvolutionalModel):
                  normalization: NormalizationConfig = NoneCallable,
                  kernel_regularizer:RegularizationConfig = NoneCallable,
                  kernel_initializer:str = "glorot_uniform"):
-        super().__init__(gan_input,gen_layers,style_model,kernel_regularizer,kernel_initializer)
+
+        self.conv_model = ConvolutionalModel(gan_input=gan_input,
+                                             conv_layers=gen_layers,
+                                             style_model=style_model,
+                                             kernel_regularizer=kernel_regularizer,
+                                             kernel_initializer=kernel_initializer)
         self.optimizer = optimizer
         self.loss_function = loss_function
         self.metrics = [m() for m in metrics]
@@ -35,8 +40,9 @@ class Generator(ConvolutionalModel):
         self.normalization = normalization
 
     def build(self,print_summary=True):
-        self.functional_model = ConvolutionalModel.build(self)
-        gen_model = Model(inputs=self.inputs,outputs=self.functional_model)
+        self.functional_model = self.conv_model.build()
+        self.tracked_layers = self.conv_model.tracked_layers
+        gen_model = Model(inputs=self.conv_model.inputs,outputs=self.functional_model)
         gen_model.compile(optimizer=self.optimizer,
                           loss=self.loss_function,
                           metrics=self.metrics)
@@ -46,14 +52,14 @@ class Generator(ConvolutionalModel):
 
     def get_training_batch(self,batch_size):
         if self.style_model is not None and isinstance(self.style_model.dense_input,GanInput):
-            return [self.gan_input.get_training_batch(batch_size),
+            return [self.conv_model.gan_input.get_training_batch(batch_size),
                     self.style_model.dense_input.get_training_batch(batch_size)]
         else:
-            return [self.gan_input.get_training_batch(batch_size)]
+            return [self.conv_model.gan_input.get_training_batch(batch_size)]
 
     def get_validation_batch(self,batch_size):
         if self.style_model is not None and isinstance(self.style_model.dense_input,GanInput):
-            return [self.gan_input.get_validation_batch(batch_size),
+            return [self.conv_model.gan_input.get_validation_batch(batch_size),
                     self.style_model.dense_input.get_validation_batch(batch_size)]
         else:
-            return [self.gan_input.get_validation_batch(batch_size)]
+            return [self.conv_model.gan_input.get_validation_batch(batch_size)]

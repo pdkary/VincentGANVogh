@@ -19,14 +19,14 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.D: Discriminator = discriminator
         self.preview_size = self.preview_cols*self.preview_rows
 
-        label_shape = (self.batch_size, self.D.dense_layers[-1])
+        label_shape = (self.batch_size, self.D.dense_model.dense_layers[-1])
         self.real_label = np.full(label_shape,self.disc_labels[0])
         self.fake_label = np.full(label_shape,self.disc_labels[1])
         self.gen_label = np.full(label_shape, self.gen_label)
 
         self.generator = self.G.build()
         self.discriminator = self.D.build()
-        self.model_output_path = self.D.gan_input.data_path + "/models"
+        self.model_output_path = self.D.conv_model.gan_input.data_path + "/models"
         
         self.plot_labels = ["G_Loss","D_Loss",*self.G.metric_labels,*self.D.metric_labels]
 
