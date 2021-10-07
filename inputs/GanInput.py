@@ -24,7 +24,7 @@ class GanInput(ABC):
 class ConstantInput(GanInput):
     def __init__(self, input_shape: Tuple[int,int,int]):
         super().__init__(input_shape,name="constant_input")
-        self.constant = np.random.normal(size=input_shape)
+        self.constant = tf.random.normal(shape=input_shape,dtype=tf.float32)
     
     def get_training_batch(self, batch_size):
         gc_batch = np.full((batch_size,*self.input_shape),0.0,dtype=np.float32)
