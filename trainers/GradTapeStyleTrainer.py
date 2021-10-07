@@ -29,9 +29,9 @@ class GradTapeStyleTrainer(AbstractTrainer):
         self.discriminator = Model(inputs=self.D.CM.inputs,outputs=[self.D.functional_model,*self.disc_deep_layers])
         self.generator.summary()
         self.discriminator.summary()
-        
+
         print("MATCHED LAYERS: ")
-        print(self.matched_keys)
+        print(self.matched_keys)            
 
         self.nil_disc_style_loss = tf.constant([0.0 for i in self.disc_deep_layers],dtype=tf.float32)
 

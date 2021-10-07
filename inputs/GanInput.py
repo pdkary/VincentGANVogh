@@ -36,8 +36,8 @@ class ConstantInput(GanInput):
         return self.get_training_batch(batch_size)
     
 class LatentSpaceInput(GanInput):
-    def __init__(self, input_shape:Tuple):
-        super().__init__(input_shape,name="latent_space_input")
+    def __init__(self, input_shape:Tuple,name="latent_space_input"):
+        super().__init__(input_shape,name=name)
     
     def get_training_batch(self, batch_size):
         return tf.random.normal(shape=(batch_size,*self.input_shape))
