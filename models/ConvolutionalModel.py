@@ -56,8 +56,9 @@ class ConvolutionalModel():
                     out,beta,gamma = AdaINConfig().get(style_out,config.filters,name)(out)
                     out = config.activation.get()(out)  
                     self.tracked_layers[name] = [beta,gamma]
-                else:
+                else:                    
                     out = config.normalization.get()(out)
+                    out = config.activation.get()(out)  
                     self.tracked_layers[name] = [out]
             out = MaxPooling2D()(out) if config.downsampling else out
         
