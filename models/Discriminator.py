@@ -27,6 +27,7 @@ class Discriminator():
                  activation: ActivationConfig = NoneCallable,
                  kernel_regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_uniform"):
+        self.gan_input = real_image_input
         
         self.conv_model = ConvolutionalModel(gan_input=real_image_input,
                                              conv_layers=disc_conv_layers,
