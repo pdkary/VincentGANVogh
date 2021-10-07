@@ -51,12 +51,11 @@ class ConvolutionalModel():
                 if config.style and self.style_model is not None:
                     out,beta,gamma = AdaINConfig().get(style_out,config.filters,name)(out)
                     self.tracked_layers[name] = [beta,gamma]
+                    out = config.activation.get()(out)  
                 else:
                     out = config.normalization.get()(out)
-                        
-                out = config.activation.get()(out)
-                if config.track_id != "":
-                    self.tracked_layers[name] = [out]
+                    if config.track_id != "":
+                        self.tracked_layers[name] = [out]
             out = MaxPooling2D()(out) if config.downsampling else out
         
         out = Flatten(name="conv_flatten_" + name)(out) if flatten else out
