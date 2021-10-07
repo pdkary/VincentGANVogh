@@ -40,7 +40,7 @@ class ConvolutionalModel():
                         padding='same',kernel_regularizer=self.kernel_regularizer.get(), 
                         kernel_initializer = self.kernel_initializer, use_bias=False)
     
-    def build(self):
+    def build(self,flatten=False):
         out = self.gan_input.input
 
         if self.style_model is not None:
@@ -64,7 +64,8 @@ class ConvolutionalModel():
                 if config.track_id != "":
                     self.tracked_layers[name] = [out]
             out = MaxPooling2D()(out) if config.downsampling else out
-        out = Flatten(name="conv_flatten_" + name)(out)
+        
+        out = Flatten(name="conv_flatten_" + name)(out) if flatten else out
         return out
     
     def get_training_batch(self,batch_size):
