@@ -68,8 +68,9 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                 batch_out = self.train_discriminator(source_input, gen_input)
                 batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                 d_loss += batch_loss
-                for i in tf.range(len(self.d_metric_labels)):
-                    d_metrics[i] += batch_metrics[i]
+                if len(self.d_metrics) > 0:
+                    for i in tf.range(len(self.d_metric_labels)):
+                        d_metrics[i] += batch_metrics[i]
                 
             for i in tf.range(self.gen_batches_per_epoch):
                 source_input = self.D.gan_input.get_training_batch(self.batch_size)
@@ -77,8 +78,9 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                 batch_out = self.train_generator(source_input,gen_input)
                 batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                 g_loss += batch_loss
-                for i in tf.range(len(self.g_metric_labels)):
-                    g_metrics[i] += batch_metrics[i]
+                if len(self.g_metrics) > 0:
+                    for i in tf.range(len(self.g_metric_labels)):
+                        g_metrics[i] += batch_metrics[i]
 
             if self.plot:
                 d_loss /= self.disc_batches_per_epoch
