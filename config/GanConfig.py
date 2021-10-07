@@ -68,7 +68,8 @@ class GenLayerConfig(ConvLayerConfig):
                  upsampling: bool = False,
                  style: bool = False,
                  noise: bool = False,
+                 normalization: NormalizationConfig = NoneCallable,
                  track_id: str = ""):
         super().__init__(filters,convolutions,kernel_size,activation=activation,
                          strides=strides,transpose=transpose,upsampling=upsampling,
-                         style=style,noise=noise,track_id=track_id)
+                         style=style,noise=noise,normalization=normalization,track_id=track_id)

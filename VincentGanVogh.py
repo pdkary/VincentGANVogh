@@ -77,12 +77,12 @@ mgl_un = lambda f,c,id: GenLayerConfig(f,c,3,gen_lr,upsampling=True,noise=True,s
 mgl_u = lambda f,c,id: GenLayerConfig(f,c,3,gen_lr,upsampling=True,style=True,track_id=id)
 mgl = lambda f,c,id: GenLayerConfig(f,c,3,gen_lr,style=True,track_id=id)
 # unmatched gen layers
-gl_un = lambda f,c: GenLayerConfig(f,c,3,gen_lr,upsampling=True,noise=True)
-gl_u = lambda f,c: GenLayerConfig(f,c,3,gen_lr,upsampling=True)
-gl = lambda f,c: GenLayerConfig(f,c,3,gen_lr)
+gl_un = lambda f,c: GenLayerConfig(f,c,3,gen_lr,upsampling=True,noise=True,normalization=instance_norm)
+gl_u = lambda f,c: GenLayerConfig(f,c,3,gen_lr,upsampling=True,normalization=instance_norm)
+gl = lambda f,c: GenLayerConfig(f,c,3,gen_lr,normalization=instance_norm)
 
 #gen out
-g_out = GenLayerConfig(img_shape[-1],1,3,sigmoid)
+g_out = GenLayerConfig(img_shape[-1],1,3,sigmoid,normalization=instance_norm)
 
 ## NOTE: ALL discriminator layers will be tracked, generator must have equivalent tracked layers
 dcl = lambda f,c,id: DiscConvLayerConfig(f,c,3,   disc_lr,dropout_rate=0.4,normalization=instance_norm,track_id=id)
@@ -99,11 +99,7 @@ generator = Generator(
                   mgl_u(128,2,"5"),
                   mgl_u(64,2,"6"),
                   g_out],
-    optimizer = Adam(learning_rate=2e-3,beta_1=0.0,beta_2=0.9,epsilon=1e-7),
-    loss_function = BinaryCrossentropy(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE),
-    metrics = [Mean, Accuracy],
     style_model = style_model,
-    normalization = instance_norm
 )
     
 #Discriminator Model
@@ -111,9 +107,6 @@ discriminator = Discriminator(
     real_image_input = image_source,
     disc_conv_layers = [dcl(64,2,"6"),dcl(128,2,"5"),dcl(256,2,"4"),dcl(512,2,"3"),dcl(512,2,"2"),dcl(512,2,"1"),dcl(512,2,"0")],
     disc_dense_layers = [4096,4096,1000,1],
-    optimizer = Adam(learning_rate=2e-3,beta_1=0.0,beta_2=0.9,epsilon=1e-7),
-    loss_function = BinaryCrossentropy(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE),
-    metrics = [Mean,Accuracy],
     minibatch_size = 8,
     dropout_rate = 0.1,
     activation = sigmoid
@@ -127,13 +120,18 @@ gan_training_config = GanTrainingConfig(
     #desired label
     gen_label=1.0,
     batch_size=8,
-    disc_batches_per_epoch = 1,
+    gen_loss_function = BinaryCrossentropy(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE),
+    disc_loss_function = BinaryCrossentropy(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE),
     style_loss_function = MeanSquaredError(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE),
-    style_loss_coeff = 0.0
+    gen_optimizer = Adam(learning_rate=2e-3,beta_1=0.0,beta_2=0.9,epsilon=1e-7),
+    disc_optimizer = Adam(learning_rate=2e-3,beta_1=0.0,beta_2=0.9,epsilon=1e-7),
+    metrics = [Mean,Accuracy],
+    style_loss_coeff = 0.0,
+    disc_batches_per_epoch = 1,
 )
 #Trainer
 VGV = GradTapeStyleTrainer(generator,discriminator,gan_training_config)
-
+VGV.compile()
 #TRAINING
 # ERAS = 100
 # EPOCHS = 5000

@@ -3,6 +3,7 @@ from typing import List
 
 import numpy as np
 import tensorflow as tf
+from tensorflow.python.keras.models import Model
 from config.TrainingConfig import GanTrainingConfig
 from inputs.GanInput import RealImageInput
 from models.Discriminator import Discriminator
@@ -17,29 +18,40 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         GanTrainingConfig.__init__(self, **gan_training_config.__dict__)
         self.G: Generator = generator
         self.D: Discriminator = discriminator
-        self.preview_size = self.preview_cols*self.preview_rows
 
-        label_shape = (self.batch_size, self.D.dense_model.dense_layers[-1])
+        self.preview_size = self.preview_cols*self.preview_rows
+        label_shape = (self.batch_size, self.D.DM.dense_layers[-1])
         self.real_label = np.full(label_shape,self.disc_labels[0])
         self.fake_label = np.full(label_shape,self.disc_labels[1])
         self.gen_label = np.full(label_shape, self.gen_label)
 
-        self.generator = self.G.build()
-        self.discriminator = self.D.build()
-        self.model_output_path = self.D.conv_model.gan_input.data_path + "/models"
-        
-        self.plot_labels = ["G_Loss","D_Loss",*self.G.metric_labels,*self.D.metric_labels]
+        self.g_metrics = [m() for m in self.metrics]
+        self.d_metrics = [m() for m in self.metrics]
+        self.g_metric_labels = ["G_" + str(m.name) for m in self.metrics]
+        self.d_metric_labels = ["D_" + str(m.name) for m in self.metrics]
+        self.plot_labels = ["G_Loss","D_Loss",*self.g_metric_labels,*self.d_metric_labels]
+        self.model_output_path = self.D.CM.gan_input.data_path + "/models"
+        self.model_name = self.D.gan_input.model_name
 
+    def compile(self):
+        self.generator = Model(inputs=self.G.CM.inputs,outputs=self.G.functional_model,name="Generator")
+        self.generator.compile(optimizer=self.gen_optimizer,loss=self.gen_loss_function,metrics=self.g_metrics)
+        self.generator.summary()
+        
+        self.discriminator = Model(inputs=self.D.CM.inputs,outputs=self.D.functional_model,name="Discriminator")
+        self.discriminator.compile(optimizer=self.disc_optimizer,loss=self.disc_loss_function,metrics=self.d_metrics)
+        self.discriminator.summary()
+    
     @abstractmethod
     def train_generator(self, source_input, gen_input):
-        return 2*[0.0] + len(self.G.metrics)*[0.0]
+        return 2*[0.0] + len(self.g_metrics)*[0.0]
 
     @abstractmethod
     def train_discriminator(self, source_input, gen_input):
-        return 2*[0.0] + len(self.D.metrics)*[0.0]
+        return 2*[0.0] + len(self.d_metrics)*[0.0]
 
     def save_generator(self, epoch):
-        filename = self.D.gan_input.model_name + str(epoch)
+        filename = self.model_name + str(epoch)
         self.generator.save(self.model_output_path + filename)
 
     @tf.function
@@ -48,8 +60,8 @@ class AbstractTrainer(GanTrainingConfig, ABC):
             if self.plot:
                 self.gan_plotter.start_epoch()
 
-            d_loss, d_metrics = 0.0, [0.0 for i in self.D.metric_labels]
-            g_loss, g_metrics = 0.0, [0.0 for i in self.G.metric_labels]
+            d_loss, d_metrics = 0.0, [0.0 for i in self.d_metric_labels]
+            g_loss, g_metrics = 0.0, [0.0 for i in self.g_metric_labels]
             
             for i in tf.range(self.disc_batches_per_epoch):
                 source_input = self.D.gan_input.get_validation_batch(self.batch_size)
@@ -57,7 +69,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                 batch_out = self.train_discriminator(source_input, gen_input)
                 batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                 d_loss += batch_loss
-                for i in tf.range(len(self.D.metric_labels)):
+                for i in tf.range(len(self.g_metric_labels)):
                     d_metrics[i] += batch_metrics[i]
                 
             for i in tf.range(self.gen_batches_per_epoch):
@@ -66,7 +78,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
                 batch_out = self.train_generator(source_input,gen_input)
                 batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                 g_loss += batch_loss
-                for i in tf.range(len(self.G.metric_labels)):
+                for i in tf.range(len(self.g_metric_labels)):
                     g_metrics[i] += batch_metrics[i]
 
             if self.plot:

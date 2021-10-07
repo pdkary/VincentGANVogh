@@ -1,5 +1,7 @@
 from typing import Callable, Tuple, List
+from tensorflow.keras.optimizers import Optimizer
 from tensorflow.keras.losses import Loss
+from tensorflow.python.keras.metrics import Metric
 
 class DataConfig():
     def __init__(self,
@@ -26,7 +28,12 @@ class GanTrainingConfig():
                  disc_labels: Tuple[float, float],
                  gen_label: float,
                  batch_size: int,
+                 gen_loss_function: Loss = None,
+                 disc_loss_function: Loss = None,
                  style_loss_function: Loss = None,
+                 gen_optimizer: Optimizer = None,
+                 disc_optimizer: Optimizer = None,
+                 metrics: List[Metric] = [],
                  style_loss_coeff: float = 0.25,
                  disc_batches_per_epoch: int = 1,
                  gen_batches_per_epoch: int = 1,
@@ -37,7 +44,12 @@ class GanTrainingConfig():
         self.disc_labels = disc_labels
         self.gen_label = gen_label
         self.batch_size = batch_size
+        self.gen_loss_function = gen_loss_function
+        self.disc_loss_function = disc_loss_function
         self.style_loss_function = style_loss_function
+        self.gen_optimizer = gen_optimizer
+        self.disc_optimizer = disc_optimizer
+        self.metrics = metrics
         self.style_loss_coeff = style_loss_coeff
         self.disc_batches_per_epoch = disc_batches_per_epoch
         self.gen_batches_per_epoch = gen_batches_per_epoch

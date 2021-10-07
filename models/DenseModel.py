@@ -14,6 +14,7 @@ class DenseModel():
                  minibatch_size: int = 0,
                  dropout_rate: float = 0.0):
         self.dense_input = dense_input.input if isinstance(dense_input,GanInput) else dense_input
+        self.inputs = [self.dense_input]
         self.dense_layers = dense_layers
         self.activation = activation
         self.minibatch_size = minibatch_size

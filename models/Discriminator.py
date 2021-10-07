@@ -1,14 +1,11 @@
-from typing import List, Tuple
+from typing import List
 
+import tensorflow as tf
 from config.GanConfig import DiscConvLayerConfig
 from inputs.GanInput import GanInput
 from layers.CallableConfig import (ActivationConfig, NoneCallable,
                                    RegularizationConfig)
-from tensorflow.keras.losses import Loss
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Optimizer
-from tensorflow.python.eager.monitoring import Metric
+from tensorflow.keras.layers import Input
 
 from models.ConvolutionalModel import ConvolutionalModel
 from models.DenseModel import DenseModel
@@ -19,9 +16,6 @@ class Discriminator():
                  real_image_input: GanInput,
                  disc_conv_layers: List[DiscConvLayerConfig],
                  disc_dense_layers: List[int],
-                 optimizer: Optimizer,
-                 loss_function: Loss,
-                 metrics: List[Metric] = [],
                  minibatch_size: int = 0,
                  dropout_rate: float = 0.0,
                  activation: ActivationConfig = NoneCallable,
@@ -29,29 +23,21 @@ class Discriminator():
                  kernel_initializer: str = "glorot_uniform"):
         self.gan_input = real_image_input
         
-        self.conv_model = ConvolutionalModel(gan_input=real_image_input,
+        self.CM = ConvolutionalModel(gan_input=real_image_input,
                                              conv_layers=disc_conv_layers,
                                              kernel_regularizer=kernel_regularizer,
                                              kernel_initializer=kernel_initializer)
 
-        self.conv_out = self.conv_model.build(flatten=True)
+        self.conv_out = self.CM.build(flatten=True)
+        # self.internal_input = Input(shape=self.conv_out.shape[-1],dtype=tf.float32)
+        # print(self.internal_input)
         
-        self.dense_model = DenseModel(dense_input=self.conv_out,
+        self.DM = DenseModel(dense_input=self.conv_out,
                                       dense_layers=disc_dense_layers,
                                       activation=activation,
                                       minibatch_size=minibatch_size,
                                       dropout_rate=dropout_rate)
-        self.optimizer = optimizer
-        self.loss_function = loss_function
-        self.metrics = [m() for m in metrics]
-        self.metric_labels = ["D_" + str(m.name) for m in self.metrics]
-        self.tracked_layers = self.conv_model.tracked_layers
 
-    def build(self):
-        self.functional_model = self.dense_model.build()
-        disc_model = Model(inputs=self.conv_model.inputs, outputs=self.functional_model, name="Discriminator")
-        disc_model.compile(optimizer=self.optimizer,
-                           loss=self.loss_function,
-                           metrics=self.metrics)
-        disc_model.summary()
-        return disc_model
+        self.functional_model = self.DM.build()
+        self.tracked_layers = self.CM.tracked_layers
+
