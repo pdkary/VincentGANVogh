@@ -70,9 +70,5 @@ class RealImageInput(GanInput,DataConfig):
     
     def get_batch(self,batch_size:int,dataset:Dataset):
         d = dataset.shuffle(self.num_training_imgs//2).batch(batch_size)
-        d_iterator = iter(d)
-        batch = next(d_iterator)
-        while batch.shape[0] != batch_size:
-          batch = next(d_iterator)
-        return batch
+        return d.take(batch_size)
    
