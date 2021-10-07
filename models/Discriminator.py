@@ -34,9 +34,8 @@ class Discriminator():
                                              kernel_initializer=kernel_initializer)
 
         self.conv_out = self.conv_model.build()
-        CM = Flatten()(self.conv_out)
         
-        self.dense_model = DenseModel(dense_input=CM,
+        self.dense_model = DenseModel(dense_input=self.conv_out,
                                       dense_layers=disc_dense_layers,
                                       activation=activation,
                                       minibatch_size=minibatch_size,
