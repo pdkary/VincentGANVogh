@@ -24,7 +24,7 @@ class GanInput(ABC):
 class ConstantInput(GanInput):
     def __init__(self, input_shape: Tuple[int,int,int]):
         super().__init__(input_shape,name="constant_input")
-        self.constant = tf.constant(tf.random.normal(shape=input_shape,dtype=tf.float32))
+        self.constant = tf.random.normal(shape=input_shape,dtype=tf.float32)
     
     def get_training_batch(self, batch_size):
         gc_batch = np.full((batch_size,*self.input_shape),0.0,dtype=np.float32)
@@ -53,8 +53,8 @@ class RealImageInput(GanInput,DataConfig):
         self.images = self.data_helper.load_data()
         
         self.num_training_imgs = len(self.images)//2
-        self.training_images = tf.cast(self.images[:self.num_training_imgs],dtype=tf.float32)
-        self.validation_images = tf.cast(self.images[self.num_training_imgs:],dtype=tf.float32)
+        self.training_images = np.asarray(self.images[:self.num_training_imgs],np.float32)
+        self.validation_images = np.asarray(self.images[self.num_training_imgs:],np.float32)
         self.training_dataset = tf.data.Dataset.from_tensor_slices(self.training_images)
         self.validation_dataset = tf.data.Dataset.from_tensor_slices(self.validation_images)
         print("DATASET LOADED")
