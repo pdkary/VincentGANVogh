@@ -33,12 +33,11 @@ class DenseModel():
 
 class LatentSpaceModel(DenseModel):
     def __init__(self,
-                 space_input: LatentSpaceInput,
                  inner_layers: int,
                  inner_layer_size: int,
                  output_shape: Tuple[int,int,int],
                  activation: ActivationConfig):
-        super().__init__(space_input, [inner_layer_size for i in range(inner_layers)], activation)
+        super().__init__(LatentSpaceInput(inner_layer_size), [inner_layer_size for i in range(inner_layers)], activation)
         self.output_shape = output_shape
     
     def build(self):
