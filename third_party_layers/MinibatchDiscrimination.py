@@ -1,7 +1,7 @@
 from tensorflow.keras.layers import Layer, InputSpec
-from keras import initializers
-from keras import regularizers
-from keras import constraints
+from tensorflow.keras import initializers
+from tensorflow.keras import regularizers
+from tensorflow.keras import constraints
 import keras.backend as K
 
 class MinibatchDiscrimination(Layer):

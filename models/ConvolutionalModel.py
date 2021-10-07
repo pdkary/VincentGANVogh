@@ -1,19 +1,14 @@
 from typing import List
 
-from tensorflow.python.keras.models import Model
-
 from config.GanConfig import ConvLayerConfig
 from inputs.GanInput import GanInput
 from layers.AdaptiveInstanceNormalization import AdaINConfig
 from layers.CallableConfig import NoneCallable, RegularizationConfig
-from tensorflow.python.keras.layers.convolutional import (Conv2D,
-                                                          Conv2DTranspose,
-                                                          UpSampling2D)
-from tensorflow.python.keras.layers.core import Dropout, Flatten
-from tensorflow.python.keras.layers.noise import GaussianNoise
-from tensorflow.python.keras.layers.pooling import MaxPooling2D
+from tensorflow.keras.layers import (Conv2D, Conv2DTranspose, Dropout, Flatten,
+                                     GaussianNoise, MaxPooling2D, UpSampling2D)
 
 from models.StyleModel import LatentStyleModel
+
 
 class ConvolutionalModel():
     def __init__(self,
@@ -28,7 +23,7 @@ class ConvolutionalModel():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.tracked_layers = {}
-        self.inputs = [gan_input.input,style_model.dense_input] if style_model is not None else [gan_input.input]
+        self.inputs = [gan_input.input,style_model.inputs] if style_model is not None else [gan_input.input]
 
     def get_conv_args(self,filters,kernel_size,strides):
         return dict(filters=filters,kernel_size=kernel_size,strides=strides,

@@ -1,27 +1,26 @@
 from typing import List, Union
 from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.models import Model
-from tensorflow.python.keras.models import Functional
+from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 from layers.CallableConfig import ActivationConfig, NoneCallable
 from inputs.GanInput import GanInput
 from third_party_layers.MinibatchDiscrimination import MinibatchDiscrimination
 
 class DenseModel():
     def __init__(self,
-                 dense_input: Union[Functional,GanInput],
+                 input: Union[KerasTensor,GanInput],
                  dense_layers: List[int],
                  activation: ActivationConfig = NoneCallable,
                  minibatch_size: int = 0,
                  dropout_rate: float = 0.0):
-        self.dense_input = dense_input.input if isinstance(dense_input,GanInput) else dense_input
-        self.inputs = [self.dense_input]
+        self.input = input
+        self.inputs = [input.input] if isinstance(input,GanInput) else [input]
         self.dense_layers = dense_layers
         self.activation = activation
         self.minibatch_size = minibatch_size
         self.dropout_rate = dropout_rate
 
     def build(self):
-        model = self.dense_input
+        model = self.inputs[0]
         for i,l_size in enumerate(self.dense_layers):
             name = str(l_size) + "_" + str(i)
             if self.minibatch_size > 0:

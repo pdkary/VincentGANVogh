@@ -1,11 +1,11 @@
 from typing import List
 
-from tensorflow.python.keras.metrics import Metric
+from tensorflow.keras.metrics import Metric
 from models.Discriminator import Discriminator
 from config.GanConfig import DiscConvLayerConfig,DiscDenseLayerConfig
 from layers.CallableConfig import ActivationConfig, NoneCallable, NormalizationConfig, RegularizationConfig
 from tensorflow.keras.optimizers import Optimizer
-from tensorflow.keras.losses import Loss
+from tensorflow.python.keras.losses import Loss
 
 def get_vgg19(input_channels:int,
               conv_activation:ActivationConfig,

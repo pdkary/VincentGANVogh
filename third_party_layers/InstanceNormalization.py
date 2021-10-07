@@ -1,5 +1,5 @@
 from tensorflow.keras.layers import Layer, InputSpec
-from keras import initializers,regularizers,constraints
+from tensorflow.keras import initializers,regularizers,constraints
 import keras.backend as K
 
 class InstanceNormalization(Layer):

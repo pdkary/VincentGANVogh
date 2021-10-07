@@ -132,10 +132,10 @@ gan_training_config = GanTrainingConfig(
 #Trainer
 VGV = GradTapeStyleTrainer(generator,discriminator,gan_training_config)
 VGV.compile()
-#TRAINING
-# ERAS = 100
-# EPOCHS = 5000
-# PRINT_EVERY = 10
-# MOVING_AVERAGE_SIZE = 100
+# TRAINING
+ERAS = 100
+EPOCHS = 5000
+PRINT_EVERY = 10
+MOVING_AVERAGE_SIZE = 100
 
-# VGV.train_n_eras(ERAS,EPOCHS,PRINT_EVERY,MOVING_AVERAGE_SIZE)
+VGV.train_n_eras(ERAS,EPOCHS,PRINT_EVERY,MOVING_AVERAGE_SIZE)

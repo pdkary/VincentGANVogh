@@ -3,7 +3,7 @@ from typing import List
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.keras.models import Model
+from tensorflow.keras.models import Model
 from config.TrainingConfig import GanTrainingConfig
 from inputs.GanInput import RealImageInput
 from models.Discriminator import Discriminator
@@ -54,7 +54,6 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         filename = self.model_name + str(epoch)
         self.generator.save(self.model_output_path + filename)
 
-    @tf.function
     def train(self, epochs, printerval):
         for epoch in tf.range(epochs):
             if self.plot:
@@ -66,6 +65,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
             for i in tf.range(self.disc_batches_per_epoch):
                 source_input = self.D.gan_input.get_validation_batch(self.batch_size)
                 gen_input = self.G.get_validation_batch(self.batch_size)
+                print("gen input: ",[x.shape for x in gen_input])
                 batch_out = self.train_discriminator(source_input, gen_input)
                 batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                 d_loss += batch_loss

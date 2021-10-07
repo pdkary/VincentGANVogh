@@ -32,7 +32,7 @@ class Discriminator():
         # self.internal_input = Input(shape=self.conv_out.shape[-1],dtype=tf.float32)
         # print(self.internal_input)
         
-        self.DM = DenseModel(dense_input=self.conv_out,
+        self.DM = DenseModel(input=self.conv_out,
                                       dense_layers=disc_dense_layers,
                                       activation=activation,
                                       minibatch_size=minibatch_size,
