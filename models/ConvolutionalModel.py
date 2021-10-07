@@ -9,7 +9,7 @@ from layers.CallableConfig import NoneCallable, RegularizationConfig
 from tensorflow.python.keras.layers.convolutional import (Conv2D,
                                                           Conv2DTranspose,
                                                           UpSampling2D)
-from tensorflow.python.keras.layers.core import Dropout
+from tensorflow.python.keras.layers.core import Dropout, Flatten
 from tensorflow.python.keras.layers.noise import GaussianNoise
 from tensorflow.python.keras.layers.pooling import MaxPooling2D
 
@@ -64,6 +64,7 @@ class ConvolutionalModel():
                 if config.track_id != "":
                     self.tracked_layers[name] = [out]
             out = MaxPooling2D()(out) if config.downsampling else out
+        out = Flatten()(out)
         return out
     
     def get_training_batch(self,batch_size):
