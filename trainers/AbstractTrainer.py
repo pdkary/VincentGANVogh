@@ -91,6 +91,6 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         if self.plot:
             from helpers.GanPlotter import GanPlotter
             self.gan_plotter = GanPlotter(moving_average_size=ma_size, labels=self.plot_labels)
-        for i in tf.range(eras):
+        for i in range(eras):
             self.train(epochs, printerval)
             self.save_generator((i+1)*epochs)
