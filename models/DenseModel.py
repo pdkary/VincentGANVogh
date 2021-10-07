@@ -46,3 +46,9 @@ class LatentSpaceModel(DenseModel):
         out = self.activation.get()(out)
         out = Reshape(self.output_shape)(out)
         return out
+
+    def get_training_batch(self,batch_size):
+        return self.input.get_training_batch(batch_size)
+    
+    def get_validation_batch(self,batch_size):
+        return self.input.get_validation_batch(batch_size)
