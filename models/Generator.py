@@ -32,8 +32,6 @@ class Generator():
         self.functional_model = self.CM.build()
         self.tracked_layers = self.CM.tracked_layers
         self.style_model = style_model
-        print("GEN STYLE MODEL: ",self.style_model)
-        print("IS LATENT STYLE?: ",isinstance(self.style_model,LatentStyleModel))
 
     def get_training_batch(self,batch_size):
         b = [self.CM.gan_input.get_training_batch(batch_size)]
