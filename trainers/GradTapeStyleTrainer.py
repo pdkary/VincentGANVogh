@@ -51,7 +51,8 @@ class GradTapeStyleTrainer(AbstractTrainer):
         mean_error = self.style_loss_function(s_mean,content_mean)
         std_error = self.style_loss_function(s_std,content_std)
         return [std_error,mean_error]
-        
+
+    @tf.function    
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
             gen_out = self.generator(gen_input,training=True)
@@ -85,6 +86,7 @@ class GradTapeStyleTrainer(AbstractTrainer):
             self.G.optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
         return out
 
+    @tf.function
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
             gen_out = self.generator(gen_input,training=False)
