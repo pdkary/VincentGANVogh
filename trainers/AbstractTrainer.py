@@ -42,6 +42,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         filename = self.D.gan_input.model_name + str(epoch)
         self.generator.save(self.model_output_path + filename)
 
+    @tf.function
     def train(self, epochs, printerval):
         for epoch in range(epochs):
             if self.plot:
