@@ -1,8 +1,9 @@
-from typing import List, Union
-from tensorflow.keras.layers import Dense, Dropout
+from typing import List, Tuple, Union
+import numpy as np
+from tensorflow.keras.layers import Dense, Dropout, Reshape
 from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 from layers.CallableConfig import ActivationConfig, NoneCallable
-from inputs.GanInput import GanInput
+from inputs.GanInput import GanInput, LatentSpaceInput
 from third_party_layers.MinibatchDiscrimination import MinibatchDiscrimination
 
 class DenseModel():
@@ -29,3 +30,20 @@ class DenseModel():
             model = Dropout(self.dropout_rate,name="dense_dropout_" + name)(model)
             model = self.activation.get()(model)
         return model
+
+class LatentSpaceModel(DenseModel):
+    def __init__(self,
+                 space_input: LatentSpaceInput,
+                 inner_layers: int,
+                 inner_layer_size: int,
+                 output_shape: Tuple[int,int,int],
+                 activation: ActivationConfig):
+        super().__init__(space_input, [inner_layer_size for i in range(inner_layers)], activation)
+        self.output_shape = output_shape
+    
+    def build(self):
+        out = super().build()
+        out = Dense(np.prod(self.output_shape))(out)
+        out = self.activation.get()(out)
+        out = Reshape(self.output_shape)(out)
+        return out

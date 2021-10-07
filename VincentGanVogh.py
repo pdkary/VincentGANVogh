@@ -15,7 +15,7 @@ from layers.CallableConfig import ActivationConfig, NormalizationConfig, Regular
 from models.Discriminator import Discriminator
 from models.Generator import Generator
 from models.NoiseModel import ConstantNoiseModel, LatentNoiseModel
-from models.StyleModel import LatentStyleModel
+from models.DenseModel import LatentSpaceModel
 
 from third_party_layers.InstanceNormalization import InstanceNormalization
 
@@ -68,7 +68,7 @@ image_source = RealImageInput(data_config)
 latent_input = LatentSpaceInput(100)
 constant_input = ConstantInput((2,2,1024))
 
-style_model = LatentStyleModel(latent_input,8,512,dense_lr)
+style_model = LatentSpaceModel(latent_input,8,512,dense_lr)
 
 ## layer shorthands
 

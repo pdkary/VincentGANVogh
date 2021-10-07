@@ -8,14 +8,14 @@ from layers.CallableConfig import NoneCallable, RegularizationConfig
 from tensorflow.keras.layers import (Conv2D, Conv2DTranspose, Dropout, Flatten,
                                      GaussianNoise, MaxPooling2D, UpSampling2D)
 
-from models.StyleModel import LatentStyleModel
+from models.DenseModel import LatentSpaceModel
 
 
 class ConvolutionalModel():
     def __init__(self,
                  gan_input: GanInput,
                  conv_layers: List[ConvLayerConfig],
-                 style_model: LatentStyleModel = None,
+                 style_model: LatentSpaceModel = None,
                  kernel_regularizer:RegularizationConfig = NoneCallable,
                  kernel_initializer:str = "glorot_uniform"):
         self.gan_input = gan_input
