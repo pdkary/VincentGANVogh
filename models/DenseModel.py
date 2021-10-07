@@ -21,10 +21,11 @@ class DenseModel():
 
     def build(self):
         model = self.dense_input
-        for l_size in self.dense_layers:
+        for i,l_size in enumerate(self.dense_layers):
+            name = str(l_size) + "_" + str(i)
             if self.minibatch_size > 0:
                 model = MinibatchDiscrimination(self.minibatch_size,4)(model)
             model = Dense(l_size)(model)
-            model = Dropout(self.dropout_rate,name="dense_dropout_" + str(l_size))(model)
+            model = Dropout(self.dropout_rate,name="dense_dropout_" + name)(model)
             model = self.activation.get()(model)
         return model
