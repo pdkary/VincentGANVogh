@@ -27,8 +27,8 @@ class AbstractTrainer(GanTrainingConfig, ABC):
 
         self.g_metrics = [m() for m in self.metrics]
         self.d_metrics = [m() for m in self.metrics]
-        self.g_metric_labels = ["G_" + str(m.name) for m in self.metrics]
-        self.d_metric_labels = ["D_" + str(m.name) for m in self.metrics]
+        self.g_metric_labels = ["G_" + str(m.name) for m in self.g_metrics]
+        self.d_metric_labels = ["D_" + str(m.name) for m in self.d_metrics]
         self.plot_labels = ["G_Loss","D_Loss",*self.g_metric_labels,*self.d_metric_labels]
         self.model_output_path = self.D.CM.gan_input.data_path + "/models"
         self.model_name = self.D.gan_input.model_name
@@ -55,31 +55,31 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.generator.save(self.model_output_path + filename)
 
     def train(self, epochs, printerval):
-        for epoch in tf.range(epochs):
+        for epoch in range(epochs):
             if self.plot:
                 self.gan_plotter.start_epoch()
 
             d_loss, d_metrics = 0.0, [0.0 for i in self.d_metric_labels]
             g_loss, g_metrics = 0.0, [0.0 for i in self.g_metric_labels]
             
-            for i in tf.range(self.disc_batches_per_epoch):
+            for i in range(self.disc_batches_per_epoch):
                 source_input = self.D.gan_input.get_validation_batch(self.batch_size)
                 gen_input = self.G.get_validation_batch(self.batch_size)
                 batch_out = self.train_discriminator(source_input, gen_input)
                 batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                 d_loss += batch_loss
                 if len(self.d_metrics) > 0:
-                    for i in tf.range(len(self.d_metric_labels)):
+                    for i in range(len(self.d_metric_labels)):
                         d_metrics[i] += batch_metrics[i]
                 
-            for i in tf.range(self.gen_batches_per_epoch):
+            for i in range(self.gen_batches_per_epoch):
                 source_input = self.D.gan_input.get_training_batch(self.batch_size)
                 gen_input = self.G.get_training_batch(self.batch_size)
                 batch_out = self.train_generator(source_input,gen_input)
                 batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                 g_loss += batch_loss
                 if len(self.g_metrics) > 0:
-                    for i in tf.range(len(self.g_metric_labels)):
+                    for i in range(len(self.g_metric_labels)):
                         g_metrics[i] += batch_metrics[i]
 
             if self.plot:
