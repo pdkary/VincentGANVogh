@@ -44,29 +44,29 @@ class AbstractTrainer(GanTrainingConfig, ABC):
 
     @tf.function
     def train(self, epochs, printerval):
-        for epoch in range(epochs):
+        for epoch in tf.range(epochs):
             if self.plot:
                 self.gan_plotter.start_epoch()
 
             d_loss, d_metrics = 0.0, [0.0 for i in self.D.metric_labels]
             g_loss, g_metrics = 0.0, [0.0 for i in self.G.metric_labels]
             
-            for i in range(self.disc_batches_per_epoch):
+            for i in tf.range(self.disc_batches_per_epoch):
                 source_input = self.D.gan_input.get_validation_batch(self.batch_size)
                 gen_input = self.G.get_validation_batch(self.batch_size)
                 batch_out = self.train_discriminator(source_input, gen_input)
                 batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                 d_loss += batch_loss
-                for i in range(len(self.D.metric_labels)):
+                for i in tf.range(len(self.D.metric_labels)):
                     d_metrics[i] += batch_metrics[i]
                 
-            for i in range(self.gen_batches_per_epoch):
+            for i in tf.range(self.gen_batches_per_epoch):
                 source_input = self.D.gan_input.get_training_batch(self.batch_size)
                 gen_input = self.G.get_training_batch(self.batch_size)
                 batch_out = self.train_generator(source_input,gen_input)
                 batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                 g_loss += batch_loss
-                for i in range(len(self.G.metric_labels)):
+                for i in tf.range(len(self.G.metric_labels)):
                     g_metrics[i] += batch_metrics[i]
 
             if self.plot:
@@ -91,6 +91,6 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         if self.plot:
             from helpers.GanPlotter import GanPlotter
             self.gan_plotter = GanPlotter(moving_average_size=ma_size, labels=self.plot_labels)
-        for i in range(eras):
+        for i in tf.range(eras):
             self.train(epochs, printerval)
             self.save_generator((i+1)*epochs)

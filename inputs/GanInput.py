@@ -28,7 +28,7 @@ class ConstantInput(GanInput):
     
     def get_training_batch(self, batch_size):
         gc_batch = np.full((batch_size,*self.input_shape),0.0,dtype=np.float32)
-        for i in range(batch_size):
+        for i in tf.range(batch_size):
             gc_batch[i] = self.constant
         return gc_batch
 
