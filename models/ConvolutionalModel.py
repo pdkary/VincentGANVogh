@@ -30,16 +30,11 @@ class ConvolutionalModel():
         self.tracked_layers = {}
         self.inputs = [gan_input.input,style_model.dense_input] if style_model is not None else [gan_input.input]
 
-    def get_conv(self,config: ConvLayerConfig):
-        if config.transpose:
-            return Conv2DTranspose(config.filters,config.kernel_size,config.strides,
-                                padding='same',kernel_regularizer=self.kernel_regularizer.get(), 
-                                kernel_initializer = self.kernel_initializer, use_bias=False)
-        else:
-            return Conv2D(config.filters,config.kernel_size,
-                        padding='same',kernel_regularizer=self.kernel_regularizer.get(), 
-                        kernel_initializer = self.kernel_initializer, use_bias=False)
-    
+    def get_conv_args(self,filters,kernel_size,strides):
+        return dict(filters=filters,kernel_size=kernel_size,strides=strides,
+                     padding='same',kernel_regularizer=self.kernel_regularizer.get(),
+                     kernel_initializer=self.kernel_initializer, use_bias=False)
+
     def build(self,flatten=False):
         out = self.gan_input.input
 
@@ -50,7 +45,11 @@ class ConvolutionalModel():
             out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
             for i in range(config.convolutions):
                 name = "_".join([config.track_id,str(config.filters),str(i)])
-                out = self.get_conv(config)(out)
+                if config.transpose:
+                    out = Conv2DTranspose(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(out)
+                else:
+                    out = Conv2D(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(out)
+
                 out = Dropout(config.dropout_rate,name="conv_dropout_"+name)(out) if config.dropout_rate > 0 else out
                 out = GaussianNoise(1.0)(out) if config.noise else out
                 
