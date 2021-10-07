@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 from config.GanConfig import ConvLayerConfig
 from inputs.GanInput import GanInput
@@ -13,7 +13,7 @@ from models.DenseModel import LatentSpaceModel
 
 class ConvolutionalModel():
     def __init__(self,
-                 gan_input: GanInput,
+                 gan_input: Union[GanInput,LatentSpaceModel],
                  conv_layers: List[ConvLayerConfig],
                  style_model: LatentSpaceModel = None,
                  kernel_regularizer:RegularizationConfig = NoneCallable,
@@ -24,6 +24,7 @@ class ConvolutionalModel():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.tracked_layers = {}
+        
         self.inputs = [gan_input.input,style_model.inputs] if style_model is not None else [gan_input.input]
 
     def get_conv_args(self,filters,kernel_size,strides):
@@ -32,7 +33,7 @@ class ConvolutionalModel():
                      kernel_initializer=self.kernel_initializer, use_bias=False)
 
     def build(self,flatten=False):
-        out = self.gan_input.input
+        out = self.gan_input.input if isinstance(self.gan_input,GanInput) else self.gan_input.build()
 
         if self.style_model is not None:
             style_out = self.style_model.build()
