@@ -25,6 +25,6 @@ class DenseModel():
             if self.minibatch_size > 0:
                 model = MinibatchDiscrimination(self.minibatch_size,4)(model)
             model = Dense(l_size)(model)
-            model = Dropout(self.dropout_rate)(model)
+            model = Dropout(self.dropout_rate,name="dense_dropout_" + str(l_size))(model)
             model = self.activation.get()(model)
         return model

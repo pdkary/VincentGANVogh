@@ -51,7 +51,7 @@ class ConvolutionalModel():
             for i in range(config.convolutions):
                 name = "_".join([config.track_id,str(config.filters),str(i)])
                 out = self.get_conv(config)(out)
-                out = Dropout(config.dropout_rate)(out)
+                out = Dropout(config.dropout_rate,name="conv_dropout_"+name)(out)
                 out = GaussianNoise(1.0)(out) if config.noise else out
                 
                 if config.style and self.style_model is not None:
