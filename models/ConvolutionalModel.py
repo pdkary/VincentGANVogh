@@ -2,6 +2,7 @@ from typing import List
 
 from config.GanConfig import ConvLayerConfig
 from inputs.GanInput import GanInput
+from layers.AdaptiveAdd import AdaptiveAdd
 from layers.AdaptiveInstanceNormalization import AdaINConfig
 from layers.CallableConfig import NoneCallable, RegularizationConfig
 from tensorflow.keras.layers import (Conv2D, Conv2DTranspose, Dropout, Flatten,
@@ -40,22 +41,24 @@ class ConvolutionalModel():
             out = UpSampling2D(interpolation='bilinear')(out) if config.upsampling else out
             for i in range(config.convolutions):
                 name = "_".join([config.track_id,str(config.filters),str(i)])
+                
                 if config.transpose:
                     out = Conv2DTranspose(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(out)
                 else:
                     out = Conv2D(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(out)
-
                 out = Dropout(config.dropout_rate,name="conv_dropout_"+name)(out) if config.dropout_rate > 0 else out
-                out = GaussianNoise(1.0)(out) if config.noise else out
+                
+                if config.noise:
+                    noise = GaussianNoise(1.0)(out)
+                    out = AdaptiveAdd()([out,noise])
                 
                 if config.style and self.style_model is not None:
                     out,beta,gamma = AdaINConfig().get(style_out,config.filters,name)(out)
-                    self.tracked_layers[name] = [beta,gamma]
                     out = config.activation.get()(out)  
+                    self.tracked_layers[name] = [beta,gamma]
                 else:
                     out = config.normalization.get()(out)
-                    if config.track_id != "":
-                        self.tracked_layers[name] = [out]
+                    self.tracked_layers[name] = [out]
             out = MaxPooling2D()(out) if config.downsampling else out
         
         out = Flatten(name="conv_flatten_" + name)(out) if flatten else out
