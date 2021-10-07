@@ -64,7 +64,7 @@ class ConvolutionalModel():
                 if config.track_id != "":
                     self.tracked_layers[name] = [out]
             out = MaxPooling2D()(out) if config.downsampling else out
-        out = Flatten()(out)
+        out = Flatten(name="conv_flatten_" + name)(out)
         return out
     
     def get_training_batch(self,batch_size):
