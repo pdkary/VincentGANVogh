@@ -53,8 +53,8 @@ class RealImageInput(GanInput,DataConfig):
         self.images = self.data_helper.load_data()
         
         self.num_training_imgs = len(self.images)//2
-        self.training_images = self.images[:self.num_training_imgs]
-        self.validation_images = self.images[self.num_training_imgs:]
+        self.training_images = tf.cast(self.images[:self.num_training_imgs],dtype=tf.float32)
+        self.validation_images = tf.cast(self.images[self.num_training_imgs:],dtype=tf.float32)
         self.training_dataset = tf.data.Dataset.from_tensor_slices(self.training_images)
         self.validation_dataset = tf.data.Dataset.from_tensor_slices(self.validation_images)
         print("DATASET LOADED")
