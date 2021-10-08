@@ -24,8 +24,8 @@ class ConvolutionalModel():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.tracked_layers = {}
-        
-        self.inputs = [gan_input.input,style_model.inputs] if style_model is not None else [gan_input.input]
+        gen_input = gan_input.inputs if isinstance(self.gan_input,LatentSpaceModel) else gan_input.input
+        self.inputs = [gen_input,style_model.inputs] if style_model is not None else [gen_input]
 
     def get_conv_args(self,filters,kernel_size,strides):
         return dict(filters=filters,kernel_size=kernel_size,strides=strides,
