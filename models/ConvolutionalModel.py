@@ -32,6 +32,8 @@ class ConvolutionalModel():
             out = self.conv_block(out,config)
         
         if flatten:
+            print("\n---before flatten")
+            print(out)
             out = Flatten()(out)
         return out
     
