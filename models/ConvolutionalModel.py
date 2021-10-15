@@ -60,9 +60,9 @@ class ConvolutionalModel():
                 out = GaussianNoise(1.0)(out)
             
             if config.style:
-                adain = AdaptiveInstanceNormalization(config.filters,name)
+                adain = AdaptiveInstanceNormalization(config.filters,name)(out)
                 self.tracked_layers[name] = [adain.B,adain.G]
-                out = adain(out)
+                out = adain
             else:                    
                 out = config.normalization.get()(out)
                 out = config.activation.get()(out)
