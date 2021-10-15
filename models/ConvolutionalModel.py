@@ -32,8 +32,6 @@ class ConvolutionalModel():
             out = self.conv_block(out,config)
         
         if flatten:
-            print("\n---before flatten")
-            print(out)
             out = Flatten()(out)
         return out
     
@@ -43,9 +41,6 @@ class ConvolutionalModel():
             out = UpSampling2D(interpolation='bilinear')(out)
         for i in range(config.convolutions):
             name = "_".join([config.track_id,str(config.filters),str(i)])
-            print("\n-----LAYER: " + name)
-            print("\n-----before transpose: ")
-            print(out)
             if config.transpose:
                 out = Conv2DTranspose(filters=config.filters,kernel_size=config.kernel_size,
                                       strides=config.strides,padding='same',
@@ -56,8 +51,6 @@ class ConvolutionalModel():
                              strides=config.strides,padding='same',
                              kernel_regularizer=self.kernel_regularizer.get(),
                              kernel_initializer=self.kernel_initializer, use_bias=False)(out)
-            print("\n-----after transpose: ")
-            print(out)
             
             if config.dropout_rate > 0:
                 out = Dropout(config.dropout_rate,name="conv_dropout_"+name)(out)
