@@ -41,13 +41,15 @@ class ConvolutionalModel():
             out = UpSampling2D(interpolation='bilinear')(out)
         for i in range(config.convolutions):
             name = "_".join([config.track_id,str(config.filters),str(i)])
-            
-            print("before transpose: ")
+            print("\n-----LAYER: " + name)
+            print("\n-----before transpose: ")
             print(out)
             if config.transpose:
                 out = Conv2DTranspose(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(out)
             else:
                 out = Conv2D(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(out)
+            print("\n-----after transpose: ")
+            print(out)
             
             if config.dropout_rate > 0:
                 out = Dropout(config.dropout_rate,name="conv_dropout_"+name)(out)
