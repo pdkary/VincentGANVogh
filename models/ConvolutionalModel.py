@@ -1,3 +1,4 @@
+from re import A
 from typing import List
 from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 
@@ -59,8 +60,9 @@ class ConvolutionalModel():
                 out = GaussianNoise(1.0)(out)
             
             if config.style:
-                out = AdaptiveInstanceNormalization(config.filters,name)(out)
-                self.tracked_layers[name] = [out]
+                adain = AdaptiveInstanceNormalization(config.filters,name)
+                self.tracked_layers[name] = [adain.B,adain.G]
+                out = adain(out)
             else:                    
                 out = config.normalization.get()(out)
                 out = config.activation.get()(out)
