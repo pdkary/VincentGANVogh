@@ -1,5 +1,5 @@
 from typing import List
-from tensorflow.python.keras.engine.keras_tensor import KerasTensor
+from tensorflow.keras.engine.keras_tensor import KerasTensor
 
 from config.GanConfig import ConvLayerConfig, DiscConvLayerConfig
 from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization

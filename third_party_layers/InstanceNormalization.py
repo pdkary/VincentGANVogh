@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import Layer, InputSpec
 from tensorflow.keras import initializers,regularizers,constraints
-import keras.backend as K
+import tensorflow.keras.backend as K
 
 class InstanceNormalization(Layer):
   """Instance normalization layer.

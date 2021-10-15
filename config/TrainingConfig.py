@@ -1,6 +1,6 @@
 from typing import Callable, Tuple, List
 from tensorflow.keras.optimizers import Optimizer
-from tensorflow.python.keras.losses import Loss
+from tensorflow.keras.losses import Loss
 from tensorflow.keras.metrics import Metric
 
 class DataConfig():

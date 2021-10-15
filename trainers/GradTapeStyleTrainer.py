@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
-from tensorflow.python.keras.layers import Input
+from tensorflow.keras.layers import Input
 from config.TrainingConfig import GanTrainingConfig
 from models.Discriminator import Discriminator
 from models.Generator import Generator

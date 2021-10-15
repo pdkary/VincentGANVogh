@@ -2,7 +2,7 @@ from tensorflow.keras.layers import Layer, InputSpec
 from tensorflow.keras import initializers
 from tensorflow.keras import regularizers
 from tensorflow.keras import constraints
-import keras.backend as K
+import tensorflow.keras.backend as K
 
 class MinibatchDiscrimination(Layer):
     def __init__(self, nb_kernels, kernel_dim, init='glorot_uniform', weights=None,
