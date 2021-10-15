@@ -21,7 +21,9 @@ class GradTapeStyleTrainer(AbstractTrainer):
         super().__init__(generator, discriminator, gan_training_config)
 
     def compile(self):
+        print("\n\n--Generator" + "-"*30)
         GI,GO = self.G.input,self.G.build()
+        print("\n\n--Discriminator" + "-"*30)
         DI,DO = self.D.input,self.D.build()
         
         self.matched_keys = [g for g in self.G.tracked_layers.keys() if g in self.D.tracked_layers]

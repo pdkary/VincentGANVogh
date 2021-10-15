@@ -42,6 +42,8 @@ class ConvolutionalModel():
         for i in range(config.convolutions):
             name = "_".join([config.track_id,str(config.filters),str(i)])
             
+            print("before transpose: ")
+            print(out)
             if config.transpose:
                 out = Conv2DTranspose(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(out)
             else:
