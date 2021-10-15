@@ -3,6 +3,7 @@ from typing import List
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
+from tensorflow.python.keras.layers import Input
 from config.TrainingConfig import GanTrainingConfig
 from models.Discriminator import Discriminator
 from models.Generator import Generator
@@ -18,30 +19,37 @@ class GradTapeStyleTrainer(AbstractTrainer):
                  discriminator: Discriminator,
                  gan_training_config: GanTrainingConfig):
         super().__init__(generator, discriminator, gan_training_config)
-    
-    def compile(self):
-        self.matched_keys = [g for g in self.G.tracked_layers.keys() if g in self.D.tracked_layers]
 
+    def compile(self):
+        GI,GO = self.G.input,self.G.build()
+        DI,DO = self.D.input,self.D.build()
+        
+        self.matched_keys = [g for g in self.G.tracked_layers.keys() if g in self.D.tracked_layers]
         self.gen_deep_layers = flatten([self.G.tracked_layers[i] for i in self.matched_keys])
         self.disc_deep_layers = flatten([self.D.tracked_layers[i] for i in self.matched_keys])
         
-        self.generator = Model(inputs=self.G.CM.inputs,outputs=[self.G.functional_model,*self.gen_deep_layers])
-        self.discriminator = Model(inputs=self.D.CM.inputs,outputs=[self.D.functional_model,*self.disc_deep_layers])
+        self.generator = Model(inputs=GI,outputs=[GO,*self.gen_deep_layers])
+        self.discriminator = Model(inputs=DI,outputs=[DO,*self.disc_deep_layers])
+
+        self.generator.compile(optimizer=self.gen_optimizer,
+                               loss=self.gen_loss_function,
+                               metrics=self.g_metrics)
+        self.discriminator.compile(optimizer=self.disc_optimizer,
+                                   loss=self.disc_loss_function,
+                                   metrics=self.d_metrics)
         self.generator.summary()
         self.discriminator.summary()
 
         print("MATCHED LAYERS: ")
         print(self.matched_keys)            
-
         self.nil_disc_style_loss = tf.constant([0.0 for i in self.disc_deep_layers],dtype=tf.float32)
-
         self.g_metric_labels = ["G_Style_loss"] + self.g_metric_labels
         self.plot_labels = ["G_Loss","D_Loss",*self.g_metric_labels,*self.d_metric_labels]
     
     def save(self,epoch):
         preview_seed = self.G.get_validation_batch(self.preview_size)
         generated_images = np.array(self.generator.predict(preview_seed)[0])
-        self.D.CM.gan_input.save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
+        self.D.gan_input.save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
         
     def get_deep_style_loss(self,content_std,content_mean,style_src):
         src_2_dest = list(zip(content_std,content_mean,style_src))

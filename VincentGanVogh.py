@@ -1,7 +1,6 @@
 from tensorflow.keras.layers import Activation, BatchNormalization, LeakyReLU
 from tensorflow.python.keras.losses import BinaryCrossentropy, MeanSquaredError, losses_utils
 from tensorflow.keras.metrics import Accuracy, Mean
-from tensorflow.keras.layers import Activation, BatchNormalization, LeakyReLU
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.regularizers import L2
 
@@ -14,8 +13,6 @@ from layers.CallableConfig import ActivationConfig, NormalizationConfig, Regular
 
 from models.Discriminator import Discriminator
 from models.Generator import Generator
-from models.NoiseModel import ConstantNoiseModel, LatentNoiseModel
-from models.DenseModel import LatentSpaceModel
 
 from third_party_layers.InstanceNormalization import InstanceNormalization
 
@@ -64,11 +61,8 @@ image_source = RealImageInput(data_config)
 # noise_model = None
 # input_model = GenLatentSpaceInput(100,(2,2,1024),1024,2,dense_lr)
 
-
 latent_input = LatentSpaceInput(100)
 constant_input = ConstantInput((2,2,1024))
-
-style_model = LatentSpaceModel(latent_input,8,512,dense_lr)
 
 ## layer shorthands
 
@@ -99,14 +93,13 @@ generator = Generator(
                   mgl_u(128,2,"5"),
                   mgl_u(64,2,"6"),
                   g_out],
-    style_model = style_model,
 )
     
 #Discriminator Model
 discriminator = Discriminator(
     real_image_input = image_source,
-    disc_conv_layers = [dcl(64,2,"6"),dcl(128,2,"5"),dcl(256,2,"4"),dcl(512,2,"3"),dcl(512,2,"2"),dcl(512,2,"1"),dcl(512,2,"0")],
-    disc_dense_layers = [4096,4096,1000,1],
+    conv_layers = [dcl(64,2,"6"),dcl(128,2,"5"),dcl(256,2,"4"),dcl(512,2,"3"),dcl(512,2,"2"),dcl(512,2,"1"),dcl(512,2,"0")],
+    dense_layers = [4096,4096,1000,1],
     minibatch_size = 8,
     dropout_rate = 0.1,
     activation = sigmoid
@@ -132,10 +125,10 @@ gan_training_config = GanTrainingConfig(
 #Trainer
 VGV = GradTapeStyleTrainer(generator,discriminator,gan_training_config)
 VGV.compile()
-# TRAINING
-ERAS = 100
-EPOCHS = 5000
-PRINT_EVERY = 10
-MOVING_AVERAGE_SIZE = 100
+# # TRAINING
+# ERAS = 100
+# EPOCHS = 5000
+# PRINT_EVERY = 10
+# MOVING_AVERAGE_SIZE = 100
 
-VGV.train_n_eras(ERAS,EPOCHS,PRINT_EVERY,MOVING_AVERAGE_SIZE)
+# VGV.train_n_eras(ERAS,EPOCHS,PRINT_EVERY,MOVING_AVERAGE_SIZE)

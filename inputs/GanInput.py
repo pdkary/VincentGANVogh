@@ -4,22 +4,26 @@ from typing import Tuple
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.data import Dataset
-from tensorflow.keras.layers import Input
+from tensorflow.python.keras.layers import Input
 from config.TrainingConfig import DataConfig
 from helpers.DataHelper import DataHelper
 
 class GanInput(ABC):
     def __init__(self,input_shape: Tuple[int,int,int],name="input"):
         self.input_shape = input_shape
-        self.input: Input = Input(shape=input_shape,name=name)
+        self.input_layer: Input = Input(shape=input_shape,name=name)
+        self.model_name = name
+        self.data_path = None
     
     @abstractmethod    
     def get_training_batch(self,batch_size):
         pass
 
-    @abstractmethod    
     def get_validation_batch(self,batch_size):
         return self.get_training_batch(batch_size)
+    
+    def save(self):
+        pass
 
 class ConstantInput(GanInput):
     def __init__(self, input_shape: Tuple[int,int,int]):
@@ -31,9 +35,6 @@ class ConstantInput(GanInput):
         for i in range(batch_size):
             gc_batch[i] = self.constant
         return gc_batch
-
-    def get_validation_batch(self,batch_size):
-        return self.get_training_batch(batch_size)
     
 class LatentSpaceInput(GanInput):
     def __init__(self, input_shape:Tuple,name="latent_space_input"):
@@ -41,9 +42,6 @@ class LatentSpaceInput(GanInput):
     
     def get_training_batch(self, batch_size):
         return tf.random.normal(shape=(batch_size,*self.input_shape))
-    
-    def get_validation_batch(self,batch_size):
-        return self.get_training_batch(batch_size)
     
 class RealImageInput(GanInput,DataConfig):
     def __init__(self,data_config: DataConfig):

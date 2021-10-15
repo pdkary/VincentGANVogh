@@ -14,30 +14,41 @@ from models.DenseModel import DenseModel
 class Discriminator():
     def __init__(self,
                  real_image_input: GanInput,
-                 disc_conv_layers: List[DiscConvLayerConfig],
-                 disc_dense_layers: List[int],
+                 conv_layers: List[DiscConvLayerConfig],
+                 dense_layers: List[int],
                  minibatch_size: int = 0,
                  dropout_rate: float = 0.0,
                  activation: ActivationConfig = NoneCallable,
                  kernel_regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_uniform"):
-        self.gan_input = real_image_input
+        self.gan_input: GanInput = real_image_input
+        self.input = real_image_input.input_layer
+        self.conv_layers = conv_layers
+        self.dense_layers = dense_layers
+        self.minibatch_size = minibatch_size
+        self.dropout_rate = dropout_rate
+        self.activation = activation
+        self.kernel_regularizer = kernel_regularizer
+        self.kernel_initializer = kernel_initializer
+    
+    def build(self):
+        CM = ConvolutionalModel(self.input,self.conv_layers,
+                                self.kernel_regularizer,
+                                self.kernel_initializer)
+
+        self.conv_out = CM.build(flatten=True)
         
-        self.CM = ConvolutionalModel(gan_input=real_image_input,
-                                             conv_layers=disc_conv_layers,
-                                             kernel_regularizer=kernel_regularizer,
-                                             kernel_initializer=kernel_initializer)
+        DM = DenseModel(self.conv_out,self.dense_layers,
+                        self.activation,self.minibatch_size,
+                        self.dropout_rate)
+        self.dense_out = DM.build()
+        self.tracked_layers = CM.tracked_layers
+        return self.dense_out
 
-        self.conv_out = self.CM.build(flatten=True)
-        # self.internal_input = Input(shape=self.conv_out.shape[-1],dtype=tf.float32)
-        # print(self.internal_input)
-        
-        self.DM = DenseModel(input=self.conv_out,
-                                      dense_layers=disc_dense_layers,
-                                      activation=activation,
-                                      minibatch_size=minibatch_size,
-                                      dropout_rate=dropout_rate)
+    def get_training_batch(self,batch_size):
+        b = [self.gan_input.get_training_batch(batch_size)]
+        return b
 
-        self.functional_model = self.DM.build()
-        self.tracked_layers = self.CM.tracked_layers
-
+    def get_validation_batch(self,batch_size):
+        b = [self.gan_input.get_validation_batch(batch_size)]
+        return b

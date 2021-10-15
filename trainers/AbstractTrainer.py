@@ -1,14 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import List
 
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import Model
 from config.TrainingConfig import GanTrainingConfig
-from inputs.GanInput import RealImageInput
 from models.Discriminator import Discriminator
 from models.Generator import Generator
-
+from tensorflow.keras.models import Model
 
 class AbstractTrainer(GanTrainingConfig, ABC):
     def __init__(self,
@@ -20,7 +16,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.D: Discriminator = discriminator
 
         self.preview_size = self.preview_cols*self.preview_rows
-        label_shape = (self.batch_size, self.D.DM.dense_layers[-1])
+        label_shape = (self.batch_size, self.D.dense_layers[-1])
         self.real_label = np.full(label_shape,self.disc_labels[0])
         self.fake_label = np.full(label_shape,self.disc_labels[1])
         self.gen_label = np.full(label_shape, self.gen_label)
@@ -30,16 +26,22 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.g_metric_labels = ["G_" + str(m.name) for m in self.g_metrics]
         self.d_metric_labels = ["D_" + str(m.name) for m in self.d_metrics]
         self.plot_labels = ["G_Loss","D_Loss",*self.g_metric_labels,*self.d_metric_labels]
-        self.model_output_path = self.D.CM.gan_input.data_path + "/models"
+        self.model_output_path = self.D.gan_input.data_path + "/models"
         self.model_name = self.D.gan_input.model_name
-
+    
     def compile(self):
-        self.generator = Model(inputs=self.G.CM.inputs,outputs=self.G.functional_model,name="Generator")
-        self.generator.compile(optimizer=self.gen_optimizer,loss=self.gen_loss_function,metrics=self.g_metrics)
+        GI,GO = self.G.input,self.G.build()
+        DI,DO = self.D.input,self.D.build()
+        self.generator = Model(inputs=GI,outputs=GO)
+        self.generator.compile(optimizer=self.gen_optimizer,
+                               loss=self.gen_loss_function,
+                               metrics=self.g_metrics)
         self.generator.summary()
         
-        self.discriminator = Model(inputs=self.D.CM.inputs,outputs=self.D.functional_model,name="Discriminator")
-        self.discriminator.compile(optimizer=self.disc_optimizer,loss=self.disc_loss_function,metrics=self.d_metrics)
+        self.discriminator = Model(inputs=DI,outputs=DO)
+        self.discriminator.compile(optimizer=self.disc_optimizer,
+                                   loss=self.disc_loss_function,
+                                   metrics=self.d_metrics)
         self.discriminator.summary()
     
     @abstractmethod
@@ -95,11 +97,6 @@ class AbstractTrainer(GanTrainingConfig, ABC):
             if epoch >= 10 and self.plot:
                 self.gan_plotter.log_epoch()
 
-    def save(self,epoch):
-        preview_seed = self.G.get_validation_batch(self.preview_size)
-        generated_images = np.array(self.generator.predict(preview_seed))
-        self.D.gan_input.save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
-    
     def train_n_eras(self, eras, epochs, printerval, ma_size):
         if self.plot:
             from helpers.GanPlotter import GanPlotter
