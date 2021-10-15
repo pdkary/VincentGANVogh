@@ -45,9 +45,15 @@ class ConvolutionalModel():
             print("\n-----before transpose: ")
             print(out)
             if config.transpose:
-                out = Conv2DTranspose(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(out)
+                out = Conv2DTranspose(filters=config.filters,kernel_size=config.kernel_size,
+                                      strides=config.strides,padding='same',
+                                      kernel_regularizer=self.kernel_regularizer.get(),
+                                      kernel_initializer=self.kernel_initializer, use_bias=False)(out)
             else:
-                out = Conv2D(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(out)
+                out = Conv2D(filters=config.filters,kernel_size=config.kernel_size,
+                             strides=config.strides,padding='same',
+                             kernel_regularizer=self.kernel_regularizer.get(),
+                             kernel_initializer=self.kernel_initializer, use_bias=False)(out)
             print("\n-----after transpose: ")
             print(out)
             
