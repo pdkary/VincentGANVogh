@@ -27,40 +27,39 @@ class ConvolutionalModel():
 
     def build(self,flatten=False):
         #configure input
-        self.model = self.input
+        out = self.input
         for config in self.conv_layers:
-            if config.upsampling:
-                self.model = UpSampling2D(interpolation='bilinear')(self.model)
-            
-            self.conv_block(config)
-            
-            if config.downsampling:
-                self.model = MaxPooling2D()(self.model)
+            out = self.conv_block(out,config)
+        
         if flatten:
-            self.model = Flatten()(self.model)
-        return self.model
+            out = Flatten()(out)
+        return out
     
-    def conv_block(self,config:DiscConvLayerConfig):
+    def conv_block(self,input_tensor: KerasTensor,config:DiscConvLayerConfig):
+        out = input_tensor
+        if config.upsampling:
+            out = UpSampling2D(interpolation='bilinear')(out)
         for i in range(config.convolutions):
             name = "_".join([config.track_id,str(config.filters),str(i)])
             
             if config.transpose:
-                self.model = Conv2DTranspose(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(self.model)
+                out = Conv2DTranspose(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(out)
             else:
-                self.model = Conv2D(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(self.model)
+                out = Conv2D(**self.get_conv_args(config.filters,config.kernel_size,config.strides))(out)
             
             if config.dropout_rate > 0:
-                self.model = Dropout(config.dropout_rate,name="conv_dropout_"+name)(self.model)
+                out = Dropout(config.dropout_rate,name="conv_dropout_"+name)(out)
             
             if config.noise:
-                self.model = GaussianNoise(1.0)(self.model)
+                out = GaussianNoise(1.0)(out)
             
             if config.style:
-                adain = AdaptiveInstanceNormalization(config.filters,name)(self.model)
-                self.model = adain
-                self.tracked_layers[name] = [adain]
+                out = AdaptiveInstanceNormalization(config.filters,name)(out)
+                self.tracked_layers[name] = [out]
             else:                    
-                self.model = config.normalization.get()(self.model)
-                act = config.activation.get()(self.model)
-                self.model = act 
-                self.tracked_layers[name] = [act]
+                out = config.normalization.get()(out)
+                out = config.activation.get()(out)
+                self.tracked_layers[name] = [out]
+        if config.downsampling:
+            out = MaxPooling2D()(out)
+        return out

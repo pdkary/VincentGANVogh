@@ -5,19 +5,23 @@ import tensorflow as tf
 class AdaptiveInstanceNormalization(Layer):
     def __init__(self,size,name,**kwargs):
         super(AdaptiveInstanceNormalization, self).__init__(**kwargs)
+        self.size=size
+        self.layer_name=name
+    
+    def build(self,input_shape):
         self.B = self.add_weight(
-            shape=size,
+            shape=input_shape[-1],
             dtype=tf.float32,
             initializer='ones',
             trainable=True,
-            name=name + "_beta"
+            name=self.layer_name + "_beta"
         )
         self.G = self.add_weight(
-            shape=size,
+            shape=input_shape[-1],
             dtype=tf.float32,
             initializer='zeros',
             trainable=True,
-            name=name + "_gamma"
+            name=self.layer_name + "_gamma"
         )
         
     def call(self, input_tensor):

@@ -18,17 +18,19 @@ class DenseModel():
         self.dropout_rate = dropout_rate
 
     def build(self):
-        self.model = self.input_layer
+        out = self.input_layer
         for i,l_size in enumerate(self.dense_layers):
-            self.dense_block(i,l_size)
-        return self.model
+            out = self.dense_block(out,i,l_size)
+        return out
 
-    def dense_block(self,i:int,size:int):
+    def dense_block(self,input_tensor: KerasTensor,i:int,size:int):
         name = str(size) + "_" + str(i)
+        out = input_tensor
         if self.minibatch_size > 0:
-            self.model = MinibatchDiscrimination(self.minibatch_size,4)(self.model)
-        self.model = Dense(size)(self.model)
+            out = MinibatchDiscrimination(self.minibatch_size,4)(out)
+        out = Dense(size)(out)
         if self.dropout_rate > 0:
-            self.model = Dropout(self.dropout_rate,name="dense_dropout_"+name)(self.model)
-        self.model = self.activation.get()(self.model)
+            out = Dropout(self.dropout_rate,name="dense_dropout_"+name)(out)
+        out = self.activation.get()(out)
+        return out
         
