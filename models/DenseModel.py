@@ -1,6 +1,6 @@
 from typing import List
 from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.engine.keras_tensor import KerasTensor
+from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 from layers.CallableConfig import ActivationConfig, NoneCallable
 from third_party_layers.MinibatchDiscrimination import MinibatchDiscrimination
 
