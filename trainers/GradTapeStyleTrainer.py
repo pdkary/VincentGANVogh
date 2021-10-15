@@ -55,25 +55,26 @@ class GradTapeStyleTrainer(AbstractTrainer):
         generated_images = np.array(self.generator.predict(preview_seed)[0])
         self.D.gan_input.save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
         
-    def get_deep_style_loss(self,content_std,content_mean,style_src):
-        src_2_dest = list(zip(content_std,content_mean,style_src))
-        unflat_result = [self.get_style_loss(si,mu,s) for si,mu,s in src_2_dest]
-        return [x for y in unflat_result for x in y]
+    def get_deep_style_loss(self,content_src,style_src):
+        src_2_dest = list(zip(content_src,style_src))
+        return [self.get_style_loss(c,s) for c,s in src_2_dest]
     
-    def get_style_loss(self,content_std,content_mean,style_img):
+    def get_style_loss(self,content_img,style_img):
+        c_mean = K.mean(content_img,[1,2],keepdims=True)
+        c_std = K.std(content_img,[1,2],keepdims=True)
         s_mean = K.mean(style_img,[1,2],keepdims=True)
         s_std = K.std(style_img,[1,2],keepdims=True)
-        mean_error = self.style_loss_function(s_mean,content_mean)
-        std_error = self.style_loss_function(s_std,content_std)
-        return [std_error,mean_error]
+        mean_error = self.style_loss_function(c_mean,s_mean)
+        std_error = self.style_loss_function(c_std,s_std)
+        return std_error + mean_error
 
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
             gen_out = self.generator(gen_input,training=True)
             if len(self.matched_keys) > 0:
-                gen_images,gen_deep_std_layers,gen_deep_mean_layers = gen_out[0],gen_out[1::2],gen_out[2::2]
+                gen_images,gen_deep_layers = gen_out[0],gen_out[1:]
             else: 
-                gen_images,gen_deep_std_layers,gen_deep_mean_layers = gen_out,None,None
+                gen_images,gen_deep_layers = gen_out,None
 
             disc_out = self.discriminator(gen_images, training=False)
             
@@ -83,7 +84,7 @@ class GradTapeStyleTrainer(AbstractTrainer):
                 disc_results,disc_deep_layers = disc_out,None
             
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
-            deep_style_losses = self.get_deep_style_loss(gen_deep_std_layers,gen_deep_mean_layers,disc_deep_layers) if len(self.matched_keys) > 0 else [] 
+            deep_style_losses = self.get_deep_style_loss(gen_deep_layers,disc_deep_layers) if len(self.matched_keys) > 0 else [] 
             
             total_loss = content_loss + self.style_loss_coeff*np.sum(deep_style_losses)
             g_loss = [total_loss,*deep_style_losses]
