@@ -25,8 +25,9 @@ class AdaptiveInstanceNormalization(Layer):
         )
         
     def call(self, input_tensor):
-        beta = K.reshape(self.B,(-1,1,1,input_tensor.shape[-1]))
-        gamma = K.reshape(self.G,(-1,1,1,input_tensor.shape[-1]))
+        i_shape = input_tensor.shape[-1]
+        beta = K.reshape(self.B,(-1,1,1,i_shape))
+        gamma = K.reshape(self.G,(-1,1,1,i_shape))
         mean = K.mean(input_tensor, axis = [1,2], keepdims = True)
         std = K.std(input_tensor, axis = [1,2], keepdims = True) + 1e-7
         normed = (input_tensor - mean)/std

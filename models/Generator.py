@@ -1,27 +1,37 @@
-from typing import List
+from typing import List, Tuple
 
 from config.GanConfig import GenLayerConfig
 from inputs.GanInput import GanInput
-from layers.CallableConfig import NoneCallable, RegularizationConfig
+from layers.CallableConfig import ActivationConfig, NoneCallable, RegularizationConfig
 
 from models.ConvolutionalModel import ConvolutionalModel
+from models.DenseModel import DenseModel
 
 
 class Generator():
     def __init__(self,
                  gan_input: GanInput,
-                 gen_layers: List[GenLayerConfig],
+                 dense_layers: List[int],
+                 conv_input_shape: Tuple[int],
+                 conv_layers: List[GenLayerConfig],
+                 dense_activation: ActivationConfig = NoneCallable,
                  kernel_regularizer:RegularizationConfig = NoneCallable,
                  kernel_initializer:str = "glorot_uniform"):
         self.gan_input = gan_input
-        self.input = gan_input.input_layer
-        self.gen_layers = gen_layers
+        self.dense_layers = dense_layers
+        self.conv_input_shape = conv_input_shape
+        self.conv_layers = conv_layers
+        self.dense_activation = dense_activation
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
+
+        self.input = gan_input.input_layer
         self.tracked_layers = {}
 
     def build(self):
-        CM = ConvolutionalModel(self.input,self.gen_layers,
+        DM = DenseModel(self.input,self.dense_layers,self.dense_activation)
+        DM_out = DM.build()
+        CM = ConvolutionalModel(DM_out,self.conv_layers,
                                 self.kernel_regularizer,
                                 self.kernel_initializer)
         self.model = CM.build()
