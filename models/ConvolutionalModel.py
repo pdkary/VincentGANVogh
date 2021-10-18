@@ -13,25 +13,22 @@ class ConvolutionalModel():
     def __init__(self,
                  input: KerasTensor,
                  conv_layers: List[ConvLayerConfig],
+                 style_input: KerasTensor = None,
                  kernel_regularizer:RegularizationConfig = NoneCallable,
                  kernel_initializer:str = "glorot_uniform"):
         self.input = input
+        self.style_input = style_input
         self.conv_layers = conv_layers
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.tracked_layers = {}
 
-    def get_conv_args(self,filters,kernel_size,strides):
-        return dict(filters=filters,kernel_size=kernel_size,strides=strides,
-                     padding='same',kernel_regularizer=self.kernel_regularizer.get(),
-                     kernel_initializer=self.kernel_initializer, use_bias=False)
-
     def build(self,flatten=False):
         #configure input
         out = self.input
+        print("building conv model")
         for config in self.conv_layers:
             out = self.conv_block(out,config)
-        
         if flatten:
             out = Flatten()(out)
         return out
@@ -59,9 +56,10 @@ class ConvolutionalModel():
             if config.noise:
                 out = GaussianNoise(1.0)(out)
             
-            if config.style:
-                out,B,G = AdaptiveInstanceNormalization(config.filters,name)(out)
+            if config.style and self.style_input is not None:
+                out,B,G = AdaptiveInstanceNormalization(config.filters,name)([out,self.style_input])
                 self.tracked_layers[name] = [B,G]
+                out = config.activation.get()(out)
             else:                    
                 out = config.normalization.get()(out)
                 out = config.activation.get()(out)

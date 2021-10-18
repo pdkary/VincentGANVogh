@@ -84,21 +84,29 @@ ddl = lambda s : DiscDenseLayerConfig(s,dense_lr,0.4)
 
 #Generator model
 generator = Generator(
-    gan_input = constant_input,
-    gen_layers = [mgl_un(512,2,"0"),
-                  mgl_un(512,2,"1"),
-                  mgl_un(512,2,"2"),
-                  mgl_un(512,2,"3"),
+    gan_input = latent_input,
+    dense_layers=[1000,4096],
+    conv_input_shape=(4,4,512),
+    conv_layers = [mgl_u(512,2,"1"),
+                  mgl_u(512,2,"2"),
+                  mgl_u(512,2,"3"),
                   mgl_u(256,2,"4"),
                   mgl_u(128,2,"5"),
                   mgl_u(64,2,"6"),
                   g_out],
+    style_layers=[100,100,100,100],
+    dense_activation=sigmoid
 )
     
 #Discriminator Model
 discriminator = Discriminator(
     real_image_input = image_source,
-    conv_layers = [dcl(64,2,"6"),dcl(128,2,"5"),dcl(256,2,"4"),dcl(512,2,"3"),dcl(512,2,"2"),dcl(512,2,"1"),dcl(512,2,"0")],
+    conv_layers = [dcl(64,2,"6"),
+                   dcl(128,2,"5"),
+                   dcl(256,2,"4"),
+                   dcl(512,2,"3"),
+                   dcl(512,2,"2"),
+                   dcl(512,2,"1")],
     dense_layers = [4096,4096,1000,1],
     minibatch_size = 8,
     dropout_rate = 0.1,

@@ -1,19 +1,21 @@
 from typing import List, Tuple
 
+from tensorflow.keras.layers import Dense, Reshape
 from config.GanConfig import GenLayerConfig
-from inputs.GanInput import GanInput
+from inputs.GanInput import GanInput, LatentSpaceInput
 from layers.CallableConfig import ActivationConfig, NoneCallable, RegularizationConfig
 
 from models.ConvolutionalModel import ConvolutionalModel
 from models.DenseModel import DenseModel
-
+import numpy as np
 
 class Generator():
     def __init__(self,
-                 gan_input: GanInput,
+                 gan_input: LatentSpaceInput,
                  dense_layers: List[int],
                  conv_input_shape: Tuple[int],
                  conv_layers: List[GenLayerConfig],
+                 style_layers: List[int] = [],
                  dense_activation: ActivationConfig = NoneCallable,
                  kernel_regularizer:RegularizationConfig = NoneCallable,
                  kernel_initializer:str = "glorot_uniform"):
@@ -21,6 +23,7 @@ class Generator():
         self.dense_layers = dense_layers
         self.conv_input_shape = conv_input_shape
         self.conv_layers = conv_layers
+        self.style_layers = style_layers
         self.dense_activation = dense_activation
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
@@ -30,8 +33,13 @@ class Generator():
 
     def build(self):
         DM = DenseModel(self.input,self.dense_layers,self.dense_activation)
-        DM_out = DM.build()
-        CM = ConvolutionalModel(DM_out,self.conv_layers,
+        DM_og = DM.build()
+        DM_out = Dense(np.prod(self.conv_input_shape))(DM_og)
+        DM_out = Reshape(self.conv_input_shape)(DM_out)
+        
+        SM = DenseModel(self.input,self.style_layers,self.dense_activation)
+        SM_out = SM.build()
+        CM = ConvolutionalModel(DM_out,self.conv_layers,SM_out,
                                 self.kernel_regularizer,
                                 self.kernel_initializer)
         self.model = CM.build()

@@ -32,7 +32,9 @@ class Discriminator():
         self.kernel_initializer = kernel_initializer
     
     def build(self):
-        CM = ConvolutionalModel(self.input,self.conv_layers,
+        CM = ConvolutionalModel(self.input,
+                                self.conv_layers,
+                                None,
                                 self.kernel_regularizer,
                                 self.kernel_initializer)
 
