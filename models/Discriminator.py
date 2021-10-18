@@ -18,7 +18,8 @@ class Discriminator():
                  dense_layers: List[int],
                  minibatch_size: int = 0,
                  dropout_rate: float = 0.0,
-                 activation: ActivationConfig = NoneCallable,
+                 dense_activation: ActivationConfig = NoneCallable,
+                 final_actication: ActivationConfig = NoneCallable,
                  kernel_regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_uniform"):
         self.gan_input: GanInput = real_image_input
@@ -27,7 +28,8 @@ class Discriminator():
         self.dense_layers = dense_layers
         self.minibatch_size = minibatch_size
         self.dropout_rate = dropout_rate
-        self.activation = activation
+        self.dense_activation = dense_activation
+        self.final_actication = final_actication
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
     
@@ -41,9 +43,10 @@ class Discriminator():
         self.conv_out = CM.build(flatten=True)
         
         DM = DenseModel(self.conv_out,self.dense_layers,
-                        self.activation,self.minibatch_size,
+                        self.dense_activation,self.minibatch_size,
                         self.dropout_rate)
-        self.dense_out = DM.build()
+        DM_out = DM.build()
+        self.dense_out = self.final_actication.get()(DM_out)
         self.tracked_layers = CM.tracked_layers
         return self.dense_out
 
