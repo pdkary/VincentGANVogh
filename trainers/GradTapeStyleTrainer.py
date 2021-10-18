@@ -71,9 +71,9 @@ class GradTapeStyleTrainer(AbstractTrainer):
         with tf.GradientTape() as gen_tape:
             gen_out = self.generator(gen_input,training=True)
             if len(self.matched_keys) > 0:
-                gen_images,gen_deep_std_layers,gen_deep_mean_layers = gen_out[0],gen_out[1::2],gen_out[2::2]
+                gen_images,gen_deep_mean_layers,gen_deep_std_layers = gen_out[0],gen_out[1::2],gen_out[2::2]
             else: 
-                gen_images,gen_deep_std_layers,gen_deep_mean_layers = gen_out,None,None
+                gen_images,gen_deep_mean_layers,gen_deep_std_layers = gen_out,None,None
 
             disc_out = self.discriminator(gen_images, training=False)
             
