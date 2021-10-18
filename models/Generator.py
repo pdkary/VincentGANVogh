@@ -30,11 +30,11 @@ class Generator():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
 
-        self.input = gan_input.input_layer
+        self.input = [gan_input.input_layer] if self.style_input is None else [gan_input.input_layer,style_input.input_layer]
         self.tracked_layers = {}
 
     def build(self):
-        DM = DenseModel(self.input,self.dense_layers,self.dense_activation)
+        DM = DenseModel(self.gan_input.input_layer,self.dense_layers,self.dense_activation)
         DM_og = DM.build()
         DM_out = Dense(np.prod(self.conv_input_shape))(DM_og)
         DM_out = Reshape(self.conv_input_shape)(DM_out)
