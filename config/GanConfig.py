@@ -49,7 +49,7 @@ class DiscConvLayerConfig(ConvLayerConfig):
                  convolutions: int,
                  kernel_size: int,
                  activation: ActivationConfig,
-                 dropout_rate: float = 0.5,
+                 dropout_rate: float = 0.0,
                  downsampling: bool = True,
                  normalization: NormalizationConfig = NoneCallable,
                  regularizer: RegularizationConfig = NoneCallable,
