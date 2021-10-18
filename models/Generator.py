@@ -11,10 +11,11 @@ import numpy as np
 
 class Generator():
     def __init__(self,
-                 gan_input: LatentSpaceInput,
+                 gan_input: GanInput,
                  dense_layers: List[int],
                  conv_input_shape: Tuple[int],
                  conv_layers: List[GenLayerConfig],
+                 style_input: GanInput = None,
                  style_layers: List[int] = [],
                  dense_activation: ActivationConfig = NoneCallable,
                  kernel_regularizer:RegularizationConfig = NoneCallable,
@@ -23,6 +24,7 @@ class Generator():
         self.dense_layers = dense_layers
         self.conv_input_shape = conv_input_shape
         self.conv_layers = conv_layers
+        self.style_input = style_input
         self.style_layers = style_layers
         self.dense_activation = dense_activation
         self.kernel_regularizer = kernel_regularizer
@@ -37,7 +39,7 @@ class Generator():
         DM_out = Dense(np.prod(self.conv_input_shape))(DM_og)
         DM_out = Reshape(self.conv_input_shape)(DM_out)
         
-        SM = DenseModel(self.input,self.style_layers,self.dense_activation)
+        SM = DenseModel(self.style_input.input_layer,self.style_layers,self.dense_activation)
         SM_out = SM.build()
         CM = ConvolutionalModel(DM_out,self.conv_layers,SM_out,
                                 self.kernel_regularizer,
@@ -48,8 +50,12 @@ class Generator():
 
     def get_training_batch(self,batch_size):
         b = [self.gan_input.get_training_batch(batch_size)]
+        if self.style_input is not None:
+            b.append(self.style_input.get_training_batch(batch_size))
         return b
 
     def get_validation_batch(self,batch_size):
         b = [self.gan_input.get_validation_batch(batch_size)]
+        if self.style_input is not None:
+            b.append(self.style_input.get_validation_batch(batch_size))
         return b
