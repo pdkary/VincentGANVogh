@@ -61,7 +61,7 @@ image_source = RealImageInput(data_config)
 # noise_model = None
 # input_model = GenLatentSpaceInput(100,(2,2,1024),1024,2,dense_lr)
 
-latent_input = LatentSpaceInput(100)
+latent_input = LatentSpaceInput([100])
 constant_input = ConstantInput((2,2,1024))
 
 ## layer shorthands

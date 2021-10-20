@@ -19,7 +19,7 @@ class Discriminator():
                        final_activation: ActivationConfig):
         conv_layers = [x.flip() for x in reversed(deepcopy(generator.conv_layers))]
         dense_layers = list(reversed(deepcopy(generator.dense_layers)))
-        dense_layers.append(generator.gan_input.input_shape)
+        dense_layers.append(generator.gan_input.input_shape[-1])
         dense_activation = generator.dense_activation
         kr = generator.kernel_regularizer
         ki = generator.kernel_initializer
