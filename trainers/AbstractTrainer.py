@@ -60,29 +60,35 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         for epoch in range(epochs):
             if self.plot:
                 self.gan_plotter.start_epoch()
-
-            d_loss, d_metrics = 0.0, [0.0 for i in self.d_metric_labels]
-            g_loss, g_metrics = 0.0, [0.0 for i in self.g_metric_labels]
             
-            for i in range(self.disc_batches_per_epoch):
-                source_input = self.D.gan_input.get_validation_batch(self.batch_size)
-                gen_input = self.G.get_validation_batch(self.batch_size)
-                batch_out = self.train_discriminator(source_input, gen_input)
-                batch_loss,batch_metrics = batch_out[0],batch_out[1:]
-                d_loss += batch_loss
-                if len(self.d_metrics) > 0:
-                    for i in range(len(self.d_metric_labels)):
-                        d_metrics[i] += batch_metrics[i]
+            source_input = self.D.gan_input.get_training_batch(self.batch_size)
+            gen_input = self.G.get_training_batch(self.batch_size)
+            
+            disc_results = self.train_discriminator(source_input, gen_input)
+            gen_results = self.train_discriminator(source_input, gen_input)
+
+            d_loss,d_metrics = disc_results[0],disc_results[1:]
+            g_loss,g_metrics = gen_results[0],gen_results[1:]
+            
+            # for i in range(self.disc_batches_per_epoch):
+            #     source_input = self.D.gan_input.get_validation_batch(self.batch_size)
+            #     gen_input = self.G.get_validation_batch(self.batch_size)
+            #     batch_out = self.train_discriminator(source_input, gen_input)
+            #     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
+            #     d_loss += batch_loss
+            #     if len(self.d_metrics) > 0:
+            #         for i in range(len(self.d_metric_labels)):
+            #             d_metrics[i] += batch_metrics[i]
                 
-            for i in range(self.gen_batches_per_epoch):
-                source_input = self.D.gan_input.get_training_batch(self.batch_size)
-                gen_input = self.G.get_training_batch(self.batch_size)
-                batch_out = self.train_generator(source_input,gen_input)
-                batch_loss,batch_metrics = batch_out[0],batch_out[1:]
-                g_loss += batch_loss
-                if len(self.g_metrics) > 0:
-                    for i in range(len(self.g_metric_labels)):
-                        g_metrics[i] += batch_metrics[i]
+            # for i in range(self.gen_batches_per_epoch):
+            #     source_input = self.D.gan_input.get_training_batch(self.batch_size)
+            #     gen_input = self.G.get_training_batch(self.batch_size)
+            #     batch_out = self.train_generator(source_input,gen_input)
+            #     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
+            #     g_loss += batch_loss
+            #     if len(self.g_metrics) > 0:
+            #         for i in range(len(self.g_metric_labels)):
+            #             g_metrics[i] += batch_metrics[i]
 
             if self.plot:
                 d_loss /= self.disc_batches_per_epoch
