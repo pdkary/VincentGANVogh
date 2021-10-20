@@ -31,9 +31,9 @@ class Generator():
         self.kernel_initializer = kernel_initializer
 
         self.input = [gan_input.input_layer]
-        if style_input is not None and style_input.input_layer is not gan_input.input_layer:
+        if style_input is not None and style_input is not gan_input:
             self.input.append(style_input.input_layer)
-
+        print("GENERATOR TAKES %d INPUTS",len(self.input))
         self.tracked_layers = {}
 
     def build(self):
