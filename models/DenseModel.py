@@ -20,7 +20,9 @@ class DenseModel():
     def build(self):
         out = self.input_layer
         for i,l_size in enumerate(self.dense_layers):
+            print("BLOCK SHAPE: ",out.shape)
             out = self.dense_block(out,i,l_size)
+        print("BLOCK SHAPE: ",out.shape)
         return out
 
     def dense_block(self,input_tensor: KerasTensor,i:int,size:int):

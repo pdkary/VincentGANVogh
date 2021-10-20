@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from tensorflow.keras.layers import Dense, Reshape
 from config.GanConfig import GenLayerConfig
-from inputs.GanInput import GanInput, LatentSpaceInput
+from inputs.GanInput import GanInput
 from layers.CallableConfig import ActivationConfig, NoneCallable, RegularizationConfig
 
 from models.ConvolutionalModel import ConvolutionalModel
@@ -30,17 +30,23 @@ class Generator():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
 
-        self.input = [gan_input.input_layer] if self.style_input is None else [gan_input.input_layer,style_input.input_layer]
+        self.input = [gan_input.input_layer]
+        if style_input is not None and style_input.input_layer is not gan_input.input_layer:
+            self.input.append(style_input.input_layer)
+
         self.tracked_layers = {}
 
     def build(self):
+        print("BUILDING GENERATOR DENSE")
         DM = DenseModel(self.gan_input.input_layer,self.dense_layers,self.dense_activation)
         DM_og = DM.build()
         DM_out = Dense(np.prod(self.conv_input_shape))(DM_og)
         DM_out = Reshape(self.conv_input_shape)(DM_out)
         
+        print("BUILDING GENERATOR STYLE")
         SM = DenseModel(self.style_input.input_layer,self.style_layers,self.dense_activation)
         SM_out = SM.build()
+        print("BUILDING GENERATOR CONV")
         CM = ConvolutionalModel(DM_out,self.conv_layers,SM_out,
                                 self.kernel_regularizer,
                                 self.kernel_initializer)

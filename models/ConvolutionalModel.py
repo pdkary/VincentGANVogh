@@ -26,9 +26,11 @@ class ConvolutionalModel():
     def build(self,flatten=False):
         #configure input
         out = self.input
-        print("building conv model")
+        print("BUILDING CONV MODEL")
         for config in self.conv_layers:
+            print("BLOCK SHAPE: ",out.shape)
             out = self.conv_block(out,config)
+        print("BLOCK SHAPE: ",out.shape)
         if flatten:
             out = Flatten()(out)
         return out

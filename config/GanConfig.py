@@ -42,6 +42,13 @@ class ConvLayerConfig():
         self.regularizer = regularizer
         self.kernel_initializer = kernel_initializer
         self.track_id = track_id
+    
+    def flip(self):
+        u = self.upsampling
+        d = self.downsampling
+        self.upsampling = d
+        self.downsampling = u
+        return self
         
 class DiscConvLayerConfig(ConvLayerConfig):
     def __init__(self,

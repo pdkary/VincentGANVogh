@@ -1,5 +1,5 @@
 from typing import List
-
+from copy import deepcopy
 import tensorflow as tf
 from config.GanConfig import DiscConvLayerConfig
 from inputs.GanInput import GanInput
@@ -9,9 +9,26 @@ from tensorflow.keras.layers import Input
 
 from models.ConvolutionalModel import ConvolutionalModel
 from models.DenseModel import DenseModel
+from models.Generator import Generator
 
 
 class Discriminator():
+    @staticmethod
+    def from_generator(generator:Generator,
+                       real_image_input: GanInput,
+                       final_activation: ActivationConfig):
+        conv_layers = [x.flip() for x in reversed(deepcopy(generator.conv_layers))]
+        dense_layers = list(reversed(deepcopy(generator.dense_layers)))
+        dense_layers.append(generator.gan_input.input_shape)
+        dense_activation = generator.dense_activation
+        kr = generator.kernel_regularizer
+        ki = generator.kernel_initializer
+        return Discriminator(real_image_input,conv_layers,dense_layers,
+                             dense_activation=dense_activation,
+                             final_activation=final_activation,
+                             kernel_regularizer=kr,
+                             kernel_initializer=ki)
+
     def __init__(self,
                  real_image_input: GanInput,
                  conv_layers: List[DiscConvLayerConfig],
@@ -34,6 +51,8 @@ class Discriminator():
         self.kernel_initializer = kernel_initializer
     
     def build(self):
+        print("BUILDING DISCRIMINATOR")
+        print("BUILDING DISCRIMINATOR CONV MODEL")
         CM = ConvolutionalModel(self.input,
                                 self.conv_layers,
                                 None,
@@ -42,6 +61,7 @@ class Discriminator():
 
         self.conv_out = CM.build(flatten=True)
         
+        print("BUILDING DISCRIMINATOR DENSE MODEL")
         DM = DenseModel(self.conv_out,self.dense_layers,
                         self.dense_activation,self.minibatch_size,
                         self.dropout_rate)

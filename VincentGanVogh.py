@@ -94,24 +94,26 @@ generator = Generator(
                   mgl_u(128,2,"5"),
                   mgl_u(64,2,"6"),
                   g_out],
+    style_input=latent_input,
     style_layers=[100,100,100,100],
     dense_activation=sigmoid
 )
     
 #Discriminator Model
-discriminator = Discriminator(
-    real_image_input = image_source,
-    conv_layers = [dcl(64,2,"6"),
-                   dcl(128,2,"5"),
-                   dcl(256,2,"4"),
-                   dcl(512,2,"3"),
-                   dcl(512,2,"2"),
-                   dcl(512,2,"1")],
-    dense_layers = [4096,4096,1000,1],
-    minibatch_size = 8,
-    dropout_rate = 0.1,
-    activation = sigmoid
-)
+discriminator = Discriminator.from_generator(generator,image_source,sigmoid)
+# discriminator = Discriminator(
+#     real_image_input = image_source,
+#     conv_layers = [dcl(64,2,"6"),
+#                    dcl(128,2,"5"),
+#                    dcl(256,2,"4"),
+#                    dcl(512,2,"3"),
+#                    dcl(512,2,"2"),
+#                    dcl(512,2,"1")],
+#     dense_layers = [4096,4096,1000,1],
+#     minibatch_size = 8,
+#     dropout_rate = 0.1,
+#     activation = sigmoid
+# )
 
 #Training config
 gan_training_config = GanTrainingConfig(
