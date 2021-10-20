@@ -56,12 +56,12 @@ class Generator():
 
     def get_training_batch(self,batch_size):
         b = [self.gan_input.get_training_batch(batch_size)]
-        if self.style_input is not None:
+        if self.style_input is not None and self.style_input is not self.gan_input:
             b.append(self.style_input.get_training_batch(batch_size))
         return b
 
     def get_validation_batch(self,batch_size):
         b = [self.gan_input.get_validation_batch(batch_size)]
-        if self.style_input is not None:
+        if self.style_input is not None and self.style_input is not self.gan_input:
             b.append(self.style_input.get_validation_batch(batch_size))
         return b
