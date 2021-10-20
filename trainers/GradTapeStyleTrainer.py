@@ -101,6 +101,13 @@ class GradTapeStyleTrainer(AbstractTrainer):
         return out
 
     def train_discriminator(self, disc_input, gen_input):
+        print("Training Discriminator")
+        print("D shape: ",disc_input.shape)
+        print("D mean: ", np.mean(disc_input))
+        print("D std: ", np.std(disc_input))
+        print("G shape: ",gen_input.shape)
+        print("G mean: ", np.mean(gen_input))
+        print("G std: ", np.std(gen_input))
         with tf.GradientTape() as disc_tape:
             gen_out = self.generator(gen_input,training=False)
 
