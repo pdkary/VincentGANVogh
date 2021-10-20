@@ -67,6 +67,9 @@ class AbstractTrainer(GanTrainingConfig, ABC):
             for i in range(self.disc_batches_per_epoch):
                 source_input = self.D.gan_input.get_validation_batch(self.batch_size)
                 gen_input = self.G.get_validation_batch(self.batch_size)
+                print("Training Discriminator")
+                print("D input: ",source_input)
+                print("G input: ",gen_input)
                 batch_out = self.train_discriminator(source_input, gen_input)
                 batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                 d_loss += batch_loss
@@ -77,6 +80,9 @@ class AbstractTrainer(GanTrainingConfig, ABC):
             for i in range(self.gen_batches_per_epoch):
                 source_input = self.D.gan_input.get_training_batch(self.batch_size)
                 gen_input = self.G.get_training_batch(self.batch_size)
+                print("Training Generator")
+                print("D input: ",source_input)
+                print("G input: ",gen_input)
                 batch_out = self.train_generator(source_input,gen_input)
                 batch_loss,batch_metrics = batch_out[0],batch_out[1:]
                 g_loss += batch_loss
