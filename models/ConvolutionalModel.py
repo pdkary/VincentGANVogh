@@ -62,8 +62,8 @@ class ConvolutionalModel():
             if config.dropout_rate > 0:
                 out = Dropout(config.dropout_rate,name="conv_dropout_"+name)(out)
             
-            if config.noise:
-                out = GaussianNoise(1.0)(out)
+            if config.noise > 0.0:
+                out = GaussianNoise(config.noise)(out)
             
             if config.style and self.style_input is not None:
                 out,B,G = AdaptiveInstanceNormalization(config.filters,name)([out,self.style_input])
