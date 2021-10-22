@@ -87,10 +87,13 @@ class ViewableStyleTrainer(AbstractTrainer):
             gen_style_std,gen_style_mean = gen_style[0::2],gen_style[1::2]
             
             disc_out = self.discriminator(gen_images, training=False)
-            disc_results,disc_style = disc_out[0],disc_out[1:]
+            disc_results,disc_style,disc_view = disc_out[0],disc_out[1:self.style_end_index],disc_out[self.style_end_index:]
             disc_style_std,disc_style_mean = disc_style[0::2],disc_style[1::2]
 
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
+            for i in range(len(gen_view)):
+                content_loss += self.gen_loss_function(gen_view[i],disc_view[i])
+
             deep_style_losses = self.get_deep_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else [] 
             
             total_loss = content_loss + self.style_loss_coeff*np.sum(deep_style_losses)
@@ -112,15 +115,12 @@ class ViewableStyleTrainer(AbstractTrainer):
         with tf.GradientTape() as disc_tape:
             gen_out = self.generator(gen_input,training=False)
             gen_images, gen_style, gen_view = gen_out[0], gen_out[1:self.style_end_index], gen_out[self.style_end_index:]
-            gen_style_std,gen_style_mean = gen_style[0::2],gen_style[1::2]
             
             disc_gen_out = self.discriminator(gen_images, training=True)
-            disc_gen_result,disc_gen_style = disc_gen_out[0],disc_gen_out[1:]
-            disc_gen_style_std, disc_gen_style_mean = disc_gen_style[0::2],disc_gen_style[1::2]
+            disc_gen_result,disc_gen_style,disc_gen_view = disc_gen_out[0],disc_gen_out[1:self.style_end_index],disc_gen_out[self.style_end_index:]
 
             disc_real_out = self.discriminator(disc_input, training=True)
-            disc_real_result, disc_real_style = disc_real_out[0],disc_real_out[1:]
-            disc_real_style_std, disc_real_style_mean = disc_real_style[0::2],disc_real_style[1::2]
+            disc_real_result, disc_real_style, disc_real_view = disc_real_out[0],disc_real_out[1:self.style_end_index],disc_real_out[self.style_end_index:]
             
             content_loss = self.disc_loss_function(self.fake_label, disc_gen_result)
             content_loss += self.disc_loss_function(self.real_label, disc_real_result)
