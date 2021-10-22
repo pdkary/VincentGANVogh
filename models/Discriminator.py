@@ -51,6 +51,8 @@ class Discriminator():
         self.final_activation = final_activation
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
+        self.viewing_layers = []
+
     
     def build(self):
         print("BUILDING DISCRIMINATOR")
@@ -72,6 +74,7 @@ class Discriminator():
         DM_out = DM.build()
         self.dense_out = self.final_activation.get()(DM_out)
         self.tracked_layers = CM.tracked_layers
+        self.viewing_layers = CM.viewing_layers
         return self.dense_out
 
     def get_training_batch(self,batch_size):

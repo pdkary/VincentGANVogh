@@ -43,14 +43,12 @@ class ViewableStyleTrainer(AbstractTrainer):
             self.disc_style_layers.append(dlm)
 
         self.gen_viewing_layers = self.G.viewing_layers
-        print("\ngen_viewing_layers:")
-        print([x.name for x in self.gen_viewing_layers])
-        print([x.shape for x in self.gen_viewing_layers])
+        self.disc_viewing_layers = self.D.viewing_layers
 
         self.style_end_index = 1 + len(self.gen_style_layers)
         
         self.generator = Model(inputs=GI,outputs=[GO,*self.gen_style_layers,*self.gen_viewing_layers])
-        self.discriminator = Model(inputs=DI,outputs=[DO,*self.disc_style_layers])
+        self.discriminator = Model(inputs=DI,outputs=[DO,*self.disc_style_layers,*self.disc_viewing_layers])
 
         self.generator.compile(optimizer=self.gen_optimizer,
                                loss=self.gen_loss_function,
@@ -91,6 +89,8 @@ class ViewableStyleTrainer(AbstractTrainer):
             disc_style_std,disc_style_mean = disc_style[0::2],disc_style[1::2]
 
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
+            print([x.shape for x in gen_view])
+            print([x.shape for x in disc_view])
             for i in range(len(gen_view)):
                 content_loss += self.gen_loss_function(gen_view[i],disc_view[i])
 
