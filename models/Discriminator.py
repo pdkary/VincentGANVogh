@@ -16,7 +16,8 @@ class Discriminator():
     @staticmethod
     def from_generator(generator:Generator,
                        real_image_input: GanInput,
-                       final_activation: ActivationConfig):
+                       final_activation: ActivationConfig,
+                       viewable: bool = False):
         conv_layers = [x.flip() for x in reversed(deepcopy(generator.conv_layers))]
         dense_layers = list(reversed(deepcopy(generator.dense_layers)))
         dense_layers.append(generator.gan_input.input_shape[-1])
@@ -24,6 +25,7 @@ class Discriminator():
         kr = generator.kernel_regularizer
         ki = generator.kernel_initializer
         return Discriminator(real_image_input,conv_layers,dense_layers,
+                             view_layers=viewable,
                              dense_activation=dense_activation,
                              final_activation=final_activation,
                              kernel_regularizer=kr,
