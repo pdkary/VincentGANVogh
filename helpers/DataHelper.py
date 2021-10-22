@@ -71,7 +71,7 @@ class DataHelper(DataConfig):
         plt.imshow(displayed_img)
         return x
 
-    def save_images(self, epoch, generated_images,preview_rows,preview_cols,preview_margin):
+    def save_images(self, name, generated_images,preview_rows,preview_cols,preview_margin):
         image_count = 0
         img_size = self.image_shape[1]
         channels = self.image_shape[-1]
@@ -93,6 +93,6 @@ class DataHelper(DataConfig):
                 image_array[r:r+img_size, c:c+img_size] = scaled_img
                 image_count += 1
 
-        filename = os.path.join(self.image_output_path, f"train-{epoch}" + self.image_type)
+        filename = os.path.join(self.image_output_path,name + self.image_type)
         im = Image.fromarray(image_array.astype(np.uint8))
         im.save(filename)

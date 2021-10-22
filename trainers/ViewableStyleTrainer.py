@@ -44,6 +44,9 @@ class ViewableStyleTrainer(AbstractTrainer):
 
         self.gen_viewing_layers = self.G.viewing_layers
         self.disc_viewing_layers = self.D.viewing_layers
+        print("\ngen_viewing_layers:")
+        print([x.name for x in self.gen_viewing_layers])
+        print([x.shape for x in self.gen_viewing_layers])
 
         self.style_end_index = 1 + len(self.gen_style_layers)
         
@@ -69,7 +72,7 @@ class ViewableStyleTrainer(AbstractTrainer):
         generated_images = np.array(self.generator.predict(preview_seed)[0])
         self.D.gan_input.save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
         
-    def get_deep_style_loss(self,content_std_arr,content_mean_arr,style_std_arr,style_mean_arr):
+    def get_all_style_loss(self,content_std_arr,content_mean_arr,style_std_arr,style_mean_arr):
         src_2_dest = list(zip(content_std_arr,content_mean_arr,style_std_arr,style_mean_arr))
         return [self.get_style_loss(cs,cm,ss,sm) for cs,cm,ss,sm in src_2_dest]
     
@@ -89,16 +92,13 @@ class ViewableStyleTrainer(AbstractTrainer):
             disc_style_std,disc_style_mean = disc_style[0::2],disc_style[1::2]
 
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
-            print([x.shape for x in gen_view])
-            print([x.shape for x in disc_view])
-            for i in range(len(gen_view)):
-                content_loss += self.gen_loss_function(gen_view[i],disc_view[i])
-
-            deep_style_losses = self.get_deep_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else [] 
+            style_losses = self.get_all_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else [] 
             
-            total_loss = content_loss + self.style_loss_coeff*np.sum(deep_style_losses)
-            g_loss = [total_loss,*deep_style_losses]
-            out = [content_loss, np.sum(deep_style_losses)]
+            vs = len(gen_view)
+            view_losses = [self.style_loss_function(disc_view[i],gen_view[vs-i-1]) for i in range(vs)]            
+            
+            g_loss = [content_loss,*style_losses,*view_losses]
+            out = [content_loss, np.sum(style_losses)]
             
             for metric in self.g_metrics:
                 if metric.name == "mean":
@@ -124,8 +124,11 @@ class ViewableStyleTrainer(AbstractTrainer):
             
             content_loss = self.disc_loss_function(self.fake_label, disc_gen_result)
             content_loss += self.disc_loss_function(self.real_label, disc_real_result)
-
-            d_loss = [content_loss]
+            
+            style_losses = [tf.zeros_like(x) for x in gen_style]
+            view_losses = [tf.zeros_like(x) for x in disc_real_view]            
+            
+            d_loss = [content_loss,*style_losses,*view_losses]
             out = [content_loss]
             
             for metric in self.d_metrics:
