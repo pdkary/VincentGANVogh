@@ -90,7 +90,7 @@ class DataHelper(DataConfig):
                 if channels == 1:
                     img = np.reshape(img,newshape=(img_size,img_size))
                 else:
-                    img = np.reshape(img,newshape=(img_size,img_size,channels))
+                    img = Image.fromarray(img).resize((img_size,img_size,channels),Image.BICUBIC)
                 scaled_img = self.save_scale_function(img)
                 image_array[r:r+img_size, c:c+img_size] = scaled_img
                 image_count += 1
