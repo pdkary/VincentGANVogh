@@ -67,11 +67,15 @@ class ViewableStyleTrainer(AbstractTrainer):
         self.g_metric_labels = ["G_Style_loss"] + self.g_metric_labels
         self.plot_labels = ["G_Loss","D_Loss",*self.g_metric_labels,*self.d_metric_labels]
     
-    def save(self,epoch):
+    def save_images(self,name):
         preview_seed = self.G.get_validation_batch(self.preview_size)
-        generated_images = np.array(self.generator.predict(preview_seed)[0])
-        self.D.gan_input.save(epoch, generated_images, self.preview_rows, self.preview_cols, self.preview_margin)
-        
+        gen_out = self.generator.predict(preview_seed)
+        gen_images, gen_style, gen_views = gen_out[0],gen_out[1:self.style_end_index],gen_out[self.style_end_index:]
+        self.D.gan_input.save(name, gen_images, self.preview_rows, self.preview_cols, self.preview_margin)
+        for x in gen_views:
+            v_size = x.shape[1]
+            self.D.gan_input.save(name+"_"+str(v_size))
+            
     def get_all_style_loss(self,content_std_arr,content_mean_arr,style_std_arr,style_mean_arr):
         src_2_dest = list(zip(content_std_arr,content_mean_arr,style_std_arr,style_mean_arr))
         return [self.get_style_loss(cs,cm,ss,sm) for cs,cm,ss,sm in src_2_dest]

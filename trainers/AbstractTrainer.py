@@ -53,12 +53,15 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def train_discriminator(self, source_input, gen_input):
         return 2*[0.0] + len(self.d_metrics)*[0.0]
 
+    @abstractmethod
+    def save_images(self,name):
+        gen_input = self.G.get_validation_batch(self.preview_size)
+        gen_images = self.generator.predict(gen_input)[0]
+        self.D.gan_input.save(name,gen_images,self.preview_rows,self.preview_cols,self.preview_margin)
+
     def save_generator(self, epoch):
         filename = self.model_name + str(epoch)
         self.generator.save(self.model_output_path + filename)
-    
-    def save_images(self,name,images):
-        self.D.gan_input.save(name,images,self.preview_rows,self.preview_cols,self.preview_margin)
 
     def train(self, epochs, printerval):
         for epoch in range(epochs):
@@ -78,9 +81,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
               self.gan_plotter.batch_update([g_loss, d_loss, *g_metrics, *d_metrics])
             
             if epoch % printerval == 0:
-                gen_input = self.G.get_validation_batch(self.preview_size)
-                gen_images = self.generator.predict(gen_input)[0]
-                self.save_images("train-"+str(epoch),gen_images)
+                self.save_images("train-"+str(epoch))
                 
             if epoch >= 10 and self.plot:
                 self.gan_plotter.log_epoch()
