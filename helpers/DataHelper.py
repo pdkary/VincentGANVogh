@@ -73,8 +73,8 @@ class DataHelper(DataConfig):
 
     def save_images(self, name, generated_images,preview_rows,preview_cols,preview_margin):
         image_count = 0
-        img_size = self.image_shape[1]
-        channels = self.image_shape[-1]
+        img_size = generated_images[0][1]
+        channels = generated_images[0][-1]
         preview_height = preview_rows*img_size + (preview_rows + 1)*preview_margin
         preview_width = preview_cols*img_size + (preview_cols + 1)*preview_margin
         
