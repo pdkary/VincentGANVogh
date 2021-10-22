@@ -66,13 +66,13 @@ class AbstractTrainer(GanTrainingConfig, ABC):
             gen_input = self.G.get_training_batch(self.batch_size)
             
             disc_results = self.train_discriminator(source_input, gen_input)
-            gen_results = self.train_discriminator(source_input, gen_input)
+            gen_results = self.train_generator(source_input, gen_input)
 
             d_loss,d_metrics = disc_results[0],disc_results[1:]
             g_loss,g_metrics = gen_results[0],gen_results[1:]
 
             if self.plot:
-                self.gan_plotter.batch_update([g_loss, d_loss, *g_metrics, *d_metrics])
+              self.gan_plotter.batch_update([g_loss, d_loss, *g_metrics, *d_metrics])
             
             if epoch % printerval == 0:
                 self.save(epoch)

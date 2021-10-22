@@ -31,22 +31,26 @@ class ViewableStyleTrainer(AbstractTrainer):
         self.gen_style_layers = []
         for e,i in enumerate(self.matched_keys):
             print("\nLAYER %d-----"%e)
-            gl = self.G.tracked_layers[i]
-            dl = self.D.tracked_layers[i]
-            print("\tgen_style_std: ",gl[0].name,gl[0].shape)
-            print("\tgen_style_mean: ",gl[1].name,gl[1].shape)
-            print("\tdisc_style_std_%d: "%e,dl[0].name,dl[0].shape)
-            print("\tdisc_style_mean_%d: "%e,dl[1].name,dl[1].shape)
-            self.gen_style_layers.append(gl)
-            self.disc_style_layers.append(dl)
+            gls,glm = self.G.tracked_layers[i]
+            dls,dlm = self.D.tracked_layers[i]
+            print("\tgen_style_std: ",gls.name,glm.shape)
+            print("\tgen_style_mean: ",gls.name,glm.shape)
+            print("\tdisc_style_std_%d: "%e,dls.name,dls.shape)
+            print("\tdisc_style_mean_%d: "%e,dlm.name,dlm.shape)
+            self.gen_style_layers.append(gls)
+            self.gen_style_layers.append(glm)
+            self.disc_style_layers.append(dls)
+            self.disc_style_layers.append(dlm)
 
         self.gen_viewing_layers = self.G.viewing_layers
         print("\ngen_viewing_layers:")
         print([x.name for x in self.gen_viewing_layers])
         print([x.shape for x in self.gen_viewing_layers])
+
+        self.style_end_index = 1 + len(self.gen_style_layers)
         
-        self.generator = Model(inputs=GI,outputs=[GO,self.gen_style_layers,self.gen_viewing_layers])
-        self.discriminator = Model(inputs=DI,outputs=[DO,self.disc_style_layers])
+        self.generator = Model(inputs=GI,outputs=[GO,*self.gen_style_layers,*self.gen_viewing_layers])
+        self.discriminator = Model(inputs=DI,outputs=[DO,*self.disc_style_layers])
 
         self.generator.compile(optimizer=self.gen_optimizer,
                                loss=self.gen_loss_function,
@@ -59,8 +63,6 @@ class ViewableStyleTrainer(AbstractTrainer):
 
         print("MATCHED LAYERS: ")
         print(self.matched_keys)            
-        self.nil_disc_style_loss = [[tf.zeros_like(a,dtype=tf.float32),tf.zeros_like(b,dtype=tf.float32)] for a,b in self.disc_style_layers]
-        print("nil_disc_style_loss: ",self.nil_disc_style_loss)
         self.g_metric_labels = ["G_Style_loss"] + self.g_metric_labels
         self.plot_labels = ["G_Loss","D_Loss",*self.g_metric_labels,*self.d_metric_labels]
     
@@ -80,18 +82,16 @@ class ViewableStyleTrainer(AbstractTrainer):
 
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
-            gen_out,gen_style_layers,gen_view_layers = self.generator(gen_input,training=True)
-            gen_style_std = [x[0] for x in gen_style_layers]
-            gen_style_mean = [x[1] for x in gen_style_layers]
-            disc_out = self.discriminator(gen_out, training=False)
+            gen_out = self.generator(gen_input,training=True)
+            gen_images, gen_style, gen_view = gen_out[0],gen_out[1:self.style_end_index],gen_out[self.style_end_index:]
+            gen_style_std,gen_style_mean = gen_style[0::2],gen_style[1::2]
             
-            if len(self.matched_keys) > 0:
-                disc_results,disc_deep_layers = disc_out[0],disc_out[1:]
-            else:
-                disc_results,disc_deep_layers = disc_out,None
-            
+            disc_out = self.discriminator(gen_images, training=False)
+            disc_results,disc_style = disc_out[0],disc_out[1:]
+            disc_style_std,disc_style_mean = disc_style[0::2],disc_style[1::2]
+
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
-            deep_style_losses = self.get_deep_style_loss(gen_style_std,gen_style_mean,disc_deep_layers) if len(self.matched_keys) > 0 else [] 
+            deep_style_losses = self.get_deep_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else [] 
             
             total_loss = content_loss + self.style_loss_coeff*np.sum(deep_style_losses)
             g_loss = [total_loss,*deep_style_losses]
@@ -111,26 +111,28 @@ class ViewableStyleTrainer(AbstractTrainer):
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
             gen_out = self.generator(gen_input,training=False)
-
-            if len(self.matched_keys) > 0:
-                disc_real_results = self.discriminator(disc_input, training=True)[0]
-                disc_gen_results = self.discriminator(gen_out[0], training=True)[0]
-            else:
-                disc_real_results = self.discriminator(disc_input, training=True)
-                disc_gen_results = self.discriminator(gen_out, training=True)
+            gen_images, gen_style, gen_view = gen_out[0], gen_out[1:self.style_end_index], gen_out[self.style_end_index:]
+            gen_style_std,gen_style_mean = gen_style[0::2],gen_style[1::2]
             
-            content_loss = self.disc_loss_function(self.real_label, disc_real_results)
-            content_loss += self.disc_loss_function(self.fake_label, disc_gen_results)
+            disc_gen_out = self.discriminator(gen_images, training=True)
+            disc_gen_result,disc_gen_style = disc_gen_out[0],disc_gen_out[1:]
+            disc_gen_style_std, disc_gen_style_mean = disc_gen_style[0::2],disc_gen_style[1::2]
 
-            total_loss = content_loss
-            d_loss = [total_loss, *self.nil_disc_style_loss]
+            disc_real_out = self.discriminator(disc_input, training=True)
+            disc_real_result, disc_real_style = disc_real_out[0],disc_real_out[1:]
+            disc_real_style_std, disc_real_style_mean = disc_real_style[0::2],disc_real_style[1::2]
+            
+            content_loss = self.disc_loss_function(self.fake_label, disc_gen_result)
+            content_loss += self.disc_loss_function(self.real_label, disc_real_result)
+
+            d_loss = [content_loss]
             out = [content_loss]
             
             for metric in self.d_metrics:
                 if metric.name == "mean":
-                    metric.update_state(disc_real_results)
+                    metric.update_state(disc_real_result)
                 else:
-                    metric.update_state(self.real_label,disc_real_results)
+                    metric.update_state(self.real_label,disc_real_result)
                 out.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
