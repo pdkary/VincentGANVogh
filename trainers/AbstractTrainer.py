@@ -29,6 +29,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.model_output_path = self.D.gan_input.data_path + "/models"
         self.model_name = self.D.gan_input.model_name
     
+    @abstractmethod
     def compile(self):
         GI,GO = self.G.input,self.G.build()
         DI,DO = self.D.input,self.D.build()
@@ -69,26 +70,6 @@ class AbstractTrainer(GanTrainingConfig, ABC):
 
             d_loss,d_metrics = disc_results[0],disc_results[1:]
             g_loss,g_metrics = gen_results[0],gen_results[1:]
-            
-            # for i in range(self.disc_batches_per_epoch):
-            #     source_input = self.D.gan_input.get_validation_batch(self.batch_size)
-            #     gen_input = self.G.get_validation_batch(self.batch_size)
-            #     batch_out = self.train_discriminator(source_input, gen_input)
-            #     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
-            #     d_loss += batch_loss
-            #     if len(self.d_metrics) > 0:
-            #         for i in range(len(self.d_metric_labels)):
-            #             d_metrics[i] += batch_metrics[i]
-                
-            # for i in range(self.gen_batches_per_epoch):
-            #     source_input = self.D.gan_input.get_training_batch(self.batch_size)
-            #     gen_input = self.G.get_training_batch(self.batch_size)
-            #     batch_out = self.train_generator(source_input,gen_input)
-            #     batch_loss,batch_metrics = batch_out[0],batch_out[1:]
-            #     g_loss += batch_loss
-            #     if len(self.g_metrics) > 0:
-            #         for i in range(len(self.g_metric_labels)):
-            #             g_metrics[i] += batch_metrics[i]
 
             if self.plot:
                 self.gan_plotter.batch_update([g_loss, d_loss, *g_metrics, *d_metrics])

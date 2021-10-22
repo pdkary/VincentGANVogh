@@ -17,6 +17,7 @@ from models.Generator import Generator
 from third_party_layers.InstanceNormalization import InstanceNormalization
 
 from trainers.GradTapeStyleTrainer import GradTapeStyleTrainer
+from trainers.ViewableStyleTrainer import ViewableStyleTrainer
 
 # from google.colab import drive
 # drive.mount('/content/drive')
@@ -54,18 +55,12 @@ data_config = DataConfig(
     save_scale_function=lambda x: map_to_range(x,255.0,0.0)
 )
 
+## inputs
 image_source = RealImageInput(data_config)
-
-##style models // noise_models // input models
-# style_model = None
-# noise_model = None
-# input_model = GenLatentSpaceInput(100,(2,2,1024),1024,2,dense_lr)
-
 latent_input = LatentSpaceInput([100])
 constant_input = ConstantInput((2,2,1024))
 
 ## layer shorthands
-
 # matched gen layers
 mgl_un = lambda f,c,id: GenLayerConfig(f,c,3,gen_lr,upsampling=True,noise=True,style=True,track_id=id)
 mgl_u = lambda f,c,id: GenLayerConfig(f,c,3,gen_lr,upsampling=True,style=True,track_id=id)
@@ -74,13 +69,8 @@ mgl = lambda f,c,id: GenLayerConfig(f,c,3,gen_lr,style=True,track_id=id)
 gl_un = lambda f,c: GenLayerConfig(f,c,3,gen_lr,upsampling=True,noise=True,normalization=instance_norm)
 gl_u = lambda f,c: GenLayerConfig(f,c,3,gen_lr,upsampling=True,normalization=instance_norm)
 gl = lambda f,c: GenLayerConfig(f,c,3,gen_lr,normalization=instance_norm)
-
 #gen out
 g_out = GenLayerConfig(img_shape[-1],1,3,sigmoid,normalization=instance_norm)
-
-## NOTE: ALL discriminator layers will be tracked, generator must have equivalent tracked layers
-dcl = lambda f,c,id: DiscConvLayerConfig(f,c,3,   disc_lr,dropout_rate=0.4,normalization=instance_norm,track_id=id)
-ddl = lambda s : DiscDenseLayerConfig(s,dense_lr,0.4)
 
 #Generator model
 generator = Generator(
@@ -96,24 +86,12 @@ generator = Generator(
                   g_out],
     style_input=latent_input,
     style_layers=[100,100,100,100],
+    view_layers=True,
     dense_activation=sigmoid
 )
     
 #Discriminator Model
 discriminator = Discriminator.from_generator(generator,image_source,sigmoid)
-# discriminator = Discriminator(
-#     real_image_input = image_source,
-#     conv_layers = [dcl(64,2,"6"),
-#                    dcl(128,2,"5"),
-#                    dcl(256,2,"4"),
-#                    dcl(512,2,"3"),
-#                    dcl(512,2,"2"),
-#                    dcl(512,2,"1")],
-#     dense_layers = [4096,4096,1000,1],
-#     minibatch_size = 8,
-#     dropout_rate = 0.1,
-#     activation = sigmoid
-# )
 
 #Training config
 gan_training_config = GanTrainingConfig(
@@ -133,7 +111,7 @@ gan_training_config = GanTrainingConfig(
     disc_batches_per_epoch = 1,
 )
 #Trainer
-VGV = GradTapeStyleTrainer(generator,discriminator,gan_training_config)
+VGV = ViewableStyleTrainer(generator,discriminator,gan_training_config)
 VGV.compile()
 # # TRAINING
 # ERAS = 100

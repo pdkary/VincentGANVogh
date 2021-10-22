@@ -35,6 +35,7 @@ class Discriminator():
                  dense_layers: List[int],
                  minibatch_size: int = 0,
                  dropout_rate: float = 0.0,
+                 view_layers: bool = False,
                  dense_activation: ActivationConfig = NoneCallable,
                  final_activation: ActivationConfig = NoneCallable,
                  kernel_regularizer: RegularizationConfig = NoneCallable,
@@ -45,6 +46,7 @@ class Discriminator():
         self.dense_layers = dense_layers
         self.minibatch_size = minibatch_size
         self.dropout_rate = dropout_rate
+        self.view_layers = view_layers
         self.dense_activation = dense_activation
         self.final_activation = final_activation
         self.kernel_regularizer = kernel_regularizer
@@ -55,6 +57,7 @@ class Discriminator():
         print("BUILDING DISCRIMINATOR CONV MODEL")
         CM = ConvolutionalModel(self.input,
                                 self.conv_layers,
+                                None,
                                 None,
                                 self.kernel_regularizer,
                                 self.kernel_initializer)
