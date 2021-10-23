@@ -93,11 +93,12 @@ class ViewableStyleTrainer(AbstractTrainer):
             disc_style_std,disc_style_mean = disc_style[0::2],disc_style[1::2]
 
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
-            style_losses = self.get_all_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else [] 
+            style_losses = self.get_all_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else []
             view_losses = [self.style_loss_function(d,g) for d,g in list(zip(reversed(disc_view),gen_view))] 
 
             g_loss = [content_loss,*style_losses,*view_losses]
-            out = [content_loss, np.sum(style_losses)]
+
+            out = [np.sum(g_loss), np.sum(style_losses)]
             
             for metric in self.g_metrics:
                 if metric.name == "mean":
@@ -121,15 +122,12 @@ class ViewableStyleTrainer(AbstractTrainer):
             disc_real_out = self.discriminator(disc_input, training=True)
             disc_real_result, disc_real_style, disc_real_view = disc_real_out[0],disc_real_out[1:self.style_end_index],disc_real_out[self.style_end_index:]
             
-            content_loss = self.disc_loss_function(self.fake_label, disc_gen_result)
-            content_loss += self.disc_loss_function(self.real_label, disc_real_result)
-            
-            style_losses = [tf.zeros_like(x) for x in gen_style]
-            view_losses = [tf.zeros_like(x) for x in disc_real_view]            
+            content_loss = self.disc_loss_function(self.fake_label, disc_gen_result) + self.disc_loss_function(self.real_label, disc_real_result)
+            style_losses = [self.style_loss_function(d,g) for d,g in list(zip(disc_real_style,disc_gen_style))] 
             view_losses = [self.style_loss_function(d,g) for d,g in list(zip(disc_real_view,disc_gen_view))] 
 
             d_loss = [content_loss,*style_losses,*view_losses]
-            out = [content_loss]
+            out = [np.sum(d_loss)]
             
             for metric in self.d_metrics:
                 if metric.name == "mean":
