@@ -54,7 +54,7 @@ class ConvolutionalModel():
             name = "_".join([config.track_id,str(config.filters),str(i)])
             out = self.conv_layer(config)(out)
             if i == config.convolutions -1 and self.view_channels is not None:
-                viewable_config = DiscConvLayerConfig(self.view_channels,1,1,config.activation)
+                viewable_config = DiscConvLayerConfig(self.view_channels,1,1,self.conv_layers[-1].activation)
                 viewable_out = self.conv_layer(viewable_config)(out)
                 self.viewing_layers.append(viewable_out)
             
