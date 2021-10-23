@@ -72,11 +72,11 @@ class DataHelper(DataConfig):
         plt.imshow(displayed_img)
         return x
     
-    def save_viewed_images(self,name,gen_views,preview_margin):
+    def save_viewed_images(self,name,gen_images,gen_views,preview_margin):
         img_size = self.image_shape[1]
         channels = self.image_shape[-1]
         preview_rows = len(gen_views) 
-        preview_cols = gen_views[0].shape[0]
+        preview_cols = gen_views[0].shape[0] + 1
         preview_height = preview_cols*img_size + (preview_cols + 1)*preview_margin
         preview_width = preview_rows*img_size + (preview_rows + 1)*preview_margin
 
@@ -86,11 +86,14 @@ class DataHelper(DataConfig):
             image_array = np.full((preview_height, preview_width, channels), 255, dtype=np.uint8)
         
         for row in range(preview_rows):
-            for col in range(preview_cols):
+            for col in range(preview_cols+1):
                 r = row * (img_size+preview_margin) + preview_margin
                 c = col * (img_size+preview_margin) + preview_margin
                 # gen views => [[ps,8,8,3],[ps,16,16,3]]
-                img_batch = gen_views[row]
+                if col == preview_cols:
+                    img_batch = gen_images
+                else:
+                    img_batch = gen_views[row]
                 img = img_batch[col]
                 img = self.save_scale_function(img)
                 if channels == 1:
