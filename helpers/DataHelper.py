@@ -89,14 +89,10 @@ class DataHelper(DataConfig):
             for col in range(preview_cols+1):
                 r = row * (img_size+preview_margin) + preview_margin
                 c = col * (img_size+preview_margin) + preview_margin
-                # gen views => [[ps,8,8,3],[ps,16,16,3]]
-                if col == preview_cols:
-                    img_batch = gen_images[row]
-                else:
-                    img_batch = gen_views[row]
-
+                
+                img_batch = gen_views[col]
                 print("img_batch.shape: ",img_batch.shape)
-                img = img_batch[col]
+                img = img_batch[row]
                 print("img.shape: ",img.shape)
                 img = self.save_scale_function(img)
                 if channels == 1:
