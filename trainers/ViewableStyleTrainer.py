@@ -94,7 +94,7 @@ class ViewableStyleTrainer(AbstractTrainer):
 
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
             style_losses = self.get_all_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else []
-            view_losses = [self.style_loss_function(d,g) for d,g in list(zip(reversed(disc_view),gen_view))] 
+            view_losses = [self.gen_loss_function(d,g) for d,g in list(zip(reversed(disc_view),gen_view))] 
 
             g_loss = [content_loss,*style_losses,*view_losses]
 
@@ -124,7 +124,7 @@ class ViewableStyleTrainer(AbstractTrainer):
             
             content_loss = self.disc_loss_function(self.fake_label, disc_gen_result) + self.disc_loss_function(self.real_label, disc_real_result)
             style_losses = [self.style_loss_function(d,g) for d,g in list(zip(disc_real_style,disc_gen_style))] 
-            view_losses = [self.style_loss_function(d,g) for d,g in list(zip(disc_real_view,disc_gen_view))] 
+            view_losses = [self.disc_loss_function(d,g) for d,g in list(zip(disc_real_view,disc_gen_view))] 
 
             d_loss = [content_loss,*style_losses,*view_losses]
             out = [np.sum(d_loss)]
