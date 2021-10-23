@@ -65,6 +65,7 @@ class ViewableStyleTrainer(AbstractTrainer):
         print("MATCHED LAYERS: ")
         print(self.matched_keys)            
         self.g_metric_labels = ["G_Style_loss"] + self.g_metric_labels
+        self.d_metric_labels = ["D_Style_loss"] + self.g_metric_labels
         self.plot_labels = ["G_Loss","D_Loss",*self.g_metric_labels,*self.d_metric_labels]
     
     def save_images(self,name):
@@ -94,7 +95,12 @@ class ViewableStyleTrainer(AbstractTrainer):
 
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
             style_losses = self.get_all_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else []
-            view_losses = [self.gen_loss_function(d,g) for d,g in list(zip(reversed(disc_view),gen_view))] 
+
+            rdv = reversed(disc_view)
+            dview_std,dview_mean = [K.std(x) for x in rdv],[K.mean(x) for x in rdv]
+            gview_std,gview_mean = [K.std(x) for x in gen_view],[K.mean(x) for x in gen_view]
+            
+            view_losses = self.get_all_style_loss(gview_std,gview_mean,dview_std,dview_mean)
 
             g_loss = [content_loss,*style_losses,*view_losses]
 
@@ -127,7 +133,7 @@ class ViewableStyleTrainer(AbstractTrainer):
             view_losses = [self.disc_loss_function(d,g) for d,g in list(zip(disc_real_view,disc_gen_view))] 
 
             d_loss = [content_loss,*style_losses,*view_losses]
-            out = [np.sum(d_loss)]
+            out = [np.sum(d_loss),np.sum(style_losses)]
             
             for metric in self.d_metrics:
                 if metric.name == "mean":
