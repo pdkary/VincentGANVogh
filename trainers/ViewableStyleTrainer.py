@@ -124,7 +124,7 @@ class ViewableStyleTrainer(AbstractTrainer):
             disc_real_result, disc_real_style, disc_real_view = disc_real_out[0],disc_real_out[1:self.style_end_index],disc_real_out[self.style_end_index:]
             
             content_loss = self.disc_loss_function(self.fake_label, disc_gen_result) + self.disc_loss_function(self.real_label, disc_real_result)
-            style_losses = [self.style_loss_coeff*self.style_loss_function(d,g) for d,g in list(zip(disc_real_style,disc_gen_style))] 
+            style_losses = [tf.zeros_like(x) for x in disc_real_style] 
             view_losses = [tf.zeros_like(x) for x in disc_real_view] 
 
             d_loss = [content_loss,*style_losses,*view_losses]
