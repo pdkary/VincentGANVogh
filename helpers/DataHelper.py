@@ -86,7 +86,7 @@ class DataHelper(DataConfig):
             image_array = np.full((preview_height, preview_width, channels), 255, dtype=np.uint8)
         
         for row in range(preview_rows):
-            for col in range(preview_cols+1):
+            for col in range(preview_cols):
                 r = row * (img_size+preview_margin) + preview_margin
                 c = col * (img_size+preview_margin) + preview_margin
                 
