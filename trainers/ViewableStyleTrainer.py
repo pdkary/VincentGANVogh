@@ -65,7 +65,7 @@ class ViewableStyleTrainer(AbstractTrainer):
         print("MATCHED LAYERS: ")
         print(self.matched_keys)            
         self.g_metric_labels = ["G_Style_loss"] + self.g_metric_labels
-        self.d_metric_labels = ["D_Style_loss"] + self.g_metric_labels
+        self.d_metric_labels = ["D_Style_loss"] + self.d_metric_labels
         self.plot_labels = ["G_Loss","D_Loss",*self.g_metric_labels,*self.d_metric_labels]
     
     def save_images(self,name):
