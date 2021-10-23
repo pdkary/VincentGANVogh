@@ -76,7 +76,7 @@ class DataHelper(DataConfig):
         img_size = self.image_shape[1]
         channels = self.image_shape[-1]
         preview_rows = gen_views[0].shape[1] 
-        preview_cols = len(gen_views) 
+        preview_cols = len(gen_views) + 1 
         preview_height = preview_cols*img_size + (preview_cols + 1)*preview_margin
         preview_width = preview_rows*img_size + (preview_rows + 1)*preview_margin
 
@@ -91,7 +91,7 @@ class DataHelper(DataConfig):
                 r = row * (img_size+preview_margin) + preview_margin
                 c = col * (img_size+preview_margin) + preview_margin
                 
-                img_batch = gen_views[col]
+                img_batch = gen_views[col] if col <= len(gen_views) else gen_images[col]
                 print("img_batch.shape: ",img_batch.shape)
                 img = img_batch[row]
                 print("img.shape: ",img.shape)
