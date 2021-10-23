@@ -91,7 +91,7 @@ class DataHelper(DataConfig):
                 r = row * (img_size+preview_margin) + preview_margin
                 c = col * (img_size+preview_margin) + preview_margin
                 
-                img_batch = gen_views[col] if col <= len(gen_views) else gen_images
+                img_batch = gen_views[col] if col < len(gen_views) else gen_images
                 print("img_batch.shape: ",img_batch.shape)
                 img = img_batch[row]
                 print("img.shape: ",img.shape)
