@@ -58,7 +58,6 @@ class Discriminator():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.viewing_layers = []
-
     
     def build(self):
         print("BUILDING DISCRIMINATOR")

@@ -50,9 +50,11 @@ class ConvolutionalModel():
         out = input_tensor
         if config.upsampling:
             out = UpSampling2D(interpolation='bilinear')(out)
+        
         for i in range(config.convolutions):
             name = "_".join([config.track_id,str(config.filters),str(i)])
             out = self.conv_layer(config)(out)
+            #viewable output layers
             if i == config.convolutions -1 and self.view_channels is not None:
                 viewable_config = DiscConvLayerConfig(self.view_channels,1,1,self.conv_layers[-1].activation)
                 viewable_out = self.conv_layer(viewable_config)(out)
@@ -63,13 +65,14 @@ class ConvolutionalModel():
             
             if config.noise > 0.0:
                 out = GaussianNoise(config.noise)(out)
-            
+            ##style
             if config.style and self.style_input is not None:
                 out,B,G = AdaptiveInstanceNormalization(config.filters,name)([out,self.style_input])
                 out = config.activation.get()(out)
-                
+                ##tracking
                 if i == config.convolutions - 1 and config.track_id != "":
                     self.tracked_layers[name] = [B,G]
+            ##nonstyle
             else:                    
                 out = config.normalization.get()(out)
                 out = config.activation.get()(out)
