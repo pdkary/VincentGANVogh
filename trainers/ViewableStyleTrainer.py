@@ -94,13 +94,13 @@ class ViewableStyleTrainer(AbstractTrainer):
             disc_style_std,disc_style_mean = disc_style[0::2],disc_style[1::2]
 
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
-            style_losses = self.get_all_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else []
+            style_losses = self.style_loss_coeff*self.get_all_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else []
 
             rdv = reversed(disc_view)
             dview_std,dview_mean = [K.std(x) for x in rdv],[K.mean(x) for x in rdv]
             gview_std,gview_mean = [K.std(x) for x in gen_view],[K.mean(x) for x in gen_view]
             
-            view_losses = self.get_all_style_loss(gview_std,gview_mean,dview_std,dview_mean)
+            view_losses = self.style_loss_coeff*self.get_all_style_loss(gview_std,gview_mean,dview_std,dview_mean)
 
             g_loss = [content_loss,*style_losses,*view_losses]
 
@@ -129,8 +129,8 @@ class ViewableStyleTrainer(AbstractTrainer):
             disc_real_result, disc_real_style, disc_real_view = disc_real_out[0],disc_real_out[1:self.style_end_index],disc_real_out[self.style_end_index:]
             
             content_loss = self.disc_loss_function(self.fake_label, disc_gen_result) + self.disc_loss_function(self.real_label, disc_real_result)
-            style_losses = [self.style_loss_function(d,g) for d,g in list(zip(disc_real_style,disc_gen_style))] 
-            view_losses = [self.disc_loss_function(d,g) for d,g in list(zip(disc_real_view,disc_gen_view))] 
+            style_losses = [self.style_loss_coeff**self.style_loss_function(d,g) for d,g in list(zip(disc_real_style,disc_gen_style))] 
+            view_losses = [self.style_loss_coeff**self.disc_loss_function(d,g) for d,g in list(zip(disc_real_view,disc_gen_view))] 
 
             d_loss = [content_loss,*style_losses,*view_losses]
             out = [np.sum(d_loss),np.sum(style_losses)]
