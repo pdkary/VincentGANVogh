@@ -77,7 +77,6 @@ class DataHelper(DataConfig):
         channels = self.image_shape[-1]
         preview_rows = gen_views[0].shape[1]
         preview_cols = len(gen_views)+1
-        print(preview_rows,preview_cols)
         preview_height = preview_rows*img_size + (preview_rows + 1)*preview_margin
         preview_width = preview_cols*img_size + (preview_cols + 1)*preview_margin
 
@@ -88,14 +87,11 @@ class DataHelper(DataConfig):
         
         for row in range(preview_rows):
             for col in range(preview_cols):
-                print("ROW: %d,COL: %d"%(row,col))
                 r = row * (img_size+preview_margin) + preview_margin
                 c = col * (img_size+preview_margin) + preview_margin
                 
                 img_batch = gen_views[col] if col < len(gen_views) else gen_images
-                print("img_batch.shape: ",img_batch.shape)
                 img = img_batch[row]
-                print("img.shape: ",img.shape)
                 img = self.save_scale_function(img)
                 if channels == 1:
                     img = np.reshape(img,newshape=(img_size,img_size))
