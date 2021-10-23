@@ -29,7 +29,6 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.model_output_path = self.D.gan_input.data_path + "/models"
         self.model_name = self.D.gan_input.model_name
     
-    @abstractmethod
     def compile(self):
         GI,GO = self.G.input,self.G.build()
         DI,DO = self.D.input,self.D.build()
@@ -53,7 +52,6 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def train_discriminator(self, source_input, gen_input):
         return 2*[0.0] + len(self.d_metrics)*[0.0]
 
-    @abstractmethod
     def save_images(self,name):
         gen_input = self.G.get_validation_batch(self.preview_size)
         gen_images = self.generator.predict(gen_input)[0]
