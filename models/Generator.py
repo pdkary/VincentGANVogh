@@ -51,10 +51,13 @@ class Generator():
         DM_out = Reshape(self.conv_input_shape)(DM_out)
         
         print("BUILDING GENERATOR STYLE")
-        SM = DenseModel(self.style_input.input_layer,
-                        self.style_layers,
-                        self.dense_activation)
-        SM_out = SM.build()
+        if self.style_input is not None:
+            SM = DenseModel(self.style_input.input_layer,
+                            self.style_layers,
+                            self.dense_activation)
+            SM_out = SM.build()
+        else:
+            SM_out = None
         print("BUILDING GENERATOR CONV")
 
         view_channels = self.conv_layers[-1].filters if self.view_layers else None
