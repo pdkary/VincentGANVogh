@@ -126,7 +126,8 @@ class ViewableStyleTrainer(AbstractTrainer):
             
             style_losses = [tf.zeros_like(x) for x in gen_style]
             view_losses = [tf.zeros_like(x) for x in disc_real_view]            
-            
+            view_losses = [self.style_loss_function(d,g) for d,g in list(zip(disc_real_view,disc_gen_view))] 
+
             d_loss = [content_loss,*style_losses,*view_losses]
             out = [content_loss]
             
