@@ -60,6 +60,9 @@ class RealImageInput(GanInput,DataConfig):
     def save(self,name,images,preview_rows,preview_cols,preview_margin):
         self.data_helper.save_images(name,images,preview_rows,preview_cols,preview_margin)
     
+    def save_viewed(self,name,viewed_imgs,preview_margin):
+        self.data_helper.save_viewed_images(name,viewed_imgs,preview_margin)
+
     def get_training_batch(self,batch_size):
         return self.get_batch(batch_size,self.training_dataset)
     

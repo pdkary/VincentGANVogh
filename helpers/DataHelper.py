@@ -1,3 +1,4 @@
+from matplotlib import image
 from config.TrainingConfig import DataConfig
 import os
 import glob
@@ -70,7 +71,42 @@ class DataHelper(DataConfig):
         displayed_img = (displayed_img-img_min)/(img_max - img_min)
         plt.imshow(displayed_img)
         return x
+    
+    def save_viewed_images(self,name,gen_views,preview_margin):
+        img_size = self.image_shape[1]
+        channels = self.image_shape[-1]
+        preview_rows = len(gen_views) 
+        preview_cols = gen_views[0].shape[0]
+        preview_height = preview_cols*img_size + (preview_cols + 1)*preview_margin
+        preview_width = preview_rows*img_size + (preview_rows + 1)*preview_margin
 
+        if channels ==1:
+            image_array = np.full((preview_height, preview_width), 255, dtype=np.uint8)
+        else:
+            image_array = np.full((preview_height, preview_width, channels), 255, dtype=np.uint8)
+        
+        for row in range(preview_rows):
+            for col in range(preview_cols):
+                r = row * (img_size+preview_margin) + preview_margin
+                c = col * (img_size+preview_margin) + preview_margin
+                # gen views => [[ps,8,8,3],[ps,16,16,3]]
+                img_batch = gen_views[row]
+                img = img_batch[col]
+                img = self.save_scale_function(img)
+                if channels == 1:
+                    img = np.reshape(img,newshape=(img_size,img_size))
+                else:
+                    img = Image.fromarray((img).astype(np.uint8))
+                    img = img.resize((img_size,img_size),Image.BICUBIC)
+                    img = np.asarray(img)
+                    
+                image_array[r:r+img_size, c:c+img_size] = img
+
+        filename = os.path.join(self.image_output_path,name + self.image_type)
+        im = Image.fromarray(image_array.astype(np.uint8))
+        im.save(filename)
+
+        
     def save_images(self, name, generated_images,preview_rows,preview_cols,preview_margin):
         image_count = 0
         img_size = self.image_shape[1]
