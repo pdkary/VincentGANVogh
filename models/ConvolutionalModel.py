@@ -31,8 +31,7 @@ class ConvolutionalModel():
         c_args = dict(filters=config.filters,kernel_size=config.kernel_size,
                         strides=config.strides,padding="same",
                         kernel_regularizer = self.kernel_regularizer.get(),
-                        kernel_initializer = self.kernel_initializer,
-                        use_bias=False)
+                        kernel_initializer = self.kernel_initializer)
         return Conv2DTranspose(**c_args) if config.transpose else Conv2D(**c_args)
 
     def build(self,flatten=False):
