@@ -87,6 +87,7 @@ class DataHelper(DataConfig):
         
         for row in range(preview_rows):
             for col in range(preview_cols):
+                print("ROW: %d,COL: %d"%(row,col))
                 r = row * (img_size+preview_margin) + preview_margin
                 c = col * (img_size+preview_margin) + preview_margin
                 
