@@ -71,7 +71,7 @@ class ViewableStyleTrainer(AbstractTrainer):
         preview_seed = self.G.get_validation_batch(self.preview_size)
         gen_out = self.generator.predict(preview_seed)
         gen_images, gen_style, gen_views = gen_out[0],gen_out[1:self.style_end_index],gen_out[self.style_end_index:]
-        self.D.gan_input.save_viewed(name+"_progression",gen_images,gen_views,self.preview_margin)
+        self.D.gan_input.save_viewed(name,gen_images,gen_views,self.preview_margin)
 
     def get_all_style_loss(self,content_std_arr,content_mean_arr,style_std_arr,style_mean_arr):
         src_2_dest = list(zip(content_std_arr,content_mean_arr,style_std_arr,style_mean_arr))
