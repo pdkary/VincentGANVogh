@@ -65,7 +65,7 @@ class ViewableStyleTrainer(AbstractTrainer):
         print("MATCHED LAYERS: ")
         print(self.matched_keys)            
         self.g_metric_labels = ["G_Style_loss"] + self.g_metric_labels
-        self.d_metric_labels = ["D_Style_loss"] + self.d_metric_labels
+        # self.d_metric_labels = ["D_Style_loss"] + self.d_metric_labels
         self.plot_labels = ["G_Loss","D_Loss",*self.g_metric_labels,*self.d_metric_labels]
     
     def save_images(self,name):
@@ -127,7 +127,7 @@ class ViewableStyleTrainer(AbstractTrainer):
             view_losses = [tf.zeros_like(x) for x in disc_real_view] 
 
             d_loss = [content_loss,*style_losses,*view_losses]
-            out = [content_loss,np.sum(style_losses)]
+            out = [content_loss]
             
             for metric in self.d_metrics:
                 if metric.name == "mean":
