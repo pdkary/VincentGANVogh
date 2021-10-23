@@ -91,7 +91,7 @@ class DataHelper(DataConfig):
                 c = col * (img_size+preview_margin) + preview_margin
                 # gen views => [[ps,8,8,3],[ps,16,16,3]]
                 if col == preview_cols:
-                    img_batch = gen_images
+                    img_batch = gen_images[row]
                 else:
                     img_batch = gen_views[row]
 
