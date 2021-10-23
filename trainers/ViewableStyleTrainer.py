@@ -127,7 +127,7 @@ class ViewableStyleTrainer(AbstractTrainer):
             view_losses = [tf.zeros_like(x) for x in disc_real_view] 
 
             d_loss = [content_loss,*style_losses,*view_losses]
-            out = [total_loss,np.sum(style_losses)]
+            out = [content_loss,np.sum(style_losses)]
             
             for metric in self.d_metrics:
                 if metric.name == "mean":
