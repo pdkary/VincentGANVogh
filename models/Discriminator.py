@@ -17,6 +17,8 @@ class Discriminator():
     def from_generator(generator:Generator,
                        real_image_input: GanInput,
                        final_activation: ActivationConfig,
+                       minibatch_size: int = 0,
+                       dropout_rate: float = 0.0,
                        viewable: bool = False):
         conv_layers = [x.flip() for x in reversed(deepcopy(generator.conv_layers))]
         dense_layers = list(reversed(deepcopy(generator.dense_layers)))
@@ -25,6 +27,8 @@ class Discriminator():
         kr = generator.kernel_regularizer
         ki = generator.kernel_initializer
         return Discriminator(real_image_input,conv_layers,dense_layers,
+                             minibatch_size=minibatch_size,
+                             dropout_rate=dropout_rate,
                              view_layers=viewable,
                              dense_activation=dense_activation,
                              final_activation=final_activation,
