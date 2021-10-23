@@ -94,7 +94,10 @@ class DataHelper(DataConfig):
                     img_batch = gen_images
                 else:
                     img_batch = gen_views[row]
+
+                print("img_batch.shape: ",img_batch.shape)
                 img = img_batch[col]
+                print("img.shape: ",img.shape)
                 img = self.save_scale_function(img)
                 if channels == 1:
                     img = np.reshape(img,newshape=(img_size,img_size))
