@@ -69,13 +69,13 @@ class ConvolutionalModel():
                 out,B,G = AdaptiveInstanceNormalization(config.filters,name)([out,self.style_input])
                 out = config.activation.get()(out)
                 
-                if i == config.convolutions - 1:
+                if i == config.convolutions - 1 and config.track_id != None:
                     self.tracked_layers[name] = [B,G]
             else:                    
                 out = config.normalization.get()(out)
                 out = config.activation.get()(out)
                 
-                if i == config.convolutions - 1:
+                if i == config.convolutions - 1 and config.track_id != None:
                     out_std = K.std(out,[1,2],keepdims=True)
                     out_mean = K.mean(out,[1,2],keepdims=True)
                     self.tracked_layers[name] = [out_std,out_mean]
