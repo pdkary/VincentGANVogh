@@ -25,7 +25,7 @@ class SimpleTrainer(AbstractTrainer):
             gen_images = self.generator(gen_input,training=True)
             disc_results = self.discriminator(gen_images, training=False)
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
-            content_loss += (1e-3)*self.gen_loss_function(source_input,gen_images)
+            content_loss += self.gen_loss_function(source_input,gen_images)
 
             g_loss = [content_loss]
             out = [content_loss]
@@ -50,6 +50,7 @@ class SimpleTrainer(AbstractTrainer):
             
             content_loss =  self.disc_loss_function(self.fake_label, disc_gen_out) 
             content_loss += self.disc_loss_function(self.real_label, disc_real_out)
+            content_loss += self.disc_loss_function(disc_input,disc_real_out)
 
             d_loss = [content_loss]
             out = [content_loss]
