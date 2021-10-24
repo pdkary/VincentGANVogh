@@ -102,22 +102,22 @@ class StyleTrainer(AbstractTrainer):
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
             gen_out = self.generator(gen_input,training=False)
-            if len(gen_out) >1 :
+            if len(gen_out) > 1:
                 gen_images, gen_style = gen_out[0], gen_out[1:]
             else:            
-                gen_images, gen_style = gen_out, None
+                gen_images, gen_style = gen_out[0], None
 
             disc_gen_out = self.discriminator(gen_images, training=True)
-            if len(disc_gen_out) >1 :
+            if len(disc_gen_out) > 1:
                 disc_gen_result,disc_gen_style = disc_gen_out[0],disc_gen_out[1:]
             else:            
-                disc_gen_result,disc_gen_style = disc_gen_out,None
+                disc_gen_result,disc_gen_style = disc_gen_out[0],None
 
             disc_real_out = self.discriminator(disc_input, training=True)
-            if len(disc_real_out) >1 :
+            if len(disc_real_out) > 1:
                 disc_real_result,disc_real_style = disc_real_out[0],disc_real_out[1:]
             else:            
-                disc_real_result,disc_real_style = disc_real_out,None
+                disc_real_result,disc_real_style = disc_real_out[0],None
             
             content_loss = self.disc_loss_function(self.fake_label, disc_gen_result) + self.disc_loss_function(self.real_label, disc_real_result)
             style_losses = [tf.zeros_like(x) for x in disc_real_style] 
