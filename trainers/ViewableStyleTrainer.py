@@ -85,12 +85,21 @@ class ViewableStyleTrainer(AbstractTrainer):
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
             gen_out = self.generator(gen_input,training=True)
-            gen_images, gen_style, gen_view = gen_out[0],gen_out[1:self.style_end_index],gen_out[self.style_end_index:]
-            gen_style_std,gen_style_mean = gen_style[0::2],gen_style[1::2]
+            if type(gen_out) == List:
+                gen_images, gen_style, gen_view = gen_out[0],gen_out[1:self.style_end_index],gen_out[self.style_end_index:]
+                gen_style_std,gen_style_mean = gen_style[0::2],gen_style[1::2]
+            else:
+                gen_images,gen_style,gen_view = gen_out,None,None
+                gen_style_std,gen_style_mean = None,None
             
             disc_out = self.discriminator(gen_images, training=False)
-            disc_results,disc_style,disc_view = disc_out[0],disc_out[1:self.style_end_index],disc_out[self.style_end_index:]
-            disc_style_std,disc_style_mean = disc_style[0::2],disc_style[1::2]
+            if type(disc_out) == List:
+                disc_results,disc_style,disc_view = disc_out[0],disc_out[1:self.style_end_index],disc_out[self.style_end_index:]
+                disc_style_std,disc_style_mean = disc_style[0::2],disc_style[1::2]
+            else:
+                disc_results,disc_style,disc_view = disc_out,None,None
+                disc_style_std,disc_style_mean = None,None
+
 
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
             content_loss += self.gen_loss_function(source_input,gen_images)
@@ -114,13 +123,22 @@ class ViewableStyleTrainer(AbstractTrainer):
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
             gen_out = self.generator(gen_input,training=False)
-            gen_images, gen_style, gen_view = gen_out[0], gen_out[1:self.style_end_index], gen_out[self.style_end_index:]
-            
+            if type(gen_out) == List:
+                gen_images, gen_style, gen_view = gen_out[0], gen_out[1:self.style_end_index], gen_out[self.style_end_index:]
+            else:            
+                gen_images, gen_style, gen_view = gen_out, None, None
+
             disc_gen_out = self.discriminator(gen_images, training=True)
-            disc_gen_result,disc_gen_style,disc_gen_view = disc_gen_out[0],disc_gen_out[1:self.style_end_index],disc_gen_out[self.style_end_index:]
+            if type(disc_gen_out) == List:
+                disc_gen_result,disc_gen_style,disc_gen_view = disc_gen_out[0],disc_gen_out[1:self.style_end_index],disc_gen_out[self.style_end_index:]
+            else:            
+                disc_gen_result,disc_gen_style,disc_gen_view = disc_gen_out,None,None
 
             disc_real_out = self.discriminator(disc_input, training=True)
-            disc_real_result, disc_real_style, disc_real_view = disc_real_out[0],disc_real_out[1:self.style_end_index],disc_real_out[self.style_end_index:]
+            if type(disc_real_out) == List:
+                disc_real_result,disc_real_style,disc_real_view = disc_real_out[0],disc_real_out[1:self.style_end_index],disc_real_out[self.style_end_index:]
+            else:            
+                disc_real_result,disc_real_style,disc_real_view = disc_real_out,None,None
             
             content_loss = self.disc_loss_function(self.fake_label, disc_gen_result) + self.disc_loss_function(self.real_label, disc_real_result)
             style_losses = [tf.zeros_like(x) for x in disc_real_style] 
