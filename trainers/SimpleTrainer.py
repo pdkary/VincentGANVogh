@@ -43,21 +43,21 @@ class SimpleTrainer(AbstractTrainer):
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
             gen_images = self.generator(gen_input,training=False)
-            disc_gen_result = self.discriminator(gen_images, training=True)
+            disc_gen_out = self.discriminator(gen_images, training=True)
 
             disc_real_out = self.discriminator(disc_input, training=True)
-            disc_real_result, disc_real_style = disc_real_out[0],disc_real_out[1:]
             
-            content_loss = self.disc_loss_function(self.fake_label, disc_gen_result) + self.disc_loss_function(self.real_label, disc_real_result)
+            content_loss =  self.disc_loss_function(self.fake_label, disc_gen_out) 
+            content_loss += self.disc_loss_function(self.real_label, disc_real_out)
 
             d_loss = [content_loss]
             out = [content_loss]
             
             for metric in self.d_metrics:
                 if metric.name == "mean":
-                    metric.update_state(disc_real_result)
+                    metric.update_state(disc_real_out)
                 else:
-                    metric.update_state(self.real_label,disc_real_result)
+                    metric.update_state(self.real_label,disc_real_out)
                 out.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)

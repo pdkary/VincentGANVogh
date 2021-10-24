@@ -16,9 +16,8 @@ from models.Generator import Generator
 
 from third_party_layers.InstanceNormalization import InstanceNormalization
 
-from trainers.GradTapeStyleTrainer import GradTapeStyleTrainer
 from trainers.ViewableStyleTrainer import ViewableStyleTrainer
-
+from trainers.SimpleTrainer import SimpleTrainer
 # from google.colab import drive
 # drive.mount('/content/drive')
  
@@ -76,17 +75,13 @@ g_out = GenLayerConfig(img_shape[-1],1,3,sigmoid,normalization=instance_norm)
 generator = Generator(
     gan_input = latent_input,
     dense_layers=[1000,4096],
-    conv_input_shape=(4,4,512),
-    conv_layers = [mgl_u(512,2,"1"),
-                  mgl_u(512,2,"2"),
-                  mgl_u(512,2,"3"),
-                  mgl_u(256,2,"4"),
-                  mgl_u(128,2,"5"),
-                  mgl_u(64,2,"6"),
-                  g_out],
-    style_input=latent_input,
-    style_layers=[100,100,100,100],
-    view_layers=True,
+    conv_input_shape=(8,8,512),
+    conv_layers = [gl_u(512,4),
+                   gl_u(512,4),
+                   gl_u(256,4),
+                   gl_u(128,2),
+                   gl_u(64, 2),
+                   g_out],
     dense_activation=sigmoid
 )
     
@@ -95,7 +90,7 @@ discriminator = Discriminator.from_generator(generator,image_source,sigmoid)
 
 #Training config
 gan_training_config = GanTrainingConfig(
-    plot=True,
+    plot=False,
     #[real_image_label, not_image_label]
     disc_labels=[1.0,0.0],
     #desired label
@@ -111,12 +106,12 @@ gan_training_config = GanTrainingConfig(
     disc_batches_per_epoch = 1,
 )
 #Trainer
-VGV = ViewableStyleTrainer(generator,discriminator,gan_training_config)
+VGV = SimpleTrainer(generator,discriminator,gan_training_config)
 VGV.compile()
 # # TRAINING
-# ERAS = 100
-# EPOCHS = 5000
-# PRINT_EVERY = 10
-# MOVING_AVERAGE_SIZE = 100
+ERAS = 2
+EPOCHS = 10
+PRINT_EVERY = 1
+MOVING_AVERAGE_SIZE = 1
 
-# VGV.train_n_eras(ERAS,EPOCHS,PRINT_EVERY,MOVING_AVERAGE_SIZE)
+VGV.train_n_eras(ERAS,EPOCHS,PRINT_EVERY,MOVING_AVERAGE_SIZE)
