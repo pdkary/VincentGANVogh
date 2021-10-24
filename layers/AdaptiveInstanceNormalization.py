@@ -47,8 +47,8 @@ class AdaptiveInstanceNormalization(Layer):
         beta = K.reshape(beta,(-1,1,1,beta.shape[-1]))
         gamma = tf.transpose(tf.linalg.matmul(self.G_weight,s_input,transpose_b=True)) + self.G_bias
         gamma = K.reshape(gamma,(-1,1,1,gamma.shape[-1]))
-        mean = K.mean(c_input, axis = [1,2], keepdims = True)
-        std = K.std(c_input, axis = [1,2], keepdims = True) + 1e-7
+        mean = K.mean(c_input, axis = [1,2,3], keepdims = True)
+        std = K.std(c_input, axis = [1,2,3], keepdims = True) + 1e-7
         normed = (c_input - mean)/std
         out = normed*gamma + beta
         return [out, beta, gamma]
