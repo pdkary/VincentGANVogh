@@ -93,6 +93,7 @@ class ViewableStyleTrainer(AbstractTrainer):
             disc_style_std,disc_style_mean = disc_style[0::2],disc_style[1::2]
 
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
+            content_loss += self.gen_loss_function(source_input,gen_images)
             style_losses = self.get_all_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else []
             view_losses = [tf.zeros_like(x) for x in gen_view]
 
