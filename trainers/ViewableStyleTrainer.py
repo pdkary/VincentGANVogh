@@ -85,7 +85,7 @@ class ViewableStyleTrainer(AbstractTrainer):
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
             gen_out = self.generator(gen_input,training=True)
-            if type(gen_out) == List:
+            if len(gen_out) >1 :
                 gen_images, gen_style, gen_view = gen_out[0],gen_out[1:self.style_end_index],gen_out[self.style_end_index:]
                 gen_style_std,gen_style_mean = gen_style[0::2],gen_style[1::2]
             else:
@@ -123,19 +123,19 @@ class ViewableStyleTrainer(AbstractTrainer):
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
             gen_out = self.generator(gen_input,training=False)
-            if type(gen_out) == List:
+            if len(gen_out) >1 :
                 gen_images, gen_style, gen_view = gen_out[0], gen_out[1:self.style_end_index], gen_out[self.style_end_index:]
             else:            
                 gen_images, gen_style, gen_view = gen_out, None, None
 
             disc_gen_out = self.discriminator(gen_images, training=True)
-            if type(disc_gen_out) == List:
+            if len(disc_gen_out) >1 :
                 disc_gen_result,disc_gen_style,disc_gen_view = disc_gen_out[0],disc_gen_out[1:self.style_end_index],disc_gen_out[self.style_end_index:]
             else:            
                 disc_gen_result,disc_gen_style,disc_gen_view = disc_gen_out,None,None
 
             disc_real_out = self.discriminator(disc_input, training=True)
-            if type(disc_real_out) == List:
+            if len(disc_real_out) >1 :
                 disc_real_result,disc_real_style,disc_real_view = disc_real_out[0],disc_real_out[1:self.style_end_index],disc_real_out[self.style_end_index:]
             else:            
                 disc_real_result,disc_real_style,disc_real_view = disc_real_out,None,None

@@ -84,7 +84,7 @@ class StyleTrainer(AbstractTrainer):
             content_loss += (1e-3)*self.gen_loss_function(source_input,gen_images)
 
             style_losses = self.get_all_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else []
-            
+
             g_loss = [content_loss,*style_losses]
             out = [content_loss, np.sum(style_losses)]
             
@@ -102,19 +102,19 @@ class StyleTrainer(AbstractTrainer):
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
             gen_out = self.generator(gen_input,training=False)
-            if type(gen_out) == List:
+            if len(gen_out) >1 :
                 gen_images, gen_style = gen_out[0], gen_out[1:]
             else:            
                 gen_images, gen_style = gen_out, None
 
             disc_gen_out = self.discriminator(gen_images, training=True)
-            if type(disc_gen_out) == List:
+            if len(disc_gen_out) >1 :
                 disc_gen_result,disc_gen_style = disc_gen_out[0],disc_gen_out[1:]
             else:            
                 disc_gen_result,disc_gen_style = disc_gen_out,None
 
             disc_real_out = self.discriminator(disc_input, training=True)
-            if type(disc_real_out) == List:
+            if len(disc_real_out) >1 :
                 disc_real_result,disc_real_style = disc_real_out[0],disc_real_out[1:]
             else:            
                 disc_real_result,disc_real_style = disc_real_out,None

@@ -78,7 +78,7 @@ class ConvolutionalModel():
                 out = config.activation.get()(out)
                 
                 if i == config.convolutions - 1 and config.track_id != "":
-                    out_std = K.std(out,[1,2],keepdims=True)
+                    out_std  = K.std(out,[1,2],keepdims=True)
                     out_mean = K.mean(out,[1,2],keepdims=True)
                     self.tracked_layers[name] = [out_std,out_mean]
         if config.downsampling:
