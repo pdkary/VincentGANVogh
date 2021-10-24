@@ -24,7 +24,8 @@ class Discriminator():
         conv_layers = [x.flip() for x in reversed(deepcopy(generator.conv_layers))]
         dense_layers = list(reversed(deepcopy(generator.dense_layers)))
         dense_layers.append(generator.gan_input.input_shape[-1])
-        dense_layers.append(output_dim)
+        if output_dim is not None:
+            dense_layers.append(output_dim)
         dense_activation = generator.dense_activation
         kr = generator.kernel_regularizer
         ki = generator.kernel_initializer
