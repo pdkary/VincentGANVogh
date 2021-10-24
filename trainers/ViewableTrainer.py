@@ -24,19 +24,14 @@ class ViewableTrainer(AbstractTrainer):
     def compile(self):
         GI,GO = self.G.input,self.G.build()
         DI,DO = self.D.input,self.D.build()
-
-        self.gen_viewing_layers = self.G.viewing_layers
-        self.disc_viewing_layers = self.D.viewing_layers
-        print("\ngen_viewing_layers:")
-        print([x.name for x in self.gen_viewing_layers])
-        print([x.shape for x in self.gen_viewing_layers])
         
-        self.generator = Model(inputs=GI,outputs=[GO,*self.gen_viewing_layers])
-        self.discriminator = Model(inputs=DI,outputs=[DO,*self.disc_viewing_layers])
+        self.generator = Model(inputs=GI,outputs=[GO,*self.G.viewing_layers])
+        self.discriminator = Model(inputs=DI,outputs=DO)
 
         self.generator.compile(optimizer=self.gen_optimizer,
                                loss=self.gen_loss_function,
                                metrics=self.g_metrics)
+
         self.discriminator.compile(optimizer=self.disc_optimizer,
                                    loss=self.disc_loss_function,
                                    metrics=self.d_metrics)
@@ -54,8 +49,7 @@ class ViewableTrainer(AbstractTrainer):
             gen_out = self.generator(gen_input,training=True)
             gen_images, gen_view = gen_out[0],gen_out[1:]
             
-            disc_out = self.discriminator(gen_images, training=False)
-            disc_results,disc_view = disc_out[0],disc_out[1:]
+            disc_results = self.discriminator(gen_images, training=False)
 
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
             content_loss += self.gen_loss_function(source_input,gen_images)
@@ -80,17 +74,13 @@ class ViewableTrainer(AbstractTrainer):
             gen_out = self.generator(gen_input,training=False)
             gen_images, gen_view = gen_out[0], gen_out[1:]
 
-            disc_gen_out = self.discriminator(gen_images, training=True)
-            disc_gen_result,disc_gen_view = disc_gen_out[0],disc_gen_out[1:]
-           
-            disc_real_out = self.discriminator(disc_input, training=True)
-            disc_real_result,disc_real_view = disc_real_out[0],disc_real_out[1:]
+            disc_gen_result = self.discriminator(gen_images, training=True)
+            disc_real_result = self.discriminator(disc_input, training=True)
             
             content_loss =  self.disc_loss_function(self.fake_label, disc_gen_result) 
             content_loss += self.disc_loss_function(self.real_label, disc_real_result)
-            view_losses = [tf.zeros_like(x) for x in disc_real_view] 
 
-            d_loss = [content_loss,*view_losses]
+            d_loss = [content_loss]
             out = [content_loss]
             
             for metric in self.d_metrics:
