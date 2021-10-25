@@ -65,19 +65,16 @@ class ConvolutionalModel():
             if config.noise > 0.0:
                 out = GaussianNoise(config.noise)(out)
 
-            if config.style and self.style_input is not None:
-                out = AdaptiveInstanceNormalization(config.filters,name)([out,self.style_input])
-            else:                    
-                out = config.normalization.get()(out)
-
-            out = config.activation.get()(out)
-            
-            #tracking / viewing
             if i == config.convolutions - 1:
                 if config.track_id != "":
                     self.track_layer(out,name)
                 if self.view_channels is not None:
                     self.add_view_layer(out)
+                    
+            out = config.normalization.get()(out)
+            out = config.activation.get()(out)
+            
+            #tracking / viewing
 
         if config.downsampling:
             out = MaxPooling2D()(out)
@@ -89,6 +86,6 @@ class ConvolutionalModel():
         self.viewing_layers.append(viewable_out)
 
     def track_layer(self,tensor:KerasTensor,name:str):
-        out_std  = K.std(tensor,[1,2],keepdims=True)
-        out_mean = K.mean(tensor,[1,2],keepdims=True)
+        out_std  = K.std(tensor,[1,2,3],keepdims=True)
+        out_mean = K.mean(tensor,[1,2,3],keepdims=True)
         self.tracked_layers[name] = [out_std,out_mean]
