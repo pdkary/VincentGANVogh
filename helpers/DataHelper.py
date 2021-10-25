@@ -96,7 +96,7 @@ class DataHelper(DataConfig):
                     img = np.reshape(img,newshape=(img_size,img_size))
                 else:
                     img = Image.fromarray((img).astype(np.uint8))
-                    img = img.resize((img_size,img_size),Image.BICUBIC)
+                    img = img.resize((img_size,img_size),Image.BOX)
                     img = np.asarray(img)
                     
                 image_array[r:r+img_size, c:c+img_size] = img
