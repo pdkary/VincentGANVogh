@@ -37,6 +37,10 @@ class ConvolutionalModel():
     def build(self,flatten=False):
         #configure input
         out = self.input
+        if self.view_channels is not None:
+            viewable_config = DiscConvLayerConfig(self.view_channels,1,1,self.conv_layers[-1].activation)
+            viewable_out = self.conv_layer(viewable_config)(out)
+            self.viewing_layers.append(viewable_out)
         print("BUILDING CONV MODEL")
         for config in self.conv_layers:
             print("BLOCK SHAPE: ",out.shape)
