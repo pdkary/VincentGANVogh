@@ -58,33 +58,37 @@ class ConvolutionalModel():
         for i in range(config.convolutions):
             name = "_".join([config.track_id,str(config.filters),str(i)])
             out = self.conv_layer(config)(out)
-            #viewable output layers
-            if i == config.convolutions -1 and self.view_channels is not None:
-                viewable_config = DiscConvLayerConfig(self.view_channels,1,1,self.conv_layers[-1].activation)
-                viewable_out = self.conv_layer(viewable_config)(out)
-                self.viewing_layers.append(viewable_out)
             
             if config.dropout_rate > 0:
                 out = Dropout(config.dropout_rate,name="conv_dropout_"+name)(out)
             
             if config.noise > 0.0:
                 out = GaussianNoise(config.noise)(out)
-            ##style
+
             if config.style and self.style_input is not None:
-                out,B,G = AdaptiveInstanceNormalization(config.filters,name)([out,self.style_input])
-                out = config.activation.get()(out)
-                ##tracking
-                if i == config.convolutions - 1 and config.track_id != "":
-                    self.tracked_layers[name] = [B,G]
-            ##nonstyle
+                out = AdaptiveInstanceNormalization(config.filters,name)([out,self.style_input])
             else:                    
                 out = config.normalization.get()(out)
-                out = config.activation.get()(out)
-                
-                if i == config.convolutions - 1 and config.track_id != "":
-                    out_std  = K.std(out,[1,2],keepdims=True)
-                    out_mean = K.mean(out,[1,2],keepdims=True)
-                    self.tracked_layers[name] = [out_std,out_mean]
+
+            out = config.activation.get()(out)
+            
+            #tracking / viewing
+            if i == config.convolutions - 1:
+                if config.track_id != "":
+                    self.track_layer(out,name)
+                if self.view_channels is not None:
+                    self.add_view_layer(out)
+
         if config.downsampling:
             out = MaxPooling2D()(out)
         return out
+    
+    def add_view_layer(self,tensor: KerasTensor):
+        viewable_config = DiscConvLayerConfig(self.view_channels,1,1,self.conv_layers[-1].activation)
+        viewable_out = self.conv_layer(viewable_config)(tensor)
+        self.viewing_layers.append(viewable_out)
+
+    def track_layer(self,tensor:KerasTensor,name:str):
+        out_std  = K.std(tensor,[1,2],keepdims=True)
+        out_mean = K.mean(tensor,[1,2],keepdims=True)
+        self.tracked_layers[name] = [out_std,out_mean]

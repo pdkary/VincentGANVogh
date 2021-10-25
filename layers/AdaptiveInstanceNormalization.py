@@ -12,43 +12,32 @@ class AdaptiveInstanceNormalization(Layer):
         c_shape,s_shape = input_shape
         mat_shape = (c_shape[-1],s_shape[-1])
 
-        self.B_weight = self.add_weight(
+        self.B = self.add_weight(
             shape=mat_shape,
             dtype=tf.float32,
             initializer='ones',
             trainable=True,
-            name=self.layer_name + "_Bw"
+            name=self.layer_name + "_beta"
         )
-        self.B_bias = self.add_weight(
-            shape=c_shape[-1],
-            dtype=tf.float32,
-            initializer='zeros',
-            trainable=True,
-            name=self.layer_name + "_Bb"
-        )
-        self.G_weight = self.add_weight(
+        self.G = self.add_weight(
             shape=mat_shape,
             dtype=tf.float32,
             initializer='ones',
             trainable=True,
-            name=self.layer_name + "_Gw"
-        )
-        self.G_bias = self.add_weight(
-            shape=c_shape[-1],
-            dtype=tf.float32,
-            initializer='zeros',
-            trainable=True,
-            name=self.layer_name + "_Gb"
+            name=self.layer_name + "_gamma"
         )
         
     def call(self, input_tensor):
         c_input,s_input = input_tensor
-        beta = tf.transpose(tf.linalg.matmul(self.B_weight,s_input,transpose_b=True)) + self.B_bias
+        beta = tf.transpose(tf.linalg.matmul(self.B,s_input,transpose_b=True))
         beta = K.reshape(beta,(-1,1,1,beta.shape[-1]))
-        gamma = tf.transpose(tf.linalg.matmul(self.G_weight,s_input,transpose_b=True)) + self.G_bias
+
+        gamma = tf.transpose(tf.linalg.matmul(self.G,s_input,transpose_b=True))
         gamma = K.reshape(gamma,(-1,1,1,gamma.shape[-1]))
+        
         mean = K.mean(c_input, axis = [1,2], keepdims = True)
         std = K.std(c_input, axis = [1,2], keepdims = True) + 1e-7
+        
         normed = (c_input - mean)/std
         out = normed*gamma + beta
-        return [out, beta, gamma]
+        return out
