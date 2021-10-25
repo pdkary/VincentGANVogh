@@ -63,14 +63,14 @@ class ConvolutionalModel():
             if config.noise > 0.0:
                 out = GaussianNoise(config.noise)(out)
 
+            out = config.normalization.get()(out)
+            out = config.activation.get()(out)
+
             if i == config.convolutions - 1:
                 if config.track_id != "":
                     self.track_layer(out,name)
                 if self.view_channels is not None:
                     self.add_view_layer(out)
-
-            out = config.normalization.get()(out)
-            out = config.activation.get()(out)
             
         if config.downsampling:
             out = MaxPooling2D()(out)
