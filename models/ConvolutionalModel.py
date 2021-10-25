@@ -53,7 +53,7 @@ class ConvolutionalModel():
     def conv_block(self,input_tensor: KerasTensor,config:DiscConvLayerConfig):
         out = input_tensor
         if config.upsampling:
-            out = UpSampling2D(interpolation='bilinear')(out)
+            out = UpSampling2D()(out)
         
         for i in range(config.convolutions):
             name = "_".join([config.track_id,str(config.filters),str(i)])
