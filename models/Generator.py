@@ -16,6 +16,7 @@ class Generator():
                  conv_input_shape: Tuple[int],
                  conv_layers: List[GenLayerConfig],
                  view_layers: bool = False,
+                 std_dims: List[int] = [1,2,3],
                  dense_activation: ActivationConfig = NoneCallable,
                  kernel_regularizer:RegularizationConfig = NoneCallable,
                  kernel_initializer:str = "glorot_uniform"):
@@ -24,6 +25,7 @@ class Generator():
         self.conv_input_shape = conv_input_shape
         self.conv_layers = conv_layers
         self.view_layers = view_layers
+        self.std_dims = std_dims
         self.dense_activation = dense_activation
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
@@ -49,6 +51,7 @@ class Generator():
         CM = ConvolutionalModel(DM_out,
                                 self.conv_layers,
                                 view_channels,
+                                self.std_dims,
                                 self.kernel_regularizer,
                                 self.kernel_initializer)
         self.model = CM.build()

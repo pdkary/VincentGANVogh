@@ -35,6 +35,7 @@ class Discriminator():
                              view_layers=viewable,
                              dense_activation=dense_activation,
                              final_activation=final_activation,
+                             std_dims=generator.std_dims,
                              kernel_regularizer=kr,
                              kernel_initializer=ki)
 
@@ -45,6 +46,7 @@ class Discriminator():
                  minibatch_size: int = 0,
                  dropout_rate: float = 0.0,
                  view_layers: bool = False,
+                 std_dims: List[int] = [1,2,3],
                  dense_activation: ActivationConfig = NoneCallable,
                  final_activation: ActivationConfig = NoneCallable,
                  kernel_regularizer: RegularizationConfig = NoneCallable,
@@ -56,6 +58,7 @@ class Discriminator():
         self.minibatch_size = minibatch_size
         self.dropout_rate = dropout_rate
         self.view_layers = view_layers
+        self.std_dims = std_dims
         self.dense_activation = dense_activation
         self.final_activation = final_activation
         self.kernel_regularizer = kernel_regularizer
@@ -69,6 +72,7 @@ class Discriminator():
         CM = ConvolutionalModel(self.input,
                                 self.conv_layers,
                                 channels,
+                                self.std_dims,
                                 self.kernel_regularizer,
                                 self.kernel_initializer)
 
