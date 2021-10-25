@@ -15,11 +15,13 @@ class ConvolutionalModel():
                  input: KerasTensor,
                  conv_layers: List[ConvLayerConfig],
                  view_channels: int = None,
+                 std_dims: List[int] = [1,2,3],
                  kernel_regularizer:RegularizationConfig = NoneCallable,
                  kernel_initializer:str = "glorot_uniform"):
         self.input = input
         self.conv_layers = conv_layers
         self.view_channels = view_channels
+        self.std_dims = std_dims
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.tracked_layers = {}
@@ -82,6 +84,6 @@ class ConvolutionalModel():
         self.viewing_layers.append(viewable_out)
 
     def track_layer(self,tensor:KerasTensor,name:str):
-        out_std  = K.std(tensor,[1,2,3],keepdims=True)
-        out_mean = K.mean(tensor,[1,2,3],keepdims=True)
+        out_std  = K.std(tensor,self.std_dims,keepdims=True)
+        out_mean = K.mean(tensor,self.std_dims,keepdims=True)
         self.tracked_layers[name] = [out_std,out_mean]
