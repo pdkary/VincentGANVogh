@@ -75,8 +75,8 @@ class DataHelper(DataConfig):
     def save_viewed_images(self,name,gen_images,gen_views,preview_margin):
         img_size = self.image_shape[1]
         channels = self.image_shape[-1]
-        preview_rows = gen_views[0].shape[1]
-        preview_cols = len(gen_views)+1
+        preview_rows = gen_views[0].shape[0]
+        preview_cols = len(gen_views)
         preview_height = preview_rows*img_size + (preview_rows + 1)*preview_margin
         preview_width = preview_cols*img_size + (preview_cols + 1)*preview_margin
 
@@ -84,7 +84,6 @@ class DataHelper(DataConfig):
             image_array = np.full((preview_height, preview_width), 255, dtype=np.uint8)
         else:
             image_array = np.full((preview_height, preview_width, channels), 255, dtype=np.uint8)
-        
         for row in range(preview_rows):
             for col in range(preview_cols):
                 r = row * (img_size+preview_margin) + preview_margin

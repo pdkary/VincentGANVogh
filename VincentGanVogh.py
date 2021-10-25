@@ -109,8 +109,8 @@ gan_training_config = GanTrainingConfig(
 VGV = SimpleTrainer(generator,discriminator,gan_training_config)
 VGV.compile()
 # # TRAINING
-ERAS = 2
-EPOCHS = 10
+ERAS = 1
+EPOCHS = 5
 PRINT_EVERY = 1
 MOVING_AVERAGE_SIZE = 1
 
