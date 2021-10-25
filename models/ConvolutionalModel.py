@@ -62,10 +62,11 @@ class ConvolutionalModel():
             if config.dropout_rate > 0:
                 out = Dropout(config.dropout_rate,name="conv_dropout_"+name)(out)
             
+            out = config.normalization.get()(out)
+            
             if config.noise > 0.0:
                 out = GaussianNoise(config.noise)(out)
 
-            out = config.normalization.get()(out)
             out = config.activation.get()(out)
 
             if i == config.convolutions - 1:
