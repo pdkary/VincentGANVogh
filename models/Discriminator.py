@@ -68,7 +68,6 @@ class Discriminator():
         channels = self.gan_input.input_shape[-1] if self.view_layers else None
         CM = ConvolutionalModel(self.input,
                                 self.conv_layers,
-                                None,
                                 channels,
                                 self.kernel_regularizer,
                                 self.kernel_initializer)
