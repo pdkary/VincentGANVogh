@@ -14,13 +14,11 @@ class ConvolutionalModel():
     def __init__(self,
                  input: KerasTensor,
                  conv_layers: List[ConvLayerConfig],
-                 style_input: KerasTensor = None,
                  view_channels: int = None,
                  kernel_regularizer:RegularizationConfig = NoneCallable,
                  kernel_initializer:str = "glorot_uniform"):
         self.input = input
         self.conv_layers = conv_layers
-        self.style_input = style_input
         self.view_channels = view_channels
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
@@ -70,12 +68,10 @@ class ConvolutionalModel():
                     self.track_layer(out,name)
                 if self.view_channels is not None:
                     self.add_view_layer(out)
-                    
+
             out = config.normalization.get()(out)
             out = config.activation.get()(out)
             
-            #tracking / viewing
-
         if config.downsampling:
             out = MaxPooling2D()(out)
         return out
