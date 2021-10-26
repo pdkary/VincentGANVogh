@@ -39,7 +39,7 @@ class ConvolutionalModel():
         out = self.input
         self.track_layer(out,"conv_input")
         if self.view_channels is not None:
-            self.viewing_layers(out)
+            self.add_view_layer(out)
 
         print("BUILDING CONV MODEL")
         for config in self.conv_layers:
