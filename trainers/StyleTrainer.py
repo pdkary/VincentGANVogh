@@ -81,7 +81,7 @@ class StyleTrainer(AbstractTrainer):
         if self.D.view_layers:
             image_batch = data_helper.get_validation_batch(self.preview_size)
             disc_real_out = self.discriminator.predict(image_batch)
-            disc_real_preds,disc_real_views = disc_real_out[0],list(reversed(disc_real_out[dvi:]))
+            disc_real_preds,disc_real_views = disc_real_out[0],disc_real_out[dvi:]
             disc_fake_out = self.discriminator.predict(gen_images)
             disc_fake_preds,disc_fake_views = disc_fake_out[0],disc_fake_out[dvi:]
             data_helper.save_viewed("disc/real/"+name,disc_real_preds,disc_real_views,self.preview_margin)
