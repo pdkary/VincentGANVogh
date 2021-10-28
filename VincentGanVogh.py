@@ -16,7 +16,6 @@ from models.Generator import Generator
 from third_party_layers.InstanceNormalization import InstanceNormalization
 from trainers.SimpleTrainer import SimpleTrainer
 from trainers.StyleTrainer import StyleTrainer
-from trainers.ViewableStyleTrainer import ViewableStyleTrainer
 
 # from google.colab import drive
 # drive.mount('/content/drive')
@@ -57,7 +56,7 @@ latent_input = LatentSpaceInput([100])
 constant_input = ConstantInput([100])
 
 ## layer shorthands
-def gen_layer(f,c,k,act=conv_lr,u=True,t=True,noise=0.0,id="",norm=NoneCallable):
+def gen_layer(f,c,k,act=conv_lr,u="stride",t=True,noise=0.0,id="",norm=NoneCallable):
   return GenLayerConfig(f,c,k,act,upsampling=u,transpose=t,noise=noise,track_id=id,normalization=norm)
 
 def gen_lr_layer(f,c,k,lr_alpha,u=True,t=False,noise=0.0,id="",norm=NoneCallable):

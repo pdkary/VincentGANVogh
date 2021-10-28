@@ -48,9 +48,12 @@ class ConvolutionalModel():
     def conv_block(self,input_tensor: KerasTensor,config:DiscConvLayerConfig):
         out = input_tensor
         
-        if config.upsampling:
+        if config.upsampling == "stride":
+            downsample_config = ConvLayerConfig(config.filters,1,3,config.activation,transpose=True,strides=(2,2))
+            out = self.conv_layer(downsample_config)(out)
+        elif config.upsampling == True:
             out = UpSampling2D()(out)
-        
+
         for i in range(config.convolutions):
             name = "_".join([config.track_id,str(config.filters),str(i)])
             out = self.conv_layer(config)(out)
@@ -68,8 +71,12 @@ class ConvolutionalModel():
             if i == config.convolutions - 1 and config.track_id != "":
                 self.track_layer(out,name)
             
-        if config.downsampling:
+        if config.downsampling == "stride":
+            downsample_config = ConvLayerConfig(config.filters,1,3,config.activation,strides=(2,2))
+            out = self.conv_layer(downsample_config)(out)
+        elif config.downsampling == True:
             out = MaxPooling2D()(out)
+
         return out
     
     def track_layer(self,tensor: KerasTensor,name:str):

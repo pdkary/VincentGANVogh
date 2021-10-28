@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Union
 from layers.CallableConfig import ActivationConfig, NoneCallable, NormalizationConfig, RegularizationConfig
 
 class DiscDenseLayerConfig():
@@ -18,8 +18,8 @@ class ConvLayerConfig():
                  activation: ActivationConfig,
                  strides: Tuple[int,int] = (1,1),
                  transpose: bool = False,
-                 upsampling: bool = False,
-                 downsampling: bool = False,
+                 upsampling: Union[bool,str] = False,
+                 downsampling: Union[bool,str] = False,
                  style: bool = False,
                  noise: float = 0.0,
                  dropout_rate: float = 0.0,
@@ -58,7 +58,7 @@ class DiscConvLayerConfig(ConvLayerConfig):
                  kernel_size: int,
                  activation: ActivationConfig,
                  dropout_rate: float = 0.0,
-                 downsampling: bool = True,
+                 downsampling: Union[bool,str] = True,
                  normalization: NormalizationConfig = NoneCallable,
                  regularizer: RegularizationConfig = NoneCallable,
                  track_id: str = ""):
@@ -73,7 +73,7 @@ class GenLayerConfig(ConvLayerConfig):
                  activation: ActivationConfig,
                  strides: Tuple[int, int] = (1, 1),
                  transpose: bool = False,
-                 upsampling: bool = False,
+                 upsampling: Union[bool,str] = False,
                  noise: bool = 0.0,
                  style: bool = False,
                  normalization: NormalizationConfig = NoneCallable,
