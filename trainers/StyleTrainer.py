@@ -47,15 +47,11 @@ class StyleTrainer(AbstractTrainer):
             if self.D.view_layers:
                 self.disc_view_layers.append(D_data["view"])
         
-        last_two = self.disc_style_layers[-2:]
-        first_two = self.disc_style_layers[:2]
-        self.disc_style_layers = last_two + self.disc_style_layers[2:-2] + first_two
-        
         print("TRACKING LAYERS")
-        print("gen: ",[x.shape for x in self.gen_style_layers])
+        print(" gen: ",[x.shape for x in self.gen_style_layers])
         print("disc: ",[x.shape for x in self.disc_style_layers])
         print("VIEWING LAYERS")
-        print("gen: ",[x.shape for x in self.gen_view_layers])
+        print(" gen: ",[x.shape for x in self.gen_view_layers])
         print("disc: ",[x.shape for x in self.disc_view_layers])
 
         self.gview_index = 1 + len(self.gen_style_layers)

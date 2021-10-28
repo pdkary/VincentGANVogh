@@ -37,12 +37,8 @@ class ConvolutionalModel():
 
     def build(self,flatten=False):
         out = self.input
-        self.track_layer(out,"conv_input")
-
         for config in self.conv_layers:
             out = self.conv_block(out,config)
-            
-        self.track_layer(out,"conv_output")
         if flatten:
             out = Flatten()(out)
         return out

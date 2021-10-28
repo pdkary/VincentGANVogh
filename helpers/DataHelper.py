@@ -51,13 +51,10 @@ class DataHelper(DataConfig):
                 img = img.convert('RGB')
             elif channels == 1:
                 img = img.convert('L')
-                # 
                 
             img = img.resize(size=(img_rows, img_cols),resample=Image.ANTIALIAS)
             img = np.array(img).astype('float32')
             img = self.load_scale_function(img)
-            # if channels == 1:
-            #     img = np.expand_dims(img,axis=-1)
             x.append(img)
             if self.flip_lr:
                 x.append(np.fliplr(img))
@@ -91,11 +88,14 @@ class DataHelper(DataConfig):
                 
                 img_batch = gen_views[col] if col < len(gen_views) else gen_images
                 img = img_batch[row]
-                img = self.save_scale_function(img)
+                if len(img.shape)==1:
+                    img=256*img
+                    img = np.expand_dims(img,axis=-1)
+                else:
+                    img = self.save_scale_function(img)
                 if channels == 1:
                     img = np.reshape(img,newshape=(img_size,img_size))
                 else:
-                    img = np.expand_dims(img,axis=-1)  if len(img.shape) == 1 else img
                     img = Image.fromarray((img).astype(np.uint8))
                     img = img.resize((img_size,img_size),Image.BOX)
                     img = np.asarray(img)
