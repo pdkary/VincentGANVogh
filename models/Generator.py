@@ -56,7 +56,6 @@ class Generator():
                                 self.kernel_initializer)
         self.model = CM.build()
         self.tracked_layers = CM.tracked_layers
-        self.viewing_layers = CM.viewing_layers
         return self.model
 
     def get_training_batch(self,batch_size):

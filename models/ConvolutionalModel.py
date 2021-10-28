@@ -10,6 +10,7 @@ from tensorflow.keras.layers import (Conv2D, Conv2DTranspose, Dropout, Flatten,
 
 import tensorflow.keras.backend as K
 
+
 class ConvolutionalModel():
     def __init__(self,
                  input: KerasTensor,
@@ -25,7 +26,6 @@ class ConvolutionalModel():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.tracked_layers = {}
-        self.viewing_layers = []
     
     def conv_layer(self,config: DiscConvLayerConfig):
         c_args = dict(filters=config.filters,kernel_size=config.kernel_size,
@@ -35,24 +35,19 @@ class ConvolutionalModel():
         return Conv2DTranspose(**c_args) if config.transpose else Conv2D(**c_args)
 
     def build(self,flatten=False):
-        #configure input
         out = self.input
-        self.track_layer(out,"conv_input")
-        if self.view_channels is not None:
-            self.add_view_layer(out)
+        # self.track_layer(out,"conv_input")
 
-        print("BUILDING CONV MODEL")
         for config in self.conv_layers:
-            print("BLOCK SHAPE: ",out.shape)
             out = self.conv_block(out,config)
             
-        print("BLOCK SHAPE: ",out.shape)
         if flatten:
             out = Flatten()(out)
         return out
     
     def conv_block(self,input_tensor: KerasTensor,config:DiscConvLayerConfig):
         out = input_tensor
+        
         if config.upsampling:
             out = UpSampling2D()(out)
         
@@ -70,22 +65,19 @@ class ConvolutionalModel():
 
             out = config.activation.get()(out)
 
-            if i == config.convolutions - 1:
-                if config.track_id != "":
-                    self.track_layer(out,name)
-                if self.view_channels is not None:
-                    self.add_view_layer(out)
+            if i == config.convolutions - 1 and config.track_id != "":
+                self.track_layer(out,name)
             
         if config.downsampling:
             out = MaxPooling2D()(out)
         return out
     
-    def add_view_layer(self,tensor: KerasTensor):
-        viewable_config = DiscConvLayerConfig(self.view_channels,1,1,self.conv_layers[-1].activation)
-        viewable_out = self.conv_layer(viewable_config)(tensor)
-        self.viewing_layers.append(viewable_out)
-
-    def track_layer(self,tensor:KerasTensor,name:str):
+    def track_layer(self,tensor: KerasTensor,name:str):
         out_std  = K.std(tensor,self.std_dims,keepdims=True)
         out_mean = K.mean(tensor,self.std_dims,keepdims=True)
-        self.tracked_layers[name] = [out_std,out_mean]
+        layer_data = {"std_mean":[out_std,out_mean]}
+        if self.view_channels is not None:
+            viewable_config = DiscConvLayerConfig(self.view_channels,1,1,self.conv_layers[-1].activation)
+            layer_data["view"] = self.conv_layer(viewable_config)(tensor)
+        self.tracked_layers[name] = layer_data
+    

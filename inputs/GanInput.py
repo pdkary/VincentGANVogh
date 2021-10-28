@@ -22,7 +22,10 @@ class GanInput(ABC):
     def get_validation_batch(self,batch_size):
         return self.get_training_batch(batch_size)
     
-    def save(self):
+    def save(self,name:str):
+        pass
+
+    def save_viewed(self,name:str):
         pass
 
 class ConstantInput(GanInput):

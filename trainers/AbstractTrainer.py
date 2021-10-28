@@ -32,13 +32,13 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def compile(self):
         GI,GO = self.G.input,self.G.build()
         DI,DO = self.D.input,self.D.build()
-        self.generator = Model(inputs=GI,outputs=GO)
+        self.generator = Model(inputs=GI,outputs=GO,name="Generator")
         self.generator.compile(optimizer=self.gen_optimizer,
                                loss=self.gen_loss_function,
                                metrics=self.g_metrics)
         self.generator.summary()
         
-        self.discriminator = Model(inputs=DI,outputs=DO)
+        self.discriminator = Model(inputs=DI,outputs=DO,name="Discriminator")
         self.discriminator.compile(optimizer=self.disc_optimizer,
                                    loss=self.disc_loss_function,
                                    metrics=self.d_metrics)

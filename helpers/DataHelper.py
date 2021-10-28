@@ -98,7 +98,8 @@ class DataHelper(DataConfig):
                     img = Image.fromarray((img).astype(np.uint8))
                     img = img.resize((img_size,img_size),Image.BOX)
                     img = np.asarray(img)
-                    
+                
+                img = np.expand_dims(img,axis=-1) if len(img.shape) == 2 else img
                 image_array[r:r+img_size, c:c+img_size] = img
 
         filename = os.path.join(self.image_output_path,name + self.image_type)
