@@ -71,10 +71,7 @@ class ConvolutionalModel():
             if i == config.convolutions - 1 and config.track_id != "":
                 self.track_layer(out,name)
             
-        if config.downsampling == "stride":
-            downsample_config = ConvLayerConfig(config.filters,1,3,config.activation,strides=(2,2))
-            out = self.conv_layer(downsample_config)(out)
-        elif config.downsampling == True:
+        if config.downsampling == "stride" or config.downsampling == True:
             out = MaxPooling2D()(out)
 
         return out
