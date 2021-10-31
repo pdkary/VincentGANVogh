@@ -50,7 +50,6 @@ class SimpleTrainer(AbstractTrainer):
             
             content_loss =  self.disc_loss_function(self.fake_label, disc_gen_out) 
             content_loss += self.disc_loss_function(self.real_label, disc_real_out)
-            content_loss += self.disc_loss_function(gen_input[0],disc_real_out)
 
             d_loss = [content_loss]
             out = [content_loss]
