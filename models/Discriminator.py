@@ -46,7 +46,7 @@ class Discriminator():
                  minibatch_size: int = 0,
                  dropout_rate: float = 0.0,
                  view_layers: bool = False,
-                 std_dims: List[int] = [1,2,3],
+                 std_dims: List[int] = [1,2],
                  dense_activation: ActivationConfig = NoneCallable,
                  final_activation: ActivationConfig = NoneCallable,
                  kernel_regularizer: RegularizationConfig = NoneCallable,
