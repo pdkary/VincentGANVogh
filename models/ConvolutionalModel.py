@@ -62,11 +62,10 @@ class ConvolutionalModel():
                         use_bias=False)
         out = input_tensor
         for i in range(config.convolutions):
-            name = "_".join([config.track_id,str(config.filters),str(i)])
             out = Conv2DTranspose(**c_args)(out) if config.transpose else Conv2D(**c_args)(out)
         
         if config.track_id != "":
-            self.track_layer(out,name)
+            self.track_layer(out,config.track_id)
         return out
 
     def track_layer(self,tensor: KerasTensor,name:str):
