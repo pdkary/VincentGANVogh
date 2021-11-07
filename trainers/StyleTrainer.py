@@ -10,11 +10,12 @@ from models.Discriminator import Discriminator
 from models.Generator import Generator
 from tensorflow.keras.models import Model
 from trainers.AbstractTrainer import AbstractTrainer
+from trainers.ViewableTrainer import ViewableTrainer
 
 def flatten(arr: List):
     return [x for y in arr for x in y]
 
-class StyleTrainer(AbstractTrainer):
+class StyleTrainer(ViewableTrainer):
     def __init__(self, 
                  generator: Generator,
                  discriminator: Discriminator,
@@ -56,6 +57,7 @@ class StyleTrainer(AbstractTrainer):
 
         self.gview_index = 1 + len(self.gen_style_layers)
         self.dview_index = 1 + len(self.disc_style_layers)
+
         self.generator = Model(inputs=GI,outputs=[GO,*self.gen_style_layers,*self.gen_view_layers],name="Generator")
         self.discriminator = Model(inputs=DI,outputs=[DO,*self.disc_style_layers,*self.disc_view_layers],name="Discriminator")
 
@@ -71,26 +73,12 @@ class StyleTrainer(AbstractTrainer):
         self.plot_labels = ["G_Loss","D_Loss",*self.g_metric_labels,*self.d_metric_labels]
 
     def save_images(self,name):
-        gvi,dvi = self.gview_index, self.dview_index
-        data_helper = self.D.gan_input
-
-        preview_seed = self.G.get_validation_batch(self.preview_size)
-        gen_output = self.generator.predict(preview_seed)
-        gen_images,gen_views = np.array(gen_output[0]),gen_output[gvi:]
-        
-        if self.D.view_layers:
-            image_batch = data_helper.get_validation_batch(self.preview_size)
-            disc_real_out = self.discriminator.predict(image_batch)
-            disc_real_preds,disc_real_views = disc_real_out[0],list(reversed(disc_real_out[dvi:]))
-            disc_fake_out = self.discriminator.predict(gen_images)
-            disc_fake_preds,disc_fake_views = disc_fake_out[0],list(reversed(disc_fake_out[dvi:]))
-            data_helper.save_viewed("disc/real/"+name,disc_real_preds,disc_real_views,self.preview_margin)
-            data_helper.save_viewed("disc/fake/"+name,disc_fake_preds,disc_fake_views,self.preview_margin)
-
-        if self.G.view_layers:
-            data_helper.save_viewed(name,gen_images,gen_views,self.preview_margin)
-        else:
-            data_helper.save(name, gen_images, self.preview_rows, self.preview_cols, self.preview_margin)
+        if self.D.view_layers or self.G.view_layers:
+            self.save_views(name)
+        elif not self.G.view_layers:
+            preview_seed = self.G.get_validation_batch(self.preview_size)
+            gen_images = self.generator.predict(preview_seed)[0]
+            self.D.gan_input.save(name, gen_images, self.preview_rows, self.preview_cols, self.preview_margin)
         
     def get_all_style_loss(self,content_std_arr,content_mean_arr,style_std_arr,style_mean_arr):
         src_2_dest = list(zip(content_std_arr,content_mean_arr,style_std_arr,style_mean_arr))
