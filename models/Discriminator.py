@@ -1,11 +1,10 @@
-from typing import List
 from copy import deepcopy
-import tensorflow as tf
+from typing import List
+
 from config.GanConfig import DiscConvLayerConfig
-from inputs.GanInput import GanInput
+from inputs.GanInput import RealImageInput
 from layers.CallableConfig import (ActivationConfig, NoneCallable,
                                    RegularizationConfig)
-from tensorflow.keras.layers import Input
 
 from models.ConvolutionalModel import ConvolutionalModel
 from models.DenseModel import DenseModel
@@ -15,18 +14,20 @@ from models.Generator import Generator
 class Discriminator():
     @staticmethod
     def from_generator(generator:Generator,
-                       real_image_input: GanInput,
+                       real_image_input: RealImageInput,
                        final_activation: ActivationConfig,
                        output_dim: int = None,
                        minibatch_size: int = 0,
                        dropout_rate: float = 0.0,
                        viewable: bool = False):
         conv_layers = [x.flip() for x in reversed(deepcopy(generator.conv_layers))]
+        
         dense_layers = list(reversed(deepcopy(generator.dense_layers)))
         dense_layers.append(generator.gan_input.input_shape[-1])
         if output_dim is not None:
             dense_layers.append(output_dim)
         dense_activation = generator.dense_activation
+        
         kr = generator.kernel_regularizer
         ki = generator.kernel_initializer
         return Discriminator(real_image_input,conv_layers,dense_layers,
@@ -40,7 +41,7 @@ class Discriminator():
                              kernel_initializer=ki)
 
     def __init__(self,
-                 real_image_input: GanInput,
+                 real_image_input: RealImageInput,
                  conv_layers: List[DiscConvLayerConfig],
                  dense_layers: List[int],
                  minibatch_size: int = 0,
@@ -51,7 +52,7 @@ class Discriminator():
                  final_activation: ActivationConfig = NoneCallable,
                  kernel_regularizer: RegularizationConfig = NoneCallable,
                  kernel_initializer: str = "glorot_uniform"):
-        self.gan_input: GanInput = real_image_input
+        self.gan_input: RealImageInput = real_image_input
         self.input = real_image_input.input_layer
         self.conv_layers = conv_layers
         self.dense_layers = dense_layers

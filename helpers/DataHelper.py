@@ -1,4 +1,5 @@
 from matplotlib import image
+import tensorflow as tf
 from config.TrainingConfig import DataConfig
 import os
 import glob
@@ -107,7 +108,10 @@ class DataHelper(DataConfig):
         im = Image.fromarray(image_array.astype(np.uint8))
         im.save(filename)
 
-        
+    def save_viewed_predictions(self,name,preds,views,preview_margin):
+        gen_images = np.mean(preds)*np.ones(shape=self.image_shape)
+        self.save_viewed_images(name,gen_images,views,preview_margin)
+    
     def save_images(self, name, generated_images,preview_rows,preview_cols,preview_margin):
         image_count = 0
         img_size = self.image_shape[1]

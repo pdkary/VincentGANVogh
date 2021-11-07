@@ -2,9 +2,9 @@ from typing import List
 
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras.metrics import Metric
 import tensorflow.keras.backend as K
 from tensorflow.keras.layers import Input
-from tensorflow.python import data
 from config.TrainingConfig import GanTrainingConfig
 from models.Discriminator import Discriminator
 from models.Generator import Generator
@@ -140,11 +140,12 @@ class StyleTrainer(ViewableTrainer):
             out = [content_loss]
             
             for metric in self.d_metrics:
-                if metric.name == "mean":
-                    metric.update_state(disc_real_result)
+                m :Metric = metric
+                if m.name == "mean":
+                    m.update_state(disc_real_result)
                 else:
-                    metric.update_state(self.real_label,disc_real_result)
-                out.append(metric.result())
+                    m.update_state(self.real_label,disc_real_result)
+                out.append(m.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
             self.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.discriminator.trainable_variables))

@@ -1,14 +1,11 @@
-from re import A
 from typing import List
-from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 
+import tensorflow.keras.backend as K
 from config.GanConfig import ConvLayerConfig, DiscConvLayerConfig
-from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from layers.CallableConfig import NoneCallable, RegularizationConfig
 from tensorflow.keras.layers import (Conv2D, Conv2DTranspose, Dropout, Flatten,
                                      GaussianNoise, MaxPooling2D, UpSampling2D)
-
-import tensorflow.keras.backend as K
+from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 
 
 class ConvolutionalModel():
@@ -26,20 +23,6 @@ class ConvolutionalModel():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
         self.tracked_layers = {}
-    
-    def conv_layer(self,config: DiscConvLayerConfig,input_tensor: KerasTensor):
-        c_args = dict(filters=config.filters,kernel_size=config.kernel_size,
-                        strides=config.strides,padding="same",
-                        kernel_regularizer = self.kernel_regularizer.get(),
-                        kernel_initializer = self.kernel_initializer,
-                        use_bias=False)
-        out = input_tensor
-        for i in range(config.convolutions):
-            name = "_".join([config.track_id,str(config.filters),str(i)])
-            out = Conv2DTranspose(**c_args)(out) if config.transpose else Conv2D(**c_args)(out)
-            if i == config.convolutions - 1 and config.track_id != "":
-                self.track_layer(out,name)
-        return out
 
     def build(self,flatten=False):
         out = self.input
@@ -71,6 +54,20 @@ class ConvolutionalModel():
 
         return out
     
+    def conv_layer(self,config: DiscConvLayerConfig,input_tensor: KerasTensor):
+        c_args = dict(filters=config.filters,kernel_size=config.kernel_size,
+                        strides=config.strides,padding="same",
+                        kernel_regularizer = self.kernel_regularizer.get(),
+                        kernel_initializer = self.kernel_initializer,
+                        use_bias=False)
+        out = input_tensor
+        for i in range(config.convolutions):
+            name = "_".join([config.track_id,str(config.filters),str(i)])
+            out = Conv2DTranspose(**c_args)(out) if config.transpose else Conv2D(**c_args)(out)
+            if i == config.convolutions - 1 and config.track_id != "":
+                self.track_layer(out,name)
+        return out
+
     def track_layer(self,tensor: KerasTensor,name:str):
         out_std  = K.std(tensor,self.std_dims,keepdims=True)
         out_mean = K.mean(tensor,self.std_dims,keepdims=True)

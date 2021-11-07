@@ -25,9 +25,6 @@ class GanInput(ABC):
     def save(self,name:str):
         pass
 
-    def save_viewed(self,name:str):
-        pass
-
 class ConstantInput(GanInput):
     def __init__(self, input_shape: Tuple[int,int,int]):
         super().__init__(input_shape,name="constant_input")
@@ -59,12 +56,6 @@ class RealImageInput(GanInput,DataConfig):
         self.training_dataset = tf.data.Dataset.from_tensor_slices(self.training_images)
         self.validation_dataset = tf.data.Dataset.from_tensor_slices(self.validation_images)
         print("DATASET LOADED")
-    
-    def save(self,name,images,preview_rows,preview_cols,preview_margin):
-        self.data_helper.save_images(name,images,preview_rows,preview_cols,preview_margin)
-    
-    def save_viewed(self,name,out_images,viewed_imgs,preview_margin):
-        self.data_helper.save_viewed_images(name,out_images,viewed_imgs,preview_margin)
 
     def get_training_batch(self,batch_size):
         return self.get_batch(batch_size,self.training_dataset)
