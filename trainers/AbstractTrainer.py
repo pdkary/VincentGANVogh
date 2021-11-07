@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 from config.TrainingConfig import GanTrainingConfig
+from helpers.DataHelper import DataHelper
 from models.Discriminator import Discriminator
 from models.Generator import Generator
 from tensorflow.keras.models import Model
@@ -53,9 +54,10 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         return 2*[0.0] + len(self.d_metrics)*[0.0]
 
     def save_images(self,name):
+        data_helper: DataHelper = self.D.gan_input.data_helper
         gen_input = self.G.get_validation_batch(self.preview_size)
         gen_images = self.generator.predict(gen_input)
-        self.D.gan_input.save(name,gen_images,self.preview_rows,self.preview_cols,self.preview_margin)
+        data_helper.save_images(name,gen_images,self.preview_rows,self.preview_cols,self.preview_margin)
 
     def save_generator(self, epoch):
         filename = self.model_name + str(epoch)

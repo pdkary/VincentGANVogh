@@ -35,8 +35,8 @@ class ConvolutionalModel():
     def conv_block(self,input_tensor: KerasTensor,config:DiscConvLayerConfig):
         out = input_tensor
         if config.upsampling == "stride":
-            downsample_config = ConvLayerConfig(config.filters,1,3,config.activation,transpose=True,strides=(2,2))
-            out = self.conv_layer(downsample_config,out)
+            up_config = ConvLayerConfig(config.filters,1,3,config.activation,transpose=True,strides=(2,2))
+            out = self.conv_layer(up_config,out)
         elif config.upsampling == True:
             out = UpSampling2D()(out)
 
@@ -64,6 +64,7 @@ class ConvolutionalModel():
         for i in range(config.convolutions):
             name = "_".join([config.track_id,str(config.filters),str(i)])
             out = Conv2DTranspose(**c_args)(out) if config.transpose else Conv2D(**c_args)(out)
+        
         if config.track_id != "":
             self.track_layer(out,name)
         return out
