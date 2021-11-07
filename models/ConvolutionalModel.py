@@ -64,8 +64,8 @@ class ConvolutionalModel():
         for i in range(config.convolutions):
             name = "_".join([config.track_id,str(config.filters),str(i)])
             out = Conv2DTranspose(**c_args)(out) if config.transpose else Conv2D(**c_args)(out)
-            if i == config.convolutions - 1 and config.track_id != "":
-                self.track_layer(out,name)
+        if config.track_id != "":
+            self.track_layer(out,name)
         return out
 
     def track_layer(self,tensor: KerasTensor,name:str):
