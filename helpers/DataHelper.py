@@ -102,15 +102,14 @@ class DataHelper(DataConfig):
                     img = np.asarray(img)
                 
                 img = np.expand_dims(img,axis=-1) if len(img.shape) == 2 else img
-                image_array[r:r+img_size, c:c+img_size] = img
+                image_array[r:r+img_size, c:c+img_size,0:channels] = img
 
         filename = os.path.join(self.image_output_path,name + self.image_type)
         im = Image.fromarray(image_array.astype(np.uint8))
         im.save(filename)
 
     def save_viewed_predictions(self,name,preds,views,preview_margin):
-        gen_images = np.mean(preds)*np.ones(shape=self.image_shape)
-        self.save_viewed_images(name,gen_images,views,preview_margin)
+        self.save_viewed_images(name,preds,views,preview_margin)
     
     def save_images(self, name, generated_images,preview_rows,preview_cols,preview_margin):
         image_count = 0
