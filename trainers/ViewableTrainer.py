@@ -30,8 +30,10 @@ class ViewableTrainer(AbstractTrainer):
             disc_real_preds,disc_real_views = disc_real_out[0],list(reversed(disc_real_out[dvi:]))
             disc_fake_out = self.discriminator.predict(gen_images)
             disc_fake_preds,disc_fake_views = disc_fake_out[0],list(reversed(disc_fake_out[dvi:]))
-            data_helper.save_viewed_predictions("disc/real/"+name,disc_real_preds,disc_real_views,self.preview_margin)
-            data_helper.save_viewed_predictions("disc/fake/"+name,disc_fake_preds,disc_fake_views,self.preview_margin)
+
+            disc_real_preds.append(disc_fake_preds)
+            disc_real_views.append(disc_fake_views)
+            data_helper.save_viewed_predictions("disc/"+name,disc_real_preds,disc_real_views,self.preview_margin)
 
         if self.G.view_layers:
             data_helper.save_viewed_images(name,gen_images,gen_views,self.preview_margin)
