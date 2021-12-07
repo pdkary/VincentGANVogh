@@ -86,10 +86,13 @@ class DataHelper(DataConfig):
                 r = row * (img_size+preview_margin) + preview_margin
                 c = col * (img_size+preview_margin) + preview_margin
                 
+                ##first col
                 if col == 0:
                     img_batch = source_images
-                elif col == preview_cols + 1:
+                ##last col
+                elif col == preview_cols - 1:
                     img_batch = gen_images
+                ##mid cols
                 else:
                     img_batch = gen_views[col-1]
 
