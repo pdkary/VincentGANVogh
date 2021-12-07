@@ -37,4 +37,4 @@ class ViewableTrainer(AbstractTrainer):
             data_helper.save_viewed_images("disc/"+name,combined_source,total_preds,total_views,self.preview_margin)
 
         if self.G.view_layers:
-            data_helper.save_viewed_images(name,gen_images,gen_images,gen_views,self.preview_margin)
+            data_helper.save_viewed_images(name,gen_views[0],gen_images,gen_views[1:],self.preview_margin)
