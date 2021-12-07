@@ -6,8 +6,8 @@ from inputs.GanInput import RealImageInput
 from layers.CallableConfig import (ActivationConfig, NoneCallable,
                                    RegularizationConfig)
 
-from models.ConvolutionalModel import ConvolutionalModel
-from models.DenseModel import DenseModel
+from models.ConvolutionalModel import ConvolutionalModelBuilder
+from models.DenseModel import DenseModelBuilder
 from models.Generator import Generator
 
 
@@ -70,22 +70,25 @@ class Discriminator():
         print("BUILDING DISCRIMINATOR")
         print("BUILDING DISCRIMINATOR CONV MODEL")
         channels = self.gan_input.input_shape[-1] if self.view_layers else None
-        CM = ConvolutionalModel(self.input,
-                                self.conv_layers,
-                                channels,
-                                self.std_dims,
-                                self.kernel_regularizer,
-                                self.kernel_initializer)
-
-        self.conv_out = CM.build(flatten=True)
+        CM_builder = ConvolutionalModelBuilder(self.input,
+                                view_channels=channels,
+                                view_activation=self.final_activation,
+                                std_dims=self.std_dims,
+                                kernel_regularizer=self.kernel_regularizer,
+                                kernel_initializer=self.kernel_initializer)
+        for c in self.conv_layers:
+            CM_builder = CM_builder.conv_block(c)
         
+        self.conv_out = CM_builder.flatten().build()
+        self.tracked_layers = CM_builder.tracked_layers
         print("BUILDING DISCRIMINATOR DENSE MODEL")
-        DM = DenseModel(self.conv_out,self.dense_layers,
-                        self.dense_activation,self.minibatch_size,
-                        self.dropout_rate)
-        DM_out = DM.build()
-        self.dense_out = self.final_activation.get()(DM_out)
-        self.tracked_layers = CM.tracked_layers
+        DM_builder = DenseModelBuilder(self.conv_out)
+        for d in self.dense_layers:
+            DM_builder = DM_builder.dense_layer(d,self.dense_activation,self.dropout_rate,self.minibatch_size)
+        
+        self.dense_out = self.final_activation.get()(DM_builder.build())
+        
+        self.tracked_layers = CM_builder.tracked_layers
         return self.dense_out
 
     def get_training_batch(self,batch_size):
