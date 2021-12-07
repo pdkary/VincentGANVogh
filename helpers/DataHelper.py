@@ -86,13 +86,13 @@ class DataHelper(DataConfig):
                 
                 img_batch = gen_views[col] if col < len(gen_views) else gen_images
                 img = img_batch[row]
-                
-                img = map_to_range(img,255,0)
                 if channels == 1:
                     img = np.reshape(img,newshape=img.shape[0:2])
                 
                 if len(img.shape) == 1:
                     img = 255*img*np.ones(shape=(img_size,img_size))
+                else: 
+                    img = map_to_range(img,255,0)
                 
                 img = img.astype(np.uint8)
                 img = Image.fromarray(img)
