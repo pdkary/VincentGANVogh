@@ -48,7 +48,6 @@ class ConvLayerConfig():
         d = self.downsampling
         self.upsampling = d
         self.downsampling = u
-        self.transpose = False
         return self
         
 class DiscConvLayerConfig(ConvLayerConfig):
