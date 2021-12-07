@@ -34,7 +34,7 @@ class ViewableTrainer(AbstractTrainer):
             print([x.shape for x in disc_real_views])
             print([x.shape for x in disc_fake_views])
             total_preds = np.append(disc_real_preds, disc_fake_preds)
-            total_views = [np.append(disc_real_views[i],disc_fake_views[i]) for i in range(len(disc_real_views))]
+            total_views = [np.append(disc_real_views[i],disc_fake_views[i],axis=0) for i in range(len(disc_real_views))]
             print([x.shape for x in total_views])
             data_helper.save_viewed_predictions("disc/"+name,total_preds,total_views,self.preview_margin)
 
