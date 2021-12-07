@@ -88,7 +88,7 @@ class DataHelper(DataConfig):
                 
                 if col == 0:
                     img_batch = source_images
-                if col == preview_cols + 1:
+                elif col == preview_cols + 1:
                     img_batch = gen_images
                 else:
                     img_batch = gen_views[col-1]
