@@ -78,10 +78,7 @@ class DataHelper(DataConfig):
         preview_height = preview_rows*img_size + (preview_rows + 1)*preview_margin
         preview_width = preview_cols*img_size + (preview_cols + 1)*preview_margin
 
-        if channels ==1:
-            image_array = np.full((preview_height, preview_width), 255, dtype=np.uint8)
-        else:
-            image_array = np.full((preview_height, preview_width, channels), 255, dtype=np.uint8)
+        image_array = np.full((preview_height, preview_width, channels), 255, dtype=np.uint8)
         for row in range(preview_rows):
             for col in range(preview_cols):
                 r = row * (img_size+preview_margin) + preview_margin
@@ -89,22 +86,26 @@ class DataHelper(DataConfig):
                 
                 img_batch = gen_views[col] if col < len(gen_views) else gen_images
                 img = img_batch[row]
-                if len(img.shape)==1:
-                    img=256*img
-                    img = np.expand_dims(img,axis=-1)
-                else:
-                    img = self.save_scale_function(img)
                 if channels == 1:
-                    img = np.reshape(img,newshape=(img_size,img_size))
-                else:
-                    img = Image.fromarray((img).astype(np.uint8))
-                    img = img.resize((img_size,img_size),Image.BOX)
-                    img = np.asarray(img)
+                    if len(img.shape) == 1:
+                      img = 255*img*np.ones(shape=(img_size,img_size))
+                    else:
+                      img = map_to_range(img,255,0)
+                      img = np.reshape(img,newshape=img.shape[0:2])
+                
+                img = img.astype(np.uint8)
+                img = Image.fromarray(img)
+                img = img.resize((img_size,img_size),Image.BOX)
+                img = np.asarray(img)
                 
                 img = np.expand_dims(img,axis=-1) if len(img.shape) == 2 else img
-                image_array[r:r+img_size, c:c+img_size,0:channels] = img
+                image_array[r:r+img_size, c:c+img_size] = img
 
         filename = os.path.join(self.image_output_path,name + self.image_type)
+        
+        if channels == 1:
+          image_array = np.squeeze(image_array,axis=-1)
+
         im = Image.fromarray(image_array.astype(np.uint8))
         im.save(filename)
 
