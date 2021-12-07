@@ -70,11 +70,13 @@ class DataHelper(DataConfig):
         plt.imshow(displayed_img)
         return x
     
-    def save_viewed_images(self,name,gen_images,gen_views,preview_margin):
+    def save_viewed_images(self,name,source_images,gen_images,gen_views,preview_margin):
         img_size = self.image_shape[1]
         channels = self.image_shape[-1]
+        
         preview_rows = gen_views[0].shape[0]
-        preview_cols = len(gen_views)+1
+        preview_cols = len(gen_views)+2
+        
         preview_height = preview_rows*img_size + (preview_rows + 1)*preview_margin
         preview_width = preview_cols*img_size + (preview_cols + 1)*preview_margin
 
@@ -84,7 +86,13 @@ class DataHelper(DataConfig):
                 r = row * (img_size+preview_margin) + preview_margin
                 c = col * (img_size+preview_margin) + preview_margin
                 
-                img_batch = gen_views[col] if col < len(gen_views) else gen_images
+                if col == 0:
+                    img_batch = source_images
+                if col == preview_cols + 1:
+                    img_batch = gen_images
+                else:
+                    img_batch = gen_views[col-1]
+
                 img = img_batch[row]
                 if channels == 1:
                     img = np.reshape(img,newshape=img.shape[0:2])
@@ -109,9 +117,6 @@ class DataHelper(DataConfig):
 
         im = Image.fromarray(image_array.astype(np.uint8))
         im.save(filename)
-
-    def save_viewed_predictions(self,name,preds,views,preview_margin):
-        self.save_viewed_images(name,preds,views,preview_margin)
     
     def save_images(self, name, generated_images,preview_rows,preview_cols,preview_margin):
         image_count = 0
