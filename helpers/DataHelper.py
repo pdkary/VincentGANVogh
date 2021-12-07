@@ -89,7 +89,7 @@ class DataHelper(DataConfig):
                 if channels == 1:
                     img = np.reshape(img,newshape=img.shape[0:2])
                 
-                if len(img.shape) == 1:
+                if len(img.shape) <= 1:
                     img = 255*img*np.ones(shape=(img_size,img_size))
                 else: 
                     img = map_to_range(img,255,0)
