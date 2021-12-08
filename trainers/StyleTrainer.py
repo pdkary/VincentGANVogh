@@ -101,13 +101,19 @@ class StyleTrainer(ViewableTrainer):
             disc_style_std,disc_style_mean = disc_style[0::2],disc_style[1::2]
 
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
-            content_loss += self.gen_loss_function(source_input,gen_images)
+            # content_loss += self.gen_loss_function(source_input,gen_images)
+
+            source_std  = K.std(source_input,self.D.std_dims,keepdims=True)
+            source_mean = K.mean(source_input,self.D.std_dims,keepdims=True)
+            gen_std  = K.std(gen_images,self.D.std_dims,keepdims=True)
+            gen_mean = K.mean(gen_images,self.D.std_dims,keepdims=True)
+            style_loss = self.style_loss_coeff*((source_std - gen_std)**2 + (source_mean - gen_mean)**2)/2
 
             style_losses = self.get_all_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else []
             view_losses = [tf.zeros_like(x) for x in gen_view]
 
-            g_loss = [content_loss,*style_losses,*view_losses]
-            out = [content_loss, np.sum(style_losses)]
+            g_loss = [content_loss + style_loss,*style_losses,*view_losses]
+            out = [content_loss, style_loss + np.sum(style_losses)]
             
             for metric in self.g_metrics:
                 if metric.name == "mean":
