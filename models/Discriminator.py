@@ -9,6 +9,7 @@ from layers.CallableConfig import (ActivationConfig, NoneCallable,
 from models.ConvolutionalModel import ConvolutionalModelBuilder
 from models.DenseModel import DenseModelBuilder
 from models.Generator import Generator
+from third_party_layers.MinibatchDiscrimination import MinibatchDiscrimination
 
 
 class Discriminator():
@@ -81,6 +82,10 @@ class Discriminator():
         
         self.conv_out = CM_builder.flatten().build()
         self.tracked_layers = CM_builder.tracked_layers
+        
+        if self.minibatch_size > 0:
+            self.conv_out = MinibatchDiscrimination(self.minibatch_size,3)(self.conv_out)
+
         print("BUILDING DISCRIMINATOR DENSE MODEL")
         DM_builder = DenseModelBuilder(self.conv_out)
         for d in self.dense_layers:
