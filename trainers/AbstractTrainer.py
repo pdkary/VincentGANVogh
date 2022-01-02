@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
-from config.TrainingConfig import GanTrainingConfig
+from config.TrainingConfig import GanTrainingConfig, GanTrainingResult
 from helpers.DataHelper import DataHelper
 from models.Discriminator import Discriminator
 from models.Generator import Generator
@@ -33,25 +33,30 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def compile(self):
         GI,GO = self.G.input,self.G.build()
         DI,DO = self.D.input,self.D.build()
-        self.generator = Model(inputs=GI,outputs=GO,name="Generator")
+        g_outs = GO if self.G.tracked_layers == {} else [GO,*self.G.tracked_layers.values]
+        d_outs = DO if self.D.tracked_layers == {} else [DO,*self.D.tracked_layers.values]
+        
+        self.generator = Model(inputs=GI,outputs=g_outs,name="Generator")
         self.generator.compile(optimizer=self.gen_optimizer,
                                loss=self.gen_loss_function,
                                metrics=self.g_metrics)
         self.generator.summary()
         
-        self.discriminator = Model(inputs=DI,outputs=DO,name="Discriminator")
+        self.discriminator = Model(inputs=DI,outputs=d_outs,name="Discriminator")
         self.discriminator.compile(optimizer=self.disc_optimizer,
                                    loss=self.disc_loss_function,
                                    metrics=self.d_metrics)
         self.discriminator.summary()
     
     @abstractmethod
-    def train_generator(self, source_input, gen_input):
-        return 2*[0.0] + len(self.g_metrics)*[0.0]
+    def train_generator(self, source_input, gen_input) -> GanTrainingResult:
+        gl = len(self.g_metrics)
+        return GanTrainingResult(0.0,gl*[0.0])
 
     @abstractmethod
-    def train_discriminator(self, source_input, gen_input):
-        return 2*[0.0] + len(self.d_metrics)*[0.0]
+    def train_discriminator(self, source_input, gen_input) -> GanTrainingResult:
+        dl = len(self.d_metrics)
+        return GanTrainingResult(0.0,dl*[0.0])
 
     def save_images(self,name):
         data_helper: DataHelper = self.D.gan_input.data_helper
@@ -71,14 +76,11 @@ class AbstractTrainer(GanTrainingConfig, ABC):
             source_input = self.D.gan_input.get_training_batch(self.batch_size)
             gen_input = self.G.get_training_batch(self.batch_size)
             
-            disc_results = self.train_discriminator(source_input, gen_input)
-            gen_results = self.train_generator(source_input, gen_input)
-
-            d_loss,d_metrics = disc_results[0],disc_results[1:]
-            g_loss,g_metrics = gen_results[0],gen_results[1:]
+            DO = self.train_discriminator(source_input, gen_input)
+            GO = self.train_generator(source_input, gen_input)
 
             if self.plot:
-              self.gan_plotter.batch_update([g_loss, d_loss, *g_metrics, *d_metrics])
+              self.gan_plotter.batch_update([GO.loss, DO.loss, *GO.metrics, *DO.metrics])
             
             if epoch % printerval == 0:
                 self.save_images("train-"+str(epoch))

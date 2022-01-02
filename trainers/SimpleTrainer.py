@@ -1,13 +1,9 @@
 from typing import List
 
-import numpy as np
 import tensorflow as tf
-import tensorflow.keras.backend as K
-from tensorflow.keras.layers import Input
-from config.TrainingConfig import GanTrainingConfig
+from config.TrainingConfig import GanTrainingConfig, GanTrainingResult
 from models.Discriminator import Discriminator
 from models.Generator import Generator
-from tensorflow.keras.models import Model
 from trainers.AbstractTrainer import AbstractTrainer
 
 def flatten(arr: List):
@@ -24,22 +20,23 @@ class SimpleTrainer(AbstractTrainer):
         with tf.GradientTape() as gen_tape:
             gen_images = self.generator(gen_input,training=True)
             disc_results = self.discriminator(gen_images, training=False)
+            
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
             content_loss += self.gen_loss_function(source_input,gen_images)
 
-            g_loss = [content_loss]
-            out = [content_loss]
+            g_loss = content_loss
+            metrics = []
             
             for metric in self.g_metrics:
                 if metric.name == "mean":
                     metric.update_state(disc_results)
                 else:
                     metric.update_state(self.gen_label,disc_results)
-                out.append(metric.result())
+                metrics.append(metric.result())
             
             gradients_of_generator = gen_tape.gradient(g_loss, self.generator.trainable_variables)
             self.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
-        return out
+        return GanTrainingResult(g_loss,metrics)
 
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
@@ -51,16 +48,16 @@ class SimpleTrainer(AbstractTrainer):
             content_loss =  self.disc_loss_function(self.fake_label, disc_gen_out) 
             content_loss += self.disc_loss_function(self.real_label, disc_real_out)
 
-            d_loss = [content_loss]
-            out = [content_loss]
+            d_loss = content_loss
+            metrics = []
             
             for metric in self.d_metrics:
                 if metric.name == "mean":
                     metric.update_state(disc_real_out)
                 else:
                     metric.update_state(self.real_label,disc_real_out)
-                out.append(metric.result())
+                metrics.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
             self.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.discriminator.trainable_variables))
-        return out
+        return GanTrainingResult(d_loss,metrics)

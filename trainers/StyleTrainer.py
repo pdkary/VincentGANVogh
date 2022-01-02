@@ -4,12 +4,10 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.metrics import Metric
 import tensorflow.keras.backend as K
-from tensorflow.keras.layers import Input
 from config.TrainingConfig import GanTrainingConfig
 from models.Discriminator import Discriminator
 from models.Generator import Generator
 from tensorflow.keras.models import Model
-from trainers.AbstractTrainer import AbstractTrainer
 from trainers.ViewableTrainer import ViewableTrainer
 
 def flatten(arr: List):
@@ -101,12 +99,11 @@ class StyleTrainer(ViewableTrainer):
             disc_style_std,disc_style_mean = disc_style[0::2],disc_style[1::2]
 
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
-            # content_loss += self.gen_loss_function(source_input,gen_images)
 
-            source_std  = K.std(source_input,self.D.std_dims,keepdims=True)
-            source_mean = K.mean(source_input,self.D.std_dims,keepdims=True)
-            gen_std  = K.std(gen_images,self.D.std_dims,keepdims=True)
-            gen_mean = K.mean(gen_images,self.D.std_dims,keepdims=True)
+            source_std  = K.std(source_input,self.G.std_dims,keepdims=True)
+            source_mean = K.mean(source_input,self.G.std_dims,keepdims=True)
+            gen_std  = K.std(gen_images,self.G.std_dims,keepdims=True)
+            gen_mean = K.mean(gen_images,self.G.std_dims,keepdims=True)
             style_loss = self.style_loss_coeff*((source_std - gen_std)**2 + (source_mean - gen_mean)**2)/2
 
             style_losses = self.get_all_style_loss(gen_style_std,gen_style_mean,disc_style_std,disc_style_mean) if len(self.matched_keys) > 0 else []

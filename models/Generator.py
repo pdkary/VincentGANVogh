@@ -1,15 +1,14 @@
 from typing import List, Tuple
 
-from tensorflow.keras.layers import Dense, Reshape
-from config.GanConfig import GenLayerConfig
+from config.GanConfig import GenLayerConfig, GeneratorDNA
 from inputs.GanInput import GanInput
 from layers.CallableConfig import ActivationConfig, NoneCallable, RegularizationConfig
+from inputs.BatchedInputModel import BatchedInputModel
 
-from models.ConvolutionalModel import ConvolutionalModelBuilder
-from models.DenseModel import DenseModelBuilder
-import numpy as np
+from models.builders.ConvolutionalModelBuilder import ConvolutionalModelBuilder
+from models.builders.DenseModelBuilder import DenseModelBuilder
 
-class Generator():
+class Generator(BatchedInputModel):
     def __init__(self,
                  gan_input: GanInput,
                  dense_layers: List[int],
@@ -21,7 +20,7 @@ class Generator():
                  view_activation: ActivationConfig = NoneCallable,
                  kernel_regularizer:RegularizationConfig = NoneCallable,
                  kernel_initializer:str = "glorot_uniform"):
-        self.gan_input = gan_input
+        super().__init__(gan_input)
         self.dense_layers = dense_layers
         self.conv_input_shape = conv_input_shape
         self.conv_layers = conv_layers
@@ -32,23 +31,17 @@ class Generator():
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
 
-        self.input = [gan_input.input_layer]
-        
-        print("GENERATOR TAKES %d INPUTS" % len(self.input))
         self.tracked_layers = {}
         self.viewing_layers = []
 
     def build(self):
-        print("BUILDING GENERATOR DENSE")
+        ## Dense model
         DM_builder = DenseModelBuilder(self.gan_input.input_layer)
         for d in self.dense_layers:
-            DM_builder = DM_builder.dense_layer(d,self.dense_activation)
-        DM_og = DM_builder.build()
-
-        DM_out = Dense(np.prod(self.conv_input_shape))(DM_og)
-        DM_out = Reshape(self.conv_input_shape)(DM_out)
-        
-        print("BUILDING GENERATOR CONV")
+            DM_builder = DM_builder.block(d,self.dense_activation)
+        ##reshape
+        DM_out = DM_builder.reshape(self.conv_input_shape).build()
+        ## Convolutional model       
         view_channels = self.conv_layers[-1].filters if self.view_layers else None
         CM_builder = ConvolutionalModelBuilder(
                                 input=DM_out,
@@ -59,16 +52,15 @@ class Generator():
                                 kernel_initializer=self.kernel_initializer)
         
         for c in self.conv_layers:
-            CM_builder = CM_builder.conv_block(c)
+            CM_builder = CM_builder.block(c)
 
         self.model = CM_builder.build()
         self.tracked_layers = CM_builder.tracked_layers
         return self.model
-
-    def get_training_batch(self,batch_size):
-        b = [self.gan_input.get_training_batch(batch_size)]
-        return b
-
-    def get_validation_batch(self,batch_size):
-        b = [self.gan_input.get_validation_batch(batch_size)]
-        return b
+    
+    def toDNA(self):
+        return GeneratorDNA(self.dense_layers,self.conv_input_shape,
+                            [x.filters for x in self.conv_layers],
+                            [x.convolutions for x in self.conv_layers],
+                            [x.kernel_size for x in self.conv_layers],
+                            [x.upsampling for x in self.conv_layers])
