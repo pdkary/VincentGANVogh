@@ -29,7 +29,7 @@ class GanTrainingConfig:
     gen_optimizer: Optimizer = None
     disc_optimizer: Optimizer = None
     metrics: List[Metric] = field(default_factory=list)
-    style_loss_coeff: float = 0.25,
+    style_loss_coeff: float = 0.25
     disc_batches_per_epoch: int = 1
     gen_batches_per_epoch: int = 1
     preview_rows: int = 4

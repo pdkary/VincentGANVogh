@@ -12,7 +12,6 @@ from models.Discriminator import Discriminator
 from models.GanConverter import GanConverter
 from models.Generator import Generator
 from trainers.SimpleTrainer import SimpleTrainer
-from trainers.StyleTrainer import StyleTrainer
 
 # from google.colab import drive
 # drive.mount('/content/drive')
