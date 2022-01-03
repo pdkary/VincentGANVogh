@@ -1,8 +1,10 @@
-from typing import Callable, Tuple, List
-from tensorflow.keras.optimizers import Optimizer
+from dataclasses import dataclass, field
+from typing import Callable, List, Tuple
+
 from tensorflow.keras.losses import Loss
 from tensorflow.keras.metrics import Metric
-from dataclasses import dataclass, field
+from tensorflow.keras.optimizers import Optimizer
+
 
 @dataclass
 class DataConfig:

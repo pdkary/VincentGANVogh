@@ -2,7 +2,7 @@ from typing import List
 
 import tensorflow.keras.backend as K
 from config.GanConfig import ConvLayerConfig, DiscConvLayerConfig
-from layers.CallableConfig import (ActivationConfig, NoneCallable,
+from config.CallableConfig import (ActivationConfig, NoneCallable,
                                    RegularizationConfig)
 from models.builders.BuilderBase import BuilderBase
 from tensorflow.keras.layers import (Conv2D, Conv2DTranspose, Dropout,

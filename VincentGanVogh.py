@@ -1,19 +1,16 @@
-from tensorflow.keras.layers import Activation, BatchNormalization, LeakyReLU
-from tensorflow.keras.metrics import Accuracy, Mean
+from tensorflow.keras.layers import LeakyReLU
+from tensorflow.keras.metrics import Mean
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.regularizers import L2
-from tensorflow.python.keras.losses import (BinaryCrossentropy,
-                                            MeanSquaredError, losses_utils)
+from tensorflow.python.keras.losses import BinaryCrossentropy, losses_utils
 
-from config.GanConfig import DiscConvLayerConfig, GenLayerConfig
+from config.CallableConfig import ActivationConfig, NoneCallable
+from config.GanConfig import DiscConvLayerConfig, GenLayerConfig, SimpleActivations
 from config.TrainingConfig import DataConfig, GanTrainingConfig
 from helpers.DataHelper import map_to_range
 from inputs.GanInput import ConstantInput, LatentSpaceInput, RealImageInput
-from layers.CallableConfig import (ActivationConfig, NoneCallable,
-                                   NormalizationConfig, RegularizationConfig)
 from models.Discriminator import Discriminator
+from models.GanConverter import GanConverter
 from models.Generator import Generator
-from third_party_layers.InstanceNormalization import InstanceNormalization
 from trainers.SimpleTrainer import SimpleTrainer
 from trainers.StyleTrainer import StyleTrainer
 
@@ -23,18 +20,6 @@ from trainers.StyleTrainer import StyleTrainer
 ##activations
 conv_lr = ActivationConfig(LeakyReLU,dict(alpha=0.08))
 dense_lr = ActivationConfig(LeakyReLU,dict(alpha=0.1))
-
-sigmoid = ActivationConfig(Activation,dict(activation="sigmoid"))
-softmax = ActivationConfig(Activation,dict(activation="softmax"))
-tanh = ActivationConfig(Activation,dict(activation="tanh"))
-relu = ActivationConfig(Activation,dict(activation="relu"))
-linear = ActivationConfig(Activation,dict(activation="linear"))
-
-##normalizations
-instance_norm = NormalizationConfig(InstanceNormalization)
-batch_norm = NormalizationConfig(BatchNormalization,dict(momentum=0.8))
-##regularizers
-l2 = RegularizationConfig(L2)
 
 ##desired image shape
 img_shape = (256,256,3)
@@ -59,11 +44,12 @@ constant_input = ConstantInput([100])
 def gen_layer(f,c,k,act=conv_lr,u=True,t=False,n=0.1,id="",norm=NoneCallable):
   return GenLayerConfig(f,c,k,act,upsampling=u,transpose=t,noise=n,track_id=id,normalization=norm)
 
-def disc_layer(f,c,k,act=conv_lr,d=True,t=False,dropout=0.0,id="",norm=NoneCallable):
-  return DiscConvLayerConfig(f,c,k,act,dropout,d,track_id=id,normalization=norm)
+def disc_layer(f,c,k,act=conv_lr,d=True,t=False,dr=0.0,id="",norm=NoneCallable):
+  return DiscConvLayerConfig(f,c,k,act,downsampling=d,dropout_rate=dr,track_id=id,normalization=norm)
 
 #Generator model
-gen_out = gen_layer(channels,1,1,sigmoid,u=False,n=0.0)
+gen_out = gen_layer(channels,1,1,SimpleActivations.sigmoid.value,u=False,n=0.0)
+disc_in = disc_layer(channels,1,1,SimpleActivations.sigmoid.value,d=False)
 
 generator = Generator(
     gan_input = latent_input,
@@ -81,8 +67,10 @@ generator = Generator(
 )   
 #Discriminator Model
 discriminator = Discriminator(
-    real_image_input = image_source,
-    conv_layers = [ disc_layer(64, 3,3),
+    gan_input = image_source,
+    conv_input_shape = image_source.input_shape,
+    conv_layers = [ disc_in,
+                    disc_layer(64, 3,3),
                     disc_layer(128,3,3),
                     disc_layer(256,3,3),
                     disc_layer(512,4,3),
@@ -90,7 +78,7 @@ discriminator = Discriminator(
     dense_layers = [4096,4096,1000,1],
     minibatch_size = 32,
     dense_activation=dense_lr,
-    final_activation=sigmoid,
+    final_activation=SimpleActivations.sigmoid.value,
 )
 
 #Training config
@@ -110,12 +98,11 @@ gan_training_config = GanTrainingConfig(
     preview_cols=4,
     preview_margin=6
 )
-#Trainer
-gDNA = generator.toDNA()
-print(gDNA)
-print(gDNA.output_shape)
-# VGV = SimpleTrainer(generator,discriminator,gan_training_config)
-# VGV.compile()
+# #Trainer
+# discriminator = GanConverter.to_discriminator(image_source,generator)
+generator = GanConverter.to_generator(latent_input,discriminator)
+VGV = SimpleTrainer(generator,discriminator,gan_training_config)
+VGV.compile()
 
 # #TRAINING
 # ERAS = 1
