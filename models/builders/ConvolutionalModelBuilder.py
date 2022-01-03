@@ -78,4 +78,5 @@ class ConvolutionalModelBuilder(BuilderBase):
             viewable_config = DiscConvLayerConfig(self.view_channels,1,1,self.view_activation)
             layer_data["view"] = self.layer(viewable_config)
         self.tracked_layers[name] = layer_data
+        
     

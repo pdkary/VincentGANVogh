@@ -48,23 +48,23 @@ def disc_layer(f,c,k,act=conv_lr,d=True,t=False,dr=0.0,id="",norm=NoneCallable):
 
 #Generator model
 gen_out = gen_layer(channels,1,1,SimpleActivations.sigmoid.value,u=False,n=0.0)
-disc_in = disc_layer(channels,1,1,SimpleActivations.sigmoid.value,d=False)
 
-generator = Generator(
-    gan_input = latent_input,
-    dense_layers=[1000,4096,4096],
-    conv_input_shape=(4,4,512),
-    conv_layers = [gen_layer(512,4,3),
-                   gen_layer(512,4,3),
-                   gen_layer(256,3,3),
-                   gen_layer(128,3,3),
-                   gen_layer(64, 2,3),
-                   gen_layer(32, 2,3),
-                   gen_layer(3,  4,3,u=False),
-                   gen_out],
-    dense_activation=dense_lr,
-)   
+# generator = Generator(
+#     gan_input = latent_input,
+#     dense_layers=[1000,4096,4096],
+#     conv_input_shape=(4,4,512),
+#     conv_layers = [gen_layer(512,4,3),
+#                    gen_layer(512,4,3),
+#                    gen_layer(256,3,3),
+#                    gen_layer(128,3,3),
+#                    gen_layer(64, 2,3),
+#                    gen_layer(32, 2,3),
+#                    gen_layer(3,  4,3,u=False),
+#                    gen_out],
+#     dense_activation=dense_lr,
+# )   
 #Discriminator Model
+disc_in = disc_layer(channels,1,1,SimpleActivations.sigmoid.value,d=False)
 discriminator = Discriminator(
     gan_input = image_source,
     conv_input_shape = image_source.input_shape,
@@ -103,10 +103,10 @@ generator = GanConverter.to_generator(latent_input,discriminator)
 VGV = SimpleTrainer(generator,discriminator,gan_training_config)
 VGV.compile()
 
-# #TRAINING
-# ERAS = 1
-# EPOCHS = 10
-# PRINT_EVERY = 1
-# MOVING_AVERAGE_SIZE = 5
+#TRAINING
+ERAS = 1
+EPOCHS = 10
+PRINT_EVERY = 1
+MOVING_AVERAGE_SIZE = 5
 
-# VGV.train_n_eras(ERAS,EPOCHS,PRINT_EVERY,MOVING_AVERAGE_SIZE)
+VGV.train_n_eras(ERAS,EPOCHS,PRINT_EVERY,MOVING_AVERAGE_SIZE)

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from tensorflow.python.keras.engine.keras_tensor import KerasTensor
-from tensorflow.python.keras.layers.core import Flatten
+from tensorflow.keras.layers import Flatten
 
 ##simple builder pattern class for Dense/Convolutional model builders
 class BuilderBase(ABC):

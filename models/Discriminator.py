@@ -11,6 +11,7 @@ class Discriminator(GANBase):
     def build(self):
         # convolutional model
         view_channels = self.gan_input.input_shape[-1] if self.view_layers else None
+        
         CM_builder = ConvolutionalModelBuilder(self.input,
                                                view_channels=view_channels,
                                                view_activation=self.final_activation,
