@@ -4,7 +4,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.python.keras.losses import BinaryCrossentropy, losses_utils
 
 from config.CallableConfig import ActivationConfig, NoneCallable
-from config.GanConfig import DiscConvLayerConfig, GenLayerConfig, SimpleActivations
+from config.GanConfig import DenseLayerConfig, DiscConvLayerConfig, GenLayerConfig, SimpleActivations
 from config.TrainingConfig import DataConfig, GanTrainingConfig
 from helpers.DataHelper import map_to_range
 from inputs.GanInput import ConstantInput, LatentSpaceInput, RealImageInput
@@ -15,13 +15,9 @@ from trainers.SimpleTrainer import SimpleTrainer
 
 # from google.colab import drive
 # drive.mount('/content/drive')
- 
-##activations
-conv_lr = ActivationConfig(LeakyReLU,dict(alpha=0.08))
-dense_lr = ActivationConfig(LeakyReLU,dict(alpha=0.1))
 
 ##desired image shape
-img_shape = (256,256,3)
+img_shape = (64,64,3)
 channels = img_shape[-1]
 #data input
 data_config = DataConfig(
@@ -29,9 +25,9 @@ data_config = DataConfig(
     image_type=".png",
     image_shape=img_shape,
     model_name='/test_generator_model_',
-    flip_lr=False,
-    load_n_percent=10,
-    load_scale_function=lambda x: map_to_range(x,1.0,-1.0),
+    flip_lr=True,
+    load_n_percent=100,
+    load_scale_function=lambda x: map_to_range(x,1.0,0.0),
     save_scale_function=lambda x: map_to_range(x,255.0,0.0)
 )
 ## inputs
@@ -39,7 +35,14 @@ image_source = RealImageInput(data_config)
 latent_input = LatentSpaceInput([100])
 constant_input = ConstantInput([100])
 
+##activations
+conv_lr = SimpleActivations.leakyRelu_p08.value
+dense_lr = SimpleActivations.leakyRelu_p1.value
+
 ## layer shorthands
+def dense_layer(s,a=SimpleActivations.leakyRelu_p1.value,dr=0.0,ms=0,md=4):
+      return DenseLayerConfig(s,a,dr,ms,md)
+
 def gen_layer(f,c,k,act=conv_lr,u=True,t=False,n=0.1,id="",norm=NoneCallable):
   return GenLayerConfig(f,c,k,act,upsampling=u,transpose=t,noise=n,track_id=id,normalization=norm)
 
@@ -49,36 +52,42 @@ def disc_layer(f,c,k,act=conv_lr,d=True,t=False,dr=0.0,id="",norm=NoneCallable):
 #Generator model
 gen_out = gen_layer(channels,1,1,SimpleActivations.sigmoid.value,u=False,n=0.0)
 
-# generator = Generator(
-#     gan_input = latent_input,
-#     dense_layers=[1000,4096,4096],
-#     conv_input_shape=(4,4,512),
-#     conv_layers = [gen_layer(512,4,3),
-#                    gen_layer(512,4,3),
-#                    gen_layer(256,3,3),
-#                    gen_layer(128,3,3),
-#                    gen_layer(64, 2,3),
-#                    gen_layer(32, 2,3),
-#                    gen_layer(3,  4,3,u=False),
-#                    gen_out],
-#     dense_activation=dense_lr,
-# )   
+generator = Generator(
+    gan_input = latent_input,
+    dense_layers=[
+      dense_layer(1000,dr=0.1,ms=32,a=SimpleActivations.sigmoid.value),
+      dense_layer(4096,dr=0.1,ms=32),
+      dense_layer(4096,dr=0.1,ms=32)
+    ],
+    conv_input_shape=(4,4,512),
+    conv_layers = [
+      gen_layer(512,4,3),
+      gen_layer(256,3,3),
+      gen_layer(128,3,3),
+      gen_layer(64, 2,3),
+      gen_layer(32, 2,3,u=False),
+      gen_out
+    ],
+)   
+
+discriminator = GanConverter.to_discriminator(image_source,generator)
 #Discriminator Model
-disc_in = disc_layer(channels,1,1,SimpleActivations.sigmoid.value,d=False)
-discriminator = Discriminator(
-    gan_input = image_source,
-    conv_input_shape = image_source.input_shape,
-    conv_layers = [ disc_in,
-                    disc_layer(64, 3,3),
-                    disc_layer(128,3,3),
-                    disc_layer(256,3,3),
-                    disc_layer(512,4,3),
-                    disc_layer(512,4,3)],
-    dense_layers = [4096,4096,1000,1],
-    minibatch_size = 32,
-    dense_activation=dense_lr,
-    final_activation=SimpleActivations.sigmoid.value,
-)
+# disc_in = disc_layer(channels,1,1,SimpleActivations.sigmoid.value,d=False)
+# discriminator = Discriminator(
+#     gan_input = image_source,
+#     conv_input_shape = image_source.input_shape,
+#     conv_layers = [ disc_in,
+#                     disc_layer(64, 3,3),
+#                     disc_layer(128,3,3),
+#                     disc_layer(256,3,3),
+#                     disc_layer(512,4,3),
+#                     disc_layer(512,4,3)],
+#     dense_layers = [
+#       dense_layer(4096,dr=0.1,ms=32),
+#       dense_layer(4096,dr=0.1,ms=32),
+#       dense_layer(1000,dr=0.1,ms=32),
+#       dense_layer(1,a=SimpleActivations.sigmoid.value)]
+# )
 
 #Training config
 gan_training_config = GanTrainingConfig(

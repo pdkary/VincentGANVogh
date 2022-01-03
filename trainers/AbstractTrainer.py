@@ -17,7 +17,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.D: Discriminator = discriminator
 
         self.preview_size = self.preview_cols*self.preview_rows
-        label_shape = (self.batch_size, self.D.dense_layers[-1])
+        label_shape = (self.batch_size, self.D.dense_layers[-1].size)
         self.real_label = np.full(label_shape,self.disc_labels[0])
         self.fake_label = np.full(label_shape,self.disc_labels[1])
         self.gen_label = np.full(label_shape, self.gen_label)

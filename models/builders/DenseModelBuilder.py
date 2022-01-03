@@ -1,6 +1,7 @@
 from typing import Tuple
 from tensorflow.keras.layers import Dense, Dropout, Reshape
 from config.CallableConfig import ActivationConfig
+from config.GanConfig import DenseLayerConfig
 from models.builders.BuilderBase import BuilderBase
 from third_party_layers.MinibatchDiscrimination import MinibatchDiscrimination
 import numpy as np
@@ -19,12 +20,13 @@ class DenseModelBuilder(BuilderBase):
     def track(self):
         pass
 
-    def block(self,size: int, activation: ActivationConfig, 
-                    dropout_rate=0.0, minibatch_size=0, minibatch_dim=4):
-        name = str(size) + "_" + str(self.layer_count)
-        self.out = MinibatchDiscrimination(minibatch_size,minibatch_dim)(self.out) if minibatch_size > 0 else self.out
-        self.out = self.layer(size)
-        self.out = Dropout(dropout_rate,name="dense_dropout_"+name)(self.out) if dropout_rate > 0.0 else self.out
-        self.out = activation.get()(self.out)
+    def block(self,config: DenseLayerConfig):
+        name = str(config.size) + "_" + str(self.layer_count)
+        if config.minibatch_size > 0 and config.minibatch_dim > 0:
+            self.out = MinibatchDiscrimination(config.minibatch_size,config.minibatch_dim)(self.out)
+        self.out = self.layer(config.size)
+        if config.dropout_rate > 0.0:
+            self.out = Dropout(config.dropout_rate,name="dense_dropout_"+name)(self.out)
+        self.out = config.activation.get()(self.out)
         self.layer_count += 1
         return self
