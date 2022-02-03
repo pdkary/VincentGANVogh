@@ -43,7 +43,7 @@ class ConvolutionalModelBuilder(BuilderBase):
             self.out = UpSampling2D()(self.out)
 
         self.out = self.layer(config)
-        self.out = Dropout(config.dropout_rate)(self.out)
+        self.out = Dropout(config.dropout_rate)(self.out) if config.dropout_rate > 0.0 else self.out
         self.out = config.normalization.get()(self.out)
         self.out = GaussianNoise(config.noise)(self.out) if config.noise > 0.0 else self.out
         self.out = config.activation.get()(self.out)
