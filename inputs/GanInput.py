@@ -45,8 +45,8 @@ class LatentSpaceInput(GanInput):
         return tf.random.normal(shape=(batch_size,*self.input_shape))
     
 class RealImageInput(GanInput,DataConfig):
-    def __init__(self,data_config: DataConfig):
-        GanInput.__init__(self,data_config.image_shape,name="real_image_input")
+    def __init__(self,data_config: DataConfig,train_test_ratio=0.5):
+        GanInput.__init__(self,data_config.image_shape,name="real_image_input",train_test_ratio=train_test_ratio)
         DataConfig.__init__(self,**data_config.__dict__)
         self.data_helper = DataHelper(data_config)
         self.images = self.data_helper.load_data()
