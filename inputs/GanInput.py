@@ -9,11 +9,12 @@ from config.TrainingConfig import DataConfig
 from helpers.DataHelper import DataHelper
 
 class GanInput(ABC):
-    def __init__(self,input_shape: Tuple[int,int,int],name="input"):
+    def __init__(self,input_shape: Tuple[int,int,int],name="input",train_test_ratio=0.5):
         self.input_shape = input_shape
         self.input_layer: Input = Input(shape=input_shape,name=name)
         self.model_name = name
         self.data_path = None
+        self.train_test_ratio = train_test_ratio
     
     @abstractmethod    
     def get_training_batch(self,batch_size):
@@ -50,7 +51,7 @@ class RealImageInput(GanInput,DataConfig):
         self.data_helper = DataHelper(data_config)
         self.images = self.data_helper.load_data()
         
-        self.num_training_imgs = len(self.images)//2
+        self.num_training_imgs = len(self.images)*self.train_test_ratio
         self.training_images = np.asarray(self.images[:self.num_training_imgs],np.float32)
         self.validation_images = np.asarray(self.images[self.num_training_imgs:],np.float32)
         self.training_dataset = tf.data.Dataset.from_tensor_slices(self.training_images)

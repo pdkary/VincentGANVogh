@@ -1,12 +1,11 @@
-from enum import Enum
 from config.DNA import GanDNA, GeneratorDNA
-
-from config.GanConfig import ConvLayerConfig, DenseLayerConfig, SearchableEnum, SimpleActivations
+from config.GanConfig import SearchableEnum, SimpleActivations
 from inputs.GanInput import GanInput
-from models.GANBase import GANBase
 
 from models.builders.ConvolutionalModelBuilder import ConvolutionalModelBuilder
 from models.builders.DenseModelBuilder import DenseModelBuilder
+from models.GANBase import GANBase
+
 
 class Generator(GANBase):
     def build(self):

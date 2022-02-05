@@ -30,7 +30,7 @@ class SimpleRegularizers(SearchableEnum):
 class DenseLayerConfig():
     size: int
     activation: ActivationConfig
-    dropout_rate: int = 0.0
+    dropout_rate: float = 0
     minibatch_size: int = 0
     minibatch_dim: int = 0
 
@@ -61,7 +61,7 @@ class ConvLayerConfig:
 
 @dataclass
 class DiscConvLayerConfig(ConvLayerConfig):
-    downsampling: Union[bool,str] = True
+    pass
 
 @dataclass
 class GenLayerConfig(ConvLayerConfig):

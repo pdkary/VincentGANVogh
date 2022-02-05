@@ -73,11 +73,12 @@ class AbstractTrainer(GanTrainingConfig, ABC):
             if self.plot:
                 self.gan_plotter.start_epoch()
             
-            source_input = self.D.gan_input.get_training_batch(self.batch_size)
+            train_input = self.D.gan_input.get_training_batch(self.batch_size)
+            test_input = self.D.gan_input.get_validation_batch(self.batch_size)
             gen_input = self.G.get_training_batch(self.batch_size)
             
-            DO = self.train_discriminator(source_input, gen_input)
-            GO = self.train_generator(source_input, gen_input)
+            DO = self.train_discriminator(test_input, gen_input)
+            GO = self.train_generator(train_input, gen_input)
 
             if self.plot:
               self.gan_plotter.batch_update([GO.loss, DO.loss, *GO.metrics, *DO.metrics])
