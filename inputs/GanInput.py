@@ -51,7 +51,7 @@ class RealImageInput(GanInput,DataConfig):
         self.data_helper = DataHelper(data_config)
         self.images = self.data_helper.load_data()
         
-        self.num_training_imgs = np.round(len(self.images)*self.train_test_ratio)
+        self.num_training_imgs = int(np.round(len(self.images)*self.train_test_ratio))
         self.training_images = np.asarray(self.images[:self.num_training_imgs],np.float32)
         self.validation_images = np.asarray(self.images[self.num_training_imgs:],np.float32)
         self.training_dataset = tf.data.Dataset.from_tensor_slices(self.training_images)
