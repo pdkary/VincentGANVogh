@@ -1,7 +1,7 @@
 from typing import List
 
 import tensorflow.keras.backend as K
-from config.GanConfig import ConvLayerConfig, DiscConvLayerConfig
+from config.GanConfig import ConvLayerConfig, DiscConvLayerConfig, TrackedLayerConfig
 from config.CallableConfig import (ActivationConfig, NoneCallable,
                                    RegularizationConfig)
 from models.builders.BuilderBase import BuilderBase
@@ -73,10 +73,11 @@ class ConvolutionalModelBuilder(BuilderBase):
     def track(self,name:str):
         out_std  = K.std(self.out,self.std_dims,keepdims=True)
         out_mean = K.mean(self.out,self.std_dims,keepdims=True)
-        layer_data = {"std_mean":[out_std,out_mean]}
         if self.view_channels is not None:
             viewable_config = DiscConvLayerConfig(self.view_channels,1,1,self.view_activation)
-            layer_data["view"] = self.layer(viewable_config)
-        self.tracked_layers[name] = layer_data
+            view_layer = self.layer(viewable_config)
+            self.tracked_layers[name] = TrackedLayerConfig(out_std,out_mean,view_layer)
+        else:
+            self.tracked_layers[name] = TrackedLayerConfig(out_std,out_mean)
         
     

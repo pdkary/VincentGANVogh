@@ -1,13 +1,16 @@
 from abc import ABC, abstractmethod
+from typing import Dict
 from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 from tensorflow.keras.layers import Flatten
+
+from config.GanConfig import TrackedLayerConfig
 
 ##simple builder pattern class for Dense/Convolutional model builders
 class BuilderBase(ABC):
     def __init__(self,input_layer: KerasTensor):
         self.out = input_layer
         self.layer_count = 0
-        self.tracked_layers = {}
+        self.tracked_layers: Dict[str,TrackedLayerConfig] = {}
     
     def build(self):
         return self.out

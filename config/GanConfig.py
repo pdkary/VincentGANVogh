@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple, Union
+from typing import Iterable, List, Tuple, Union
 
 from tensorflow.keras.layers import Activation, BatchNormalization, LeakyReLU
 from tensorflow.keras.regularizers import L2
@@ -66,3 +66,9 @@ class DiscConvLayerConfig(ConvLayerConfig):
 @dataclass
 class GenLayerConfig(ConvLayerConfig):
     pass
+
+@dataclass
+class TrackedLayerConfig:
+    std: List
+    mean: List
+    view: any

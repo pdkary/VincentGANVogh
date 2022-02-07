@@ -4,6 +4,7 @@ from cv2 import mean
 
 import tensorflow as tf
 import numpy as np
+from config.GanConfig import TrackedLayerConfig
 from config.TrainingConfig import GanTrainingConfig, GanTrainingResult
 from models.Discriminator import Discriminator
 from models.Generator import Generator
@@ -24,15 +25,16 @@ class MeanStdTrainer(AbstractTrainer):
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
             G_OUT = self.generator(gen_input,training=True)
-            gen_images,gen_tracked_layers = G_OUT[0],G_OUT[1:]
+            gen_images = G_OUT[0]
+            gen_tracked_layers: List[TrackedLayerConfig] = G_OUT[1:]
             D_OUT = self.discriminator(gen_images, training=False)
             disc_results,disc_tracked_layers = D_OUT[0],D_OUT[1:]
             
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
-            g_means = [np.mean(x) for x in gen_tracked_layers]
-            g_stds = [np.std(x) for x in gen_tracked_layers]
-            d_means = [np.mean(x) for x in disc_tracked_layers]
-            d_stds = [np.std(x) for x in disc_tracked_layers]
+            g_means = flatten([x.mean for x in gen_tracked_layers])
+            g_stds = flatten([x.std for x in gen_tracked_layers])
+            d_means = flatten([x.mean for x in disc_tracked_layers])
+            d_stds = flatten([x.std for x in disc_tracked_layers])
             mean_loss = self.gen_loss_function(d_means,g_means)
             std_loss = self.disc_loss_function(d_stds,g_stds)
 
