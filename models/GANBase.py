@@ -31,6 +31,10 @@ class GANBase():
     @property
     def has_tracked_layers(self):
         return any([x.track_id != "" for x in self.conv_layers])
+    
+    @property
+    def num_tracked_layers(self):
+        return sum([x.track_id != "" for x in self.conv_layers])
 
     def get_training_batch(self,batch_size):
         b = [self.gan_input.get_training_batch(batch_size)]

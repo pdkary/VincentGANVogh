@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List
 
 import numpy as np
 from config.TrainingConfig import GanTrainingConfig, GanTrainingResult
@@ -6,6 +7,9 @@ from helpers.DataHelper import DataHelper
 from models.Discriminator import Discriminator
 from models.Generator import Generator
 from tensorflow.keras.models import Model
+
+def flatten(arr: List):
+    return [x for y in arr for x in y]
 
 class AbstractTrainer(GanTrainingConfig, ABC):
     def __init__(self,
@@ -33,8 +37,14 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def compile(self):
         GI,GO = self.G.input,self.G.build()
         DI,DO = self.D.input,self.D.build()
-        g_outs = GO if self.G.tracked_layers == {} else [GO,*self.G.tracked_layers.values()]
-        d_outs = DO if self.D.tracked_layers == {} else [DO,*self.D.tracked_layers.values()]
+
+        G_STDS = flatten([x.std for x in self.G.tracked_layers.values()])
+        G_MEANS = flatten([x.mean for x in self.G.tracked_layers.values()])
+        D_STDS = flatten([x.std for x in self.D.tracked_layers.values()])
+        D_MEANS = flatten([x.mean for x in self.D.tracked_layers.values()])
+
+        g_outs = GO if self.G.has_tracked_layers else [GO,*G_STDS,G_MEANS]
+        d_outs = DO if self.D.has_tracked_layers else [DO,*D_STDS,D_MEANS]
         
         self.generator = Model(inputs=GI,outputs=g_outs,name="Generator")
         self.generator.compile(optimizer=self.gen_optimizer,
