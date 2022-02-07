@@ -71,4 +71,4 @@ class GenLayerConfig(ConvLayerConfig):
 class TrackedLayerConfig:
     std: List
     mean: List
-    view: any
+    view = None
