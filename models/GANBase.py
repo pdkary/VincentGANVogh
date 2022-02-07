@@ -28,11 +28,9 @@ class GANBase():
     def input(self):
         return self.gan_input.input_layer
 
-    @property
     def has_tracked_layers(self):
         return any([x.track_id != "" for x in self.conv_layers])
     
-    @property
     def num_tracked_layers(self):
         return sum([x.track_id != "" for x in self.conv_layers])
 
