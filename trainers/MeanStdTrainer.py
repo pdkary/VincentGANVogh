@@ -31,10 +31,10 @@ class MeanStdTrainer(AbstractTrainer):
             disc_results,disc_tracked_layers = D_OUT[0],D_OUT[1:]
             
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
-            g_means = flatten([x.mean for x in gen_tracked_layers])
-            g_stds = flatten([x.std for x in gen_tracked_layers])
-            d_means = flatten([x.mean for x in disc_tracked_layers])
-            d_stds = flatten([x.std for x in disc_tracked_layers])
+            g_mid = len(gen_tracked_layers)//2
+            d_mid = len(disc_tracked_layers)//2
+            g_means,g_stds = gen_tracked_layers[:g_mid],gen_tracked_layers[g_mid:]
+            d_means,d_stds = disc_tracked_layers[:d_mid],disc_tracked_layers[d_mid:]
             mean_loss = self.gen_loss_function(d_means,g_means)
             std_loss = self.disc_loss_function(d_stds,g_stds)
 
