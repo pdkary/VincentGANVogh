@@ -1,6 +1,9 @@
+from operator import ge
 from typing import List
+from cv2 import mean
 
 import tensorflow as tf
+import numpy as np
 from config.TrainingConfig import GanTrainingConfig, GanTrainingResult
 from models.Discriminator import Discriminator
 from models.Generator import Generator
@@ -9,23 +12,33 @@ from trainers.AbstractTrainer import AbstractTrainer
 def flatten(arr: List):
     return [x for y in arr for x in y]
 
-class SimpleTrainer(AbstractTrainer):
+class MeanStdTrainer(AbstractTrainer):
     def __init__(self, 
                  generator: Generator,
                  discriminator: Discriminator,
                  gan_training_config: GanTrainingConfig):
         super().__init__(generator, discriminator, gan_training_config)
+        assert(generator.has_tracked_layers)
+        assert(discriminator.has_tracked_layers)
 
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
-            gen_images = self.generator(gen_input,training=True)
-            disc_results = self.discriminator(gen_images, training=False)
+            G_OUT = self.generator(gen_input,training=True)
+            gen_images,gen_tracked_layers = G_OUT[0],G_OUT[1:]
+            D_OUT = self.discriminator(gen_images, training=False)
+            disc_results,disc_tracked_layers = D_OUT[0],D_OUT[1:]
             
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
+            g_means = [np.mean(x) for x in gen_tracked_layers]
+            g_stds = [np.std(x) for x in gen_tracked_layers]
+            d_means = [np.mean(x) for x in disc_tracked_layers]
+            d_stds = [np.std(x) for x in disc_tracked_layers]
+            mean_loss = self.gen_loss_function(d_means,g_means)
+            std_loss = self.disc_loss_function(d_stds,g_stds)
 
-            g_loss = content_loss
+            g_loss = content_loss + mean_loss + std_loss
+
             metrics = []
-            
             for metric in self.g_metrics:
                 if metric.name == "mean":
                     metric.update_state(disc_results)
@@ -39,10 +52,10 @@ class SimpleTrainer(AbstractTrainer):
 
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
-            gen_images = self.generator(gen_input,training=False)
-            disc_gen_out = self.discriminator(gen_images, training=True)
+            gen_images = self.generator(gen_input,training=False)[0]
+            disc_gen_out = self.discriminator(gen_images, training=True)[0]
 
-            disc_real_out = self.discriminator(disc_input, training=True)
+            disc_real_out = self.discriminator(disc_input, training=True)[0]
             
             content_loss =  self.disc_loss_function(self.fake_label, disc_gen_out) 
             content_loss += self.disc_loss_function(self.real_label, disc_real_out)

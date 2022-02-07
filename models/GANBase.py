@@ -28,6 +28,10 @@ class GANBase():
     def input(self):
         return self.gan_input.input_layer
 
+    @property
+    def has_tracked_layers(self):
+        return any([x.track_id != "" for x in self.conv_layers])
+
     def get_training_batch(self,batch_size):
         b = [self.gan_input.get_training_batch(batch_size)]
         return b

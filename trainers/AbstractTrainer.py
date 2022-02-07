@@ -33,8 +33,8 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def compile(self):
         GI,GO = self.G.input,self.G.build()
         DI,DO = self.D.input,self.D.build()
-        g_outs = GO if self.G.tracked_layers == {} else [GO,*self.G.tracked_layers.values]
-        d_outs = DO if self.D.tracked_layers == {} else [DO,*self.D.tracked_layers.values]
+        g_outs = GO if self.G.tracked_layers == {} else [GO,*self.G.tracked_layers.values()]
+        d_outs = DO if self.D.tracked_layers == {} else [DO,*self.D.tracked_layers.values()]
         
         self.generator = Model(inputs=GI,outputs=g_outs,name="Generator")
         self.generator.compile(optimizer=self.gen_optimizer,
