@@ -56,7 +56,6 @@ class MeanStdTrainer(AbstractTrainer):
         with tf.GradientTape() as disc_tape:
             gen_images = self.generator(gen_input,training=False)[0]
             disc_gen_out = self.discriminator(gen_images, training=True)[0]
-
             disc_real_out = self.discriminator(disc_input, training=True)[0]
             
             content_loss =  self.disc_loss_function(self.fake_label, disc_gen_out) 

@@ -43,8 +43,8 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         D_STDS = [x.std for x in self.D.tracked_layers.values()]
         D_MEANS = [x.mean for x in self.D.tracked_layers.values()]
 
-        g_outs = GO if self.G.has_tracked_layers() else [GO,*G_STDS,*G_MEANS]
-        d_outs = DO if self.D.has_tracked_layers() else [DO,*D_STDS,*D_MEANS]
+        g_outs = [GO,*G_STDS,*G_MEANS]
+        d_outs = [DO,*D_STDS,*D_MEANS]
         
         self.generator = Model(inputs=GI,outputs=g_outs,name="Generator")
         self.generator.compile(optimizer=self.gen_optimizer,
@@ -69,8 +69,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def save_images(self,name):
         data_helper: DataHelper = self.D.gan_input.data_helper
         gen_input = self.G.get_validation_batch(self.preview_size)
-        G_PRED = self.generator.predict(gen_input)
-        gen_images = G_PRED[0] if self.G.has_tracked_layers() else G_PRED
+        gen_images = self.generator.predict(gen_input)[0]
         data_helper.save_images(name,gen_images,self.preview_rows,self.preview_cols,self.preview_margin)
 
     def save_generator(self, epoch):
