@@ -38,13 +38,13 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         GI,GO = self.G.input,self.G.build()
         DI,DO = self.D.input,self.D.build()
 
-        G_STDS = flatten([x.std for x in self.G.tracked_layers.values()])
-        G_MEANS = flatten([x.mean for x in self.G.tracked_layers.values()])
-        D_STDS = flatten([x.std for x in self.D.tracked_layers.values()])
-        D_MEANS = flatten([x.mean for x in self.D.tracked_layers.values()])
+        G_STDS = [x.std for x in self.G.tracked_layers.values()]
+        G_MEANS = [x.mean for x in self.G.tracked_layers.values()]
+        D_STDS = [x.std for x in self.D.tracked_layers.values()]
+        D_MEANS = [x.mean for x in self.D.tracked_layers.values()]
 
-        g_outs = GO if self.G.has_tracked_layers else [GO,*G_STDS,G_MEANS]
-        d_outs = DO if self.D.has_tracked_layers else [DO,*D_STDS,D_MEANS]
+        g_outs = GO if self.G.has_tracked_layers else [GO,*G_STDS,*G_MEANS]
+        d_outs = DO if self.D.has_tracked_layers else [DO,*D_STDS,*D_MEANS]
         
         self.generator = Model(inputs=GI,outputs=g_outs,name="Generator")
         self.generator.compile(optimizer=self.gen_optimizer,
