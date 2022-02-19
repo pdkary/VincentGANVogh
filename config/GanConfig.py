@@ -20,7 +20,7 @@ class SimpleActivations(SearchableEnum):
     leakyRelu_p1  = ActivationConfig(LeakyReLU,  [], dict(alpha=0.1))
 
 class SimpleNormalizations(SearchableEnum):
-    instance_norm = NormalizationConfig(InstanceNormalization)
+    instance_norm = NormalizationConfig(InstanceNormalization,[])
     batch_norm    = NormalizationConfig(BatchNormalization,[],dict(momentum=0.8))
 
 class SimpleRegularizers(SearchableEnum):
