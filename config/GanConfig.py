@@ -4,7 +4,7 @@ from typing import Iterable, List, Tuple, Union
 from tensorflow.keras.layers import Activation, BatchNormalization, LeakyReLU
 from tensorflow.keras.regularizers import L2
 from helpers.SearchableEnum import SearchableEnum
-from third_party_layers import InstanceNormalization
+from third_party_layers.InstanceNormalization import InstanceNormalization
 
 from config.CallableConfig import (ActivationConfig, NoneCallable,
                                    NormalizationConfig, RegularizationConfig)
