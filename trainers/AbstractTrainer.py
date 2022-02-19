@@ -69,7 +69,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def save_images(self,name):
         data_helper: DataHelper = self.D.gan_input.data_helper
         gen_input = self.G.get_validation_batch(self.preview_size)
-        gen_images = self.generator.predict(gen_input)[0]
+        gen_images = self.generator.predict(gen_input)
         data_helper.save_images(name,gen_images,self.preview_rows,self.preview_cols,self.preview_margin)
 
     def save_generator(self, epoch):
