@@ -22,8 +22,9 @@ def generate_UNET(input: GanInput,F: int, C: int, depth = 5):
         conv_down_layers.append(down_layer((2**i)*F,C,3,concat_with=key))
         conv_up_layers = [up_layer(F,C,3,concat_with=key)] + conv_up_layers
     
-    conv_down_layers.append(down_layer((2**(depth - 1))*F,C,3))
+    conv_down_layers.append(up_layer((2**(depth - 1))*F,C,3))
     conv_down_layers.extend(conv_up_layers)
+    conv_down_layers.append(up_layer(input.input_shape[-1],1,3,act=sigmoid,u=False))
     return Generator(
         gan_input = input,
         conv_layers = conv_down_layers
