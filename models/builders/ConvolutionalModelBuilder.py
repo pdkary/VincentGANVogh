@@ -5,7 +5,7 @@ from config.GanConfig import ConvLayerConfig, DiscConvLayerConfig, TrackedLayerC
 from config.CallableConfig import (ActivationConfig, NoneCallable,
                                    RegularizationConfig)
 from models.builders.BuilderBase import BuilderBase
-from tensorflow.keras.layers import (Conv2D, Conv2DTranspose, Dropout,
+from tensorflow.keras.layers import (Conv2D, Conv2DTranspose, Dropout, Concatenate, 
                                      GaussianNoise, MaxPooling2D, UpSampling2D)
 from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 
@@ -26,7 +26,7 @@ class ConvolutionalModelBuilder(BuilderBase):
         self.kernel_initializer = kernel_initializer
 
     """
-    convolutional block goes
+    convolutional block goes brrr
      - upsampling
      - conv2d
      - dropout
@@ -47,6 +47,16 @@ class ConvolutionalModelBuilder(BuilderBase):
         self.out = config.normalization.get()(self.out)
         self.out = GaussianNoise(config.noise)(self.out) if config.noise > 0.0 else self.out
         self.out = config.activation.get()(self.out)
+
+        ## concatenation for UNET integration
+        if config.concat_with != "":
+            key = config.concat_with
+            if key in self.awaiting_concatenation:
+                self.out = Concatenate(axis=1)([self.out,self.awaiting_concatenation[key]])
+                del self.awaiting_concatenation[key]
+            else:
+                self.awaiting_concatenation[key] = self.out
+
             
         if config.downsampling == "stride":
             down_config = ConvLayerConfig(config.filters,1,3,config.activation,strides=(2,2))

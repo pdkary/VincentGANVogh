@@ -11,8 +11,11 @@ class BuilderBase(ABC):
         self.out = input_layer
         self.layer_count = 0
         self.tracked_layers: Dict[str,TrackedLayerConfig] = {}
+        self.awaiting_concatenation = {}
     
     def build(self):
+        if self.awaiting_concatenation != {}:
+            raise Exception("ya fucked it")
         return self.out
     
     def flatten(self):

@@ -51,6 +51,7 @@ class ConvLayerConfig:
     regularizer: RegularizationConfig = NoneCallable
     kernel_initializer: str = "glorot_uniform"
     track_id: str = ""
+    concat_with: str = ""
 
     def flip(self):
         u = self.upsampling

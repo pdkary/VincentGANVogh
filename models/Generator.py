@@ -10,11 +10,13 @@ from models.GANBase import GANBase
 class Generator(GANBase):
     def build(self):
         ## Dense model
-        DM_builder = DenseModelBuilder(self.gan_input.input_layer)
-        for d in self.dense_layers:
-            DM_builder = DM_builder.block(d)
-        ##reshape
-        DM_out = DM_builder.reshape(self.conv_input_shape).build()
+        DM_out = self.gan_input.input_layer
+        if len(self.dense_layers) > 0:
+            DM_builder = DenseModelBuilder(self.gan_input.input_layer)
+            for d in self.dense_layers:
+                DM_builder = DM_builder.block(d)
+            ##reshape
+            DM_out = DM_builder.reshape(self.conv_input_shape).build()
         ## Convolutional model       
         view_channels = self.conv_layers[-1].filters if self.view_layers else None
         CM_builder = ConvolutionalModelBuilder(
