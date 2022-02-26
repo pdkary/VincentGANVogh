@@ -19,7 +19,7 @@ def generate_UNET(input: GanInput,F: int, C: int, depth = 5, up_noise = 0.1, dow
     conv_down_layers = []
     for i in range(depth-1):
         key = str(i)
-        conv_down_layers.append(down_layer((2**i)*F,C,3,concat_with=key),n=down_noise)
+        conv_down_layers.append(down_layer((2**i)*F,C,3,concat_with=key,n=down_noise))
         conv_up_layers = [up_layer(F,C,3,concat_with=key,n=up_noise)] + conv_up_layers
     
     conv_down_layers.append(down_layer((2**(depth - 1))*F,C,3),n=down_noise)
