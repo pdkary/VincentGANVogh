@@ -11,7 +11,7 @@ class Generator(GANBase):
     def build(self):
         ## Dense model
         DM_out = self.gan_input.input_layer
-        if len(self.dense_layers) > 0:
+        if self.dense_layers is not None and len(self.dense_layers) > 0:
             DM_builder = DenseModelBuilder(self.gan_input.input_layer)
             for d in self.dense_layers:
                 DM_builder = DM_builder.block(d)
