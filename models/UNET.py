@@ -11,23 +11,20 @@ i_norm = SimpleNormalizations.instance_norm.value
 def up_layer(f,c,k,act=conv_lr,u=True,t=True,n=0.1,id="",norm=i_norm,concat_with=""):
   return GenLayerConfig(f,c,k,act,upsampling=u,transpose=t,noise=n,track_id=id,normalization=norm,concat_with=concat_with)
 
-def down_layer(f,c,k,act=conv_lr,d=True,t=False,dr=0.0,n=0.0,id="",norm=i_norm,concat_with=""):
+def down_layer(f,c,k,act=conv_lr,d=True,t=False,dr=0.0,n=0.25,id="",norm=i_norm,concat_with=""):
   return DiscConvLayerConfig(f,c,k,act,downsampling=d,transpose=t,dropout_rate=dr,track_id=id,normalization=norm,noise=n,concat_with=concat_with)
 
-def generate_UNET(input: GanInput,F: int, C: int):
+def generate_UNET(input: GanInput,F: int, C: int, depth = 5):
+    conv_up_layers = []
+    conv_down_layers = []
+    for i in range(depth-1):
+        key = str(i)
+        conv_down_layers.append(down_layer((2**i)*F,C,3,concat_with=key))
+        conv_up_layers = [up_layer(F,C,3,concat_with=key)] + conv_up_layers
+    
+    conv_down_layers.append(down_layer((2**(depth - 1))*F,C))
     return Generator(
         gan_input = input,
-        conv_layers = [
-            down_layer(  F, C,3,concat_with="0"),
-            down_layer(2*F, C,3,concat_with="1"),
-            down_layer(4*F, C,3,concat_with="2"),
-            down_layer(8*F, C,3,concat_with="3"),
-            down_layer(16*F, C,3),
-            up_layer(8*F,C,3,concat_with="3"),
-            up_layer(4*F,C,3,concat_with="2"),
-            up_layer(2*F,C,3,concat_with="1"),
-            up_layer(  F,C,3,concat_with="0"),
-            up_layer(input.input_shape[-1],1,1,sigmoid,n=0.0)
-        ]
+        conv_layers = conv_down_layers.extend(conv_up_layers)
     )
         
