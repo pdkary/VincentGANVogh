@@ -25,7 +25,7 @@ def generate_UNET(input: GanInput):
             up_layer(3,4,3,concat_with="2"),
             up_layer(3,2,3,concat_with="1"),
             up_layer(3,1,3,concat_with="0"),
-            up_layer(3,1,1,sigmoid,n=0.0)
+            up_layer(input.input_shape[-1],1,1,sigmoid,n=0.0)
         ]
     )
         
