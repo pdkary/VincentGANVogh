@@ -1,7 +1,7 @@
 from config.CallableConfig import NoneCallable
 from config.GanConfig import DiscConvLayerConfig, GenLayerConfig, SimpleActivations
 from inputs.GanInput import GanInput
-from models import Generator
+from models.Generator import Generator
 
 conv_lr = SimpleActivations.leakyRelu_p08.value
 sigmoid = SimpleActivations.sigmoid.value
@@ -25,7 +25,7 @@ def generate_UNET(input: GanInput):
             up_layer(3,4,3,concat_with="2"),
             up_layer(3,2,3,concat_with="1"),
             up_layer(3,1,3,concat_with="0"),
-            up_layer(3,1,1,sigmoid,n=0.0,u=False)
+            up_layer(3,1,1,sigmoid,n=0.0)
         ]
     )
         

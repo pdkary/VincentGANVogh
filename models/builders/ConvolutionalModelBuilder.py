@@ -47,22 +47,21 @@ class ConvolutionalModelBuilder(BuilderBase):
         self.out = config.normalization.get()(self.out)
         self.out = GaussianNoise(config.noise)(self.out) if config.noise > 0.0 else self.out
         self.out = config.activation.get()(self.out)
-
-        ## concatenation for UNET integration
-        if config.concat_with != "":
-            key = config.concat_with
-            if key in self.awaiting_concatenation:
-                self.out = Concatenate(axis=1)([self.out,self.awaiting_concatenation[key]])
-                del self.awaiting_concatenation[key]
-            else:
-                self.awaiting_concatenation[key] = self.out
-
             
         if config.downsampling == "stride":
             down_config = ConvLayerConfig(config.filters,1,3,config.activation,strides=(2,2))
             self.out = self.layer(down_config)
         elif config.downsampling == True:
             self.out = MaxPooling2D()(self.out)
+            
+        ## concatenation for UNET integration
+        if config.concat_with != "":
+            key = config.concat_with
+            if key in self.awaiting_concatenation:
+                self.out = Concatenate(axis=-1)([self.out,self.awaiting_concatenation[key]])
+                del self.awaiting_concatenation[key]
+            else:
+                self.awaiting_concatenation[key] = self.out
         self.layer_count += 1
         return self
 

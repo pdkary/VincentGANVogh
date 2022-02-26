@@ -14,8 +14,8 @@ from inputs.GanInput import GanInput
 class GANBase():
     gan_input:GanInput
     conv_layers: List[ConvLayerConfig]
-    dense_layers: List[DenseLayerConfig]
-    conv_input_shape: Tuple[int,int,int]
+    dense_layers: List[DenseLayerConfig] = field(default_factory = lambda : [])
+    conv_input_shape: Tuple[int,int,int] = field(default_factory = lambda : [])
     view_layers: bool = False
     std_dims: List[int] = field(default_factory = lambda : [1,2,3])
     view_activation: ActivationConfig = field(default=NoneCallable)
