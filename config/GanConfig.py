@@ -11,7 +11,7 @@ from config.CallableConfig import (ActivationConfig, NoneCallable,
 
 
 class SimpleActivations(SearchableEnum):
-    sigmoid       = ActivationConfig(Activation, "sigmoid", {})
+    sigmoid       = ActivationConfig(Activation, "sigmoid", dict(activation="sigmoid"))
     softmax       = ActivationConfig(Activation, [], dict(activation="softmax"))
     tanh          = ActivationConfig(Activation, [], dict(activation="tanh"))
     relu          = ActivationConfig(Activation, [], dict(activation="relu"))
