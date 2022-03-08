@@ -4,6 +4,7 @@ from typing import Iterable, List, Tuple, Union
 from tensorflow.keras.layers import Activation, BatchNormalization, LeakyReLU
 from tensorflow.keras.regularizers import L2
 from helpers.SearchableEnum import SearchableEnum
+from layers.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from third_party_layers.InstanceNormalization import InstanceNormalization
 
 from config.CallableConfig import (ActivationConfig, NoneCallable,
@@ -22,6 +23,8 @@ class SimpleActivations(SearchableEnum):
 class SimpleNormalizations(SearchableEnum):
     instance_norm = NormalizationConfig(InstanceNormalization,[])
     batch_norm    = NormalizationConfig(BatchNormalization,[],dict(momentum=0.8))
+    get_batch_norm = lambda m: NormalizationConfig(BatchNormalization,[],dict(momentum=m))
+    adain_1000 = NormalizationConfig(AdaptiveInstanceNormalization,[],dict(size=1000))
 
 class SimpleRegularizers(SearchableEnum):
     l2 = RegularizationConfig(L2)
