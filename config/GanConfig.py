@@ -23,8 +23,8 @@ class SimpleActivations(SearchableEnum):
 class SimpleNormalizations(SearchableEnum):
     instance_norm = NormalizationConfig(InstanceNormalization,[])
     batch_norm    = NormalizationConfig(BatchNormalization,[],dict(momentum=0.8))
-    get_batch_norm = lambda m: NormalizationConfig(BatchNormalization,[],dict(momentum=m))
-    adain_1000 = NormalizationConfig(AdaptiveInstanceNormalization,[],dict(size=1000))
+    batch_norm_factory = lambda m: NormalizationConfig(BatchNormalization,[],dict(momentum=m))
+    adain_factory = lambda s: NormalizationConfig(AdaptiveInstanceNormalization,[],dict(size=s))
 
 class SimpleRegularizers(SearchableEnum):
     l2 = RegularizationConfig(L2)
