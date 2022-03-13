@@ -19,7 +19,7 @@ class SimpleTrainer(AbstractTrainer):
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
             gen_images = self.generator(gen_input,training=True)
-            disc_results = self.discriminator(gen_images, training=False)
+            disc_results = self.discriminator(gen_images, training=True)
             content_loss = self.gen_loss_function(self.gen_label, disc_results)
 
             g_loss = content_loss

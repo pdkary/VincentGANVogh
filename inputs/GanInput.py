@@ -4,7 +4,7 @@ from typing import Tuple
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.data import Dataset
-from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import Input, Dense
 from config.TrainingConfig import DataConfig
 from helpers.DataHelper import DataHelper
 
@@ -43,6 +43,19 @@ class LatentSpaceInput(GanInput):
     
     def get_training_batch(self, batch_size):
         return tf.random.normal(shape=(batch_size,*self.input_shape))
+
+class DenseModelInput(GanInput):
+    def __init__(self, input_shape:Tuple,layer_size:int,num_layers:int,name="latent_space_input"):
+        super().__init__(input_shape,name=name)
+        self.layer_size = layer_size
+        self.num_layers = num_layers
+        self.model = self.input_layer
+        for l in range(num_layers):
+            self.model = Dense(layer_size)(self.model)
+        
+    def get_training_batch(self,batch_size):
+        seed = tf.random.normal(shape=(batch_size,*self.input_shape))
+        return self.model(seed)
     
 class RealImageInput(GanInput,DataConfig):
     def __init__(self,data_config: DataConfig,train_test_ratio=0.5):
