@@ -4,6 +4,7 @@ from typing import Tuple
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.data import Dataset
+from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense
 from config.TrainingConfig import DataConfig
 from helpers.DataHelper import DataHelper
@@ -49,9 +50,10 @@ class DenseModelInput(GanInput):
         super().__init__(input_shape,name=name)
         self.layer_size = layer_size
         self.num_layers = num_layers
-        self.model = self.input_layer
+        out = self.input_layer
         for l in range(num_layers):
-            self.model = Dense(layer_size)(self.model)
+            out = Dense(layer_size)(out)
+        self.model = Model(inputs=self.input_layer,outputs=out,name="DenseInputModel")
         
     def get_training_batch(self,batch_size):
         seed = tf.random.normal(shape=(batch_size,*self.input_shape))
