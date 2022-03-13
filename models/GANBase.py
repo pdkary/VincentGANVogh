@@ -1,8 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Tuple
 
-from config.CallableConfig import (ActivationConfig, NoneCallable,
-                                   RegularizationConfig)
+from config.CallableConfig import (NoneCallable,RegularizationConfig)
 from config.DNA import GanDNA
 from config.GanConfig import (ConvLayerConfig, DenseLayerConfig,
                               SimpleActivations)
@@ -16,23 +15,14 @@ class GANBase():
     conv_layers: List[ConvLayerConfig]
     dense_layers: List[DenseLayerConfig] = field(default_factory = lambda : [])
     conv_input_shape: Tuple[int,int,int] = field(default_factory = lambda : [])
-    view_layers: bool = False
     std_dims: List[int] = field(default_factory = lambda : [1,2,3])
-    view_activation: ActivationConfig = field(default=NoneCallable)
     kernel_regularizer: RegularizationConfig = field(default=NoneCallable)
     kernel_initializer: str = field(default="glorot_uniform")
-    tracked_layers = {}
-    viewing_layers = []
+    view_layers: List = field(default_factory= lambda : [])
 
     @property
     def input(self):
         return self.gan_input.input_layer
-
-    def has_tracked_layers(self):
-        return any([x.track_id != "" for x in self.conv_layers])
-    
-    def num_tracked_layers(self):
-        return sum([x.track_id != "" for x in self.conv_layers])
 
     def get_training_batch(self,batch_size):
         b = [self.gan_input.get_training_batch(batch_size)]

@@ -18,11 +18,8 @@ class Generator(GANBase):
             ##reshape
             DM_out = DM_builder.reshape(self.conv_input_shape).build()
         ## Convolutional model       
-        view_channels = self.conv_layers[-1].filters if self.view_layers else None
         CM_builder = ConvolutionalModelBuilder(
                                 input_layer=DM_out,
-                                view_channels=view_channels,
-                                view_activation=self.view_activation,
                                 std_dims=self.std_dims,
                                 kernel_regularizer=self.kernel_regularizer,
                                 kernel_initializer=self.kernel_initializer)
@@ -31,7 +28,7 @@ class Generator(GANBase):
             CM_builder = CM_builder.block(c)
 
         self.model = CM_builder.build()
-        self.tracked_layers = CM_builder.tracked_layers
+        self.view_layers = CM_builder.view_layers
         return self.model
     
     def to_DNA(self, activation_set: SearchableEnum = SimpleActivations):

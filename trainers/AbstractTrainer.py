@@ -21,6 +21,12 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.D: Discriminator = discriminator
 
         self.preview_size = self.preview_cols*self.preview_rows
+        
+        self.preview_args = {
+            "preview_rows":self.preview_rows,
+            "preview_cols":self.preview_cols,
+            "preview_margin":self.preview_margin
+        }
         label_shape = (self.batch_size, self.D.dense_layers[-1].size)
         self.real_label = np.full(label_shape,self.disc_labels[0])
         self.fake_label = np.full(label_shape,self.disc_labels[1])
@@ -38,13 +44,8 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         GI,GO = self.G.input,self.G.build()
         DI,DO = self.D.input,self.D.build()
 
-        G_STDS = [x.std for x in self.G.tracked_layers.values()]
-        G_MEANS = [x.mean for x in self.G.tracked_layers.values()]
-        D_STDS = [x.std for x in self.D.tracked_layers.values()]
-        D_MEANS = [x.mean for x in self.D.tracked_layers.values()]
-
-        g_outs = [GO,*G_STDS,*G_MEANS]
-        d_outs = [DO,*D_STDS,*D_MEANS]
+        g_outs = [GO,*self.G.view_layers]
+        d_outs = [DO,*self.D.view_layers]
         
         self.generator = Model(inputs=GI,outputs=g_outs,name="Generator")
         self.generator.compile(optimizer=self.gen_optimizer,
@@ -66,11 +67,28 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def train_discriminator(self, source_input, gen_input) -> GanTrainingResult:
         pass
 
+    def get_gen_output(self,gen_input,training=True):
+        output = self.generator(gen_input,training=True) if training else self.generator.predict(gen_input)
+        if len(self.G.view_layers) == 0:
+            return [output,[]]
+        else:
+            return [output[0],output[1:]]
+    
+    def get_disc_output(self,disc_input,training=True):
+        output = self.discriminator(disc_input,training=True) if training else self.discriminator.predict(disc_input)
+        if len(self.D.view_layers) == 0:
+            return [output,[]]
+        else:
+            return [output[0],output[1:]]
+
     def save_images(self,name):
         data_helper: DataHelper = self.D.gan_input.data_helper
         gen_input = self.G.get_validation_batch(self.preview_size)
-        gen_images = self.generator.predict(gen_input)
-        data_helper.save_images(name,gen_images,self.preview_rows,self.preview_cols,self.preview_margin)
+        gen_images,view_images = self.get_gen_output(gen_input,training=False)
+        for i,im in enumerate(view_images):
+            view_name = "sublayers/view_" + str(i) + "_" + name
+            data_helper.save_images(view_name,im,**self.preview_args)
+        data_helper.save_images(name,gen_images,**self.preview_args)
 
     def save_generator(self, epoch):
         filename = self.model_name + str(epoch)
@@ -81,12 +99,14 @@ class AbstractTrainer(GanTrainingConfig, ABC):
             if self.plot:
                 self.gan_plotter.start_epoch()
             
+            print("GOT HIZZY")
             train_input = self.D.gan_input.get_training_batch(self.batch_size)
             test_input = self.D.gan_input.get_validation_batch(self.batch_size)
             gen_input = self.G.get_training_batch(self.batch_size)
             
-            DO = self.train_discriminator(test_input, gen_input)
-            GO = self.train_generator(train_input, gen_input)
+            DO: GanTrainingResult = self.train_discriminator(test_input, gen_input)
+            print("GOT SLIZZY")
+            GO: GanTrainingResult = self.train_generator(train_input, gen_input)
 
             if self.plot:
               self.gan_plotter.batch_update([GO.loss, DO.loss, *GO.metrics, *DO.metrics])

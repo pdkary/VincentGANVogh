@@ -3,14 +3,12 @@ from typing import Dict
 from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 from tensorflow.keras.layers import Flatten
 
-from config.GanConfig import TrackedLayerConfig
-
 ##simple builder pattern class for Dense/Convolutional model builders
 class BuilderBase(ABC):
     def __init__(self,input_layer: KerasTensor):
         self.out = input_layer
         self.layer_count = 0
-        self.tracked_layers: Dict[str,TrackedLayerConfig] = {}
+        self.view_layers = []
         self.awaiting_concatenation = {}
     
     def build(self):
@@ -29,7 +27,3 @@ class BuilderBase(ABC):
     @abstractmethod
     def layer(self,*args,**kwargs):
         return self.out
-
-    @abstractmethod
-    def track(self,*args,**kwargs):
-        pass

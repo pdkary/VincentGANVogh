@@ -47,12 +47,12 @@ class ConvLayerConfig:
     transpose: bool = False
     upsampling: Union[bool,str] = False
     downsampling: Union[bool,str] = False
-    style: bool = False
     noise: float = 0.0
     dropout_rate: float = 0.0
     normalization: NormalizationConfig = NoneCallable
     regularizer: RegularizationConfig = NoneCallable
     kernel_initializer: str = "glorot_uniform"
+    view_channels: int = None
     track_id: str = ""
     concat_with: str = ""
 
@@ -70,9 +70,3 @@ class DiscConvLayerConfig(ConvLayerConfig):
 @dataclass
 class GenLayerConfig(ConvLayerConfig):
     pass
-
-@dataclass
-class TrackedLayerConfig:
-    std: List
-    mean: List
-    view = None

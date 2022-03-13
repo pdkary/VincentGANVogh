@@ -1,9 +1,7 @@
 from typing import List
 
-import tensorflow.keras.backend as K
-from config.GanConfig import ConvLayerConfig, DiscConvLayerConfig, TrackedLayerConfig
-from config.CallableConfig import (ActivationConfig, NoneCallable,
-                                   RegularizationConfig)
+from config.GanConfig import ConvLayerConfig, DiscConvLayerConfig, SimpleActivations
+from config.CallableConfig import NoneCallable, RegularizationConfig
 from models.builders.BuilderBase import BuilderBase
 from tensorflow.keras.layers import (Conv2D, Conv2DTranspose, Dropout, Concatenate, 
                                      GaussianNoise, MaxPooling2D, UpSampling2D)
@@ -13,14 +11,10 @@ from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 class ConvolutionalModelBuilder(BuilderBase):
     def __init__(self,
                  input_layer: KerasTensor,
-                 view_channels: int = None,
-                 view_activation: ActivationConfig = NoneCallable,
                  std_dims: List[int] = [1,2,3],
                  kernel_regularizer:RegularizationConfig = NoneCallable,
                  kernel_initializer:str = "glorot_uniform"):
         super().__init__(input_layer)
-        self.view_channels = view_channels
-        self.view_activation = view_activation
         self.std_dims = std_dims
         self.kernel_regularizer = kernel_regularizer
         self.kernel_initializer = kernel_initializer
@@ -62,6 +56,10 @@ class ConvolutionalModelBuilder(BuilderBase):
                 del self.awaiting_concatenation[key]
             else:
                 self.awaiting_concatenation[key] = self.out
+
+        if config.view_channels is not None:
+            config = DiscConvLayerConfig(config.view_channels,1,1,SimpleActivations.sigmoid.value)
+            self.view_layers.append(self.layer(config))
         self.layer_count += 1
         return self
 
@@ -74,19 +72,4 @@ class ConvolutionalModelBuilder(BuilderBase):
                         use_bias=False)
         for i in range(config.convolutions):
             self.out = Conv2DTranspose(**c_args)(self.out) if config.transpose else Conv2D(**c_args)(self.out)
-        if config.track_id != "":
-            self.track(config.track_id)
         return self.out
-    
-    ##track the layer in tracked_layers dict
-    def track(self,name:str):
-        out_std  = K.std(self.out,self.std_dims,keepdims=True)
-        out_mean = K.mean(self.out,self.std_dims,keepdims=True)
-        if self.view_channels is not None:
-            viewable_config = DiscConvLayerConfig(self.view_channels,1,1,self.view_activation)
-            view_layer = self.layer(viewable_config)
-            self.tracked_layers[name] = TrackedLayerConfig(out_std,out_mean,view_layer)
-        else:
-            self.tracked_layers[name] = TrackedLayerConfig(out_std,out_mean)
-        
-    
