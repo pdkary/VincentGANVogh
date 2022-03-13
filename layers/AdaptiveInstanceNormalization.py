@@ -10,11 +10,11 @@ def get_mean_std(x, epsilon=1e-5):
     return mean, standard_deviation
 
 class AdaptiveInstanceNormalization(Layer):
-    def __init__(self, size=1000):
+    def __init__(self, size=256):
         super(AdaptiveInstanceNormalization,self).__init__()
         w_init = tf.random_normal_initializer()
         self.M = tf.Variable(
-            initial_value=w_init(shape=(1,1,size), dtype="float32"),trainable=True
+            initial_value=w_init(shape=(1,size,size), dtype="float32"),trainable=True
         )
     
     def call(self,inputs):
