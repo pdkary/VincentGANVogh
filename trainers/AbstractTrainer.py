@@ -99,13 +99,11 @@ class AbstractTrainer(GanTrainingConfig, ABC):
             if self.plot:
                 self.gan_plotter.start_epoch()
             
-            print("GOT HIZZY")
             train_input = self.D.gan_input.get_training_batch(self.batch_size)
             test_input = self.D.gan_input.get_validation_batch(self.batch_size)
             gen_input = self.G.get_training_batch(self.batch_size)
             
             DO: GanTrainingResult = self.train_discriminator(test_input, gen_input)
-            print("GOT SLIZZY")
             GO: GanTrainingResult = self.train_generator(train_input, gen_input)
 
             if self.plot:
