@@ -45,7 +45,7 @@ class LatentSpaceInput(GanInput):
         return tf.random.normal(shape=(batch_size,*self.input_shape))
 
 class DenseModelInput(GanInput):
-    def __init__(self, input_shape:Tuple,layer_size:int,num_layers:int,name="latent_space_input"):
+    def __init__(self, input_shape:Tuple,layer_size:int,num_layers:int,name="dense_model_input"):
         super().__init__(input_shape,name=name)
         self.layer_size = layer_size
         self.num_layers = num_layers
