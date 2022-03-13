@@ -31,7 +31,7 @@ class AdaptiveInstanceNormalization(Layer):
             initializer="random_normal",
             trainable=True
         )
-        self.beta = self.add_weight(shape=shape,
+        self.beta = self.add_weight(
             name='beta',
             shape=shape,
             initializer="random_normal",
