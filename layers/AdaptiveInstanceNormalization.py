@@ -1,14 +1,6 @@
-import tensorflow as tf
 from tensorflow.keras.layers import Layer
 import tensorflow.keras.backend as K
 ## aight ive seen a lot of shit like this before and never liked any of it so here's mine
-def get_mean_std(x, epsilon=1e-5):
-    axes = [1, 2]
-
-    # Compute the mean and standard deviation of a tensor.
-    mean, variance = tf.nn.moments(x, axes=axes, keepdims=True)
-    standard_deviation = tf.sqrt(variance + epsilon)
-    return mean, standard_deviation
 
 class AdaptiveInstanceNormalization(Layer):
     def __init__(self,axis=None,epsilon=1e-5):
@@ -39,12 +31,13 @@ class AdaptiveInstanceNormalization(Layer):
     
     def call(self,inputs):
         input_shape = K.int_shape(inputs)
+        reduction_axes = list(range(0, len(input_shape)))
         broadcast_shape = [1] * len(input_shape)
         if self.axis is not None:
             broadcast_shape[self.axis] = input_shape[self.axis]
-
-        mean, std = get_mean_std(input,self.epsilon)
-        normed = (inputs - mean)/std
+        mean = K.mean(inputs, reduction_axes, keepdims=True)
+        stddev = K.std(inputs, reduction_axes, keepdims=True) + self.epsilon
+        normed = (inputs - mean)/stddev
         broadcast_gamma = K.reshape(self.gamma, broadcast_shape)
         broadcast_beta = K.reshape(self.beta, broadcast_shape)
         return normed * broadcast_gamma + broadcast_beta
