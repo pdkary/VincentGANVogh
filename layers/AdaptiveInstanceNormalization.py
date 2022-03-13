@@ -14,6 +14,7 @@ class AdaptiveInstanceNormalization(Layer):
         super(AdaptiveInstanceNormalization,self).__init__()
     
     def build(self,input_shape):
+        print(input_shape[1:])
         self.M = self.add_weight(
             shape=input_shape,
             initializer="random_normal",
