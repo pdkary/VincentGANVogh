@@ -26,14 +26,14 @@ class AdaptiveInstanceNormalization(Layer):
             name="gamma",
             shape=shape,
             initializer="ones",
-            regularizer=SimpleRegularizers.l2.value,
+            regularizer=SimpleRegularizers.l2.value.get(),
             trainable=True
         )
         self.beta = self.add_weight(
             name='beta',
             shape=shape,
             initializer="zeros",
-            regularizer=SimpleRegularizers.l2.value,
+            regularizer=SimpleRegularizers.l2.value.get(),
             trainable=True)
     
     def call(self,inputs):
