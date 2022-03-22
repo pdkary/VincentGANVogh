@@ -2,6 +2,7 @@ from typing import List
 
 import tensorflow as tf
 from config.TrainingConfig import GanTrainingConfig, GanTrainingResult
+from losses.SimpleLogLoss import simple_log_loss_disc, simple_log_loss_gen
 from models.Discriminator import Discriminator
 from models.Generator import Generator
 from trainers.AbstractTrainer import AbstractTrainer
@@ -19,17 +20,12 @@ class SimpleTrainer(AbstractTrainer):
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
             gen_images, gen_views = self.get_gen_output(gen_input,training=True)
-            disc_results, disc_views = self.get_disc_output(gen_images, training=True)
-            content_loss = self.gen_loss_function(self.gen_label, disc_results)
-
-            g_loss = content_loss
+            gen_results, disc_views = self.get_disc_output(gen_images, training=True)
+            g_loss = simple_log_loss_gen(gen_results)
             metrics = []
             
             for metric in self.g_metrics:
-                if metric.name == "mean":
-                    metric.update_state(disc_results)
-                else:
-                    metric.update_state(self.gen_label,disc_results)
+                metric.update_state(gen_results)
                 metrics.append(metric.result())
             
             gradients_of_generator = gen_tape.gradient(g_loss, self.generator.trainable_variables)
@@ -39,20 +35,13 @@ class SimpleTrainer(AbstractTrainer):
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
             gen_images,view_images = self.get_gen_output(gen_input,training=True)
-            disc_gen_out, disc_gen_views = self.get_disc_output(gen_images, training=True)
-            disc_real_out, disc_real_views = self.get_disc_output(disc_input, training=True)
-            
-            content_loss =  self.disc_loss_function(self.fake_label, disc_gen_out) 
-            content_loss += self.disc_loss_function(self.real_label, disc_real_out)
-
-            d_loss = content_loss
+            gen_results, disc_gen_views = self.get_disc_output(gen_images, training=True)
+            real_results, disc_real_views = self.get_disc_output(disc_input, training=True)
+            d_loss = simple_log_loss_disc(real_results, gen_results) 
             metrics = []
             
             for metric in self.d_metrics:
-                if metric.name == "mean":
-                    metric.update_state(disc_real_out)
-                else:
-                    metric.update_state(self.real_label,disc_real_out)
+                metric.update_state(real_results)
                 metrics.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
