@@ -1,7 +1,10 @@
 from tensorflow.keras.layers import Layer
 import tensorflow.keras.backend as K
+from config.CallableConfig import NormalizationConfig
 
 from config.GanConfig import SimpleRegularizers
+
+
 ## aight ive seen a lot of shit like this before and never liked any of it so here's mine
 
 class AdaptiveInstanceNormalization(Layer):
@@ -53,3 +56,5 @@ class AdaptiveInstanceNormalization(Layer):
         }
         base_config = super(AdaptiveInstanceNormalization, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
+
+adain_config = NormalizationConfig(AdaptiveInstanceNormalization,[],dict(axis=-1))
