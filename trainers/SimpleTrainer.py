@@ -6,8 +6,6 @@ from models.Discriminator import Discriminator
 from models.Generator import Generator
 from trainers.AbstractTrainer import AbstractTrainer
 
-cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
-
 def flatten(arr: List):
     return [x for y in arr for x in y]
 
@@ -22,7 +20,7 @@ class SimpleTrainer(AbstractTrainer):
         with tf.GradientTape() as gen_tape:
             gen_images, gen_views = self.get_gen_output(gen_input,training=True)
             gen_results, disc_views = self.get_disc_output(gen_images, training=True)
-            g_loss = cross_entropy(tf.ones_like(gen_results),gen_results)
+            g_loss = self.gen_loss_function(tf.ones_like(gen_results),gen_results)
             metrics = []
             
             for metric in self.g_metrics:
@@ -38,8 +36,8 @@ class SimpleTrainer(AbstractTrainer):
             gen_images,view_images = self.get_gen_output(gen_input,training=True)
             gen_results, disc_gen_views = self.get_disc_output(gen_images, training=True)
             real_results, disc_real_views = self.get_disc_output(disc_input, training=True)
-            real_loss = cross_entropy(tf.ones_like(real_results),real_results)
-            fake_loss = cross_entropy(tf.zeros_like(gen_results),gen_results)
+            real_loss = self.disc_loss_function(tf.ones_like(real_results)*self.real_label,real_results)
+            fake_loss = self.disc_loss_function(tf.zeros_like(gen_results)*self.gen_label,gen_results)
             d_loss = real_loss + fake_loss 
             metrics = []
             
