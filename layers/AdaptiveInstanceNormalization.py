@@ -1,5 +1,7 @@
 from tensorflow.keras.layers import Layer
 import tensorflow.keras.backend as K
+
+from config.GanConfig import SimpleRegularizers
 ## aight ive seen a lot of shit like this before and never liked any of it so here's mine
 
 class AdaptiveInstanceNormalization(Layer):
@@ -20,13 +22,15 @@ class AdaptiveInstanceNormalization(Layer):
         self.gamma = self.add_weight(
             name="gamma",
             shape=shape,
-            initializer="random_normal",
+            initializer="ones",
+            regularizer=SimpleRegularizers.l2.value,
             trainable=True
         )
         self.beta = self.add_weight(
             name='beta',
             shape=shape,
-            initializer="random_normal",
+            initializer="zeros",
+            regularizer=SimpleRegularizers.l2.value,
             trainable=True)
     
     def call(self,inputs):
