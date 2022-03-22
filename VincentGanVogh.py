@@ -62,7 +62,8 @@ tanh = SimpleActivations.tanh.value
 ##norms
 batch_norm = SimpleNormalizations.batch_norm.value
 instance_norm = SimpleNormalizations.instance_norm.value
-adain = SimpleNormalizations.adain.value
+from layers.AdaptiveInstanceNormalization import adain_config
+adain = adain_config
 
 ## layer shorthands
 def dense_layer(s,a=SimpleActivations.leakyRelu_p1.value,dr=0.0,ms=0,md=4):
