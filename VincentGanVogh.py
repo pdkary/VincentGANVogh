@@ -66,8 +66,8 @@ from layers.AdaptiveInstanceNormalization import adain_config
 adain = adain_config
 
 ## layer shorthands
-def dense_layer(s,a=SimpleActivations.leakyRelu_p1.value,dr=0.0,ms=0,md=4):
-      return DenseLayerConfig(s,a,dr,ms,md)
+def dense_layer(s,a=SimpleActivations.leakyRelu_p1.value,dr=0.0,ms=0,md=4,features=False):
+  return DenseLayerConfig(s,a,dr,ms,md,train_features=features)
 
 def gen_layer(f,c,k,act=conv_lr,u=True,t=True,n=0.0,id="",norm=NoneCallable):
   return GenLayerConfig(f,c,k,act,upsampling=u,transpose=t,noise=n,track_id=id,normalization=norm)
@@ -118,7 +118,7 @@ discriminator = Discriminator(
     dense_layers = [
       dense_layer(4096,ms=128,md=3),
       dense_layer(4096,ms=64,md=3),
-      dense_layer(1000,ms=32,md=3),
+      dense_layer(1000,ms=32,md=3,features=True),
       dense_layer(1,a=sigmoid)
     ]
 )
@@ -129,7 +129,7 @@ gan_training_config = GanTrainingConfig(
     #[real_image_label, not_image_label]
     disc_labels=[1.0,0.0],
     #desired label
-    gen_label=0.5,
+    gen_label=1.0,
     batch_size=6,
     gen_loss_function = BinaryCrossentropy(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE),
     disc_loss_function = BinaryCrossentropy(reduction=losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE),

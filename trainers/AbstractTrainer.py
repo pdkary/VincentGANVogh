@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 
 import numpy as np
-from config.TrainingConfig import GanTrainingConfig, GanTrainingResult
+from config.TrainingConfig import GanOutput, GanTrainingConfig, GanTrainingResult
 from helpers.DataHelper import DataHelper
 from models.Discriminator import Discriminator
 from models.Generator import Generator
@@ -10,6 +10,9 @@ from tensorflow.keras.models import Model
 
 def flatten(arr: List):
     return [x for y in arr for x in y]
+
+def sort_gan_output(arr: List,feature_length:int):
+    return [arr[0],arr[1:feature_length+1],arr[feature_length+1:]]
 
 class AbstractTrainer(GanTrainingConfig, ABC):
     def __init__(self,
@@ -43,9 +46,9 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def compile(self):
         GI,GO = self.G.input,self.G.build()
         DI,DO = self.D.input,self.D.build()
-
-        g_outs = [GO,*self.G.view_layers]
-        d_outs = [DO,*self.D.view_layers]
+        
+        g_outs = [GO,*self.G.feature_layers,*self.G.view_layers]
+        d_outs = [DO,*self.D.feature_layers,*self.D.view_layers]
         
         self.generator = Model(inputs=GI,outputs=g_outs,name="Generator")
         self.generator.compile(optimizer=self.gen_optimizer,
@@ -67,28 +70,35 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def train_discriminator(self, source_input, gen_input) -> GanTrainingResult:
         pass
 
-    def get_gen_output(self,gen_input,training=True):
+    def get_gen_output(self,gen_input,training=True) -> GanOutput:
         output = self.generator(gen_input,training=True) if training else self.generator.predict(gen_input)
-        if len(self.G.view_layers) == 0:
-            return [output,[]]
+        if not self.G.feature_layers and not self.G.view_layers:
+            return GanOutput(output)
         else:
-            return [output[0],output[1:]]
-    
-    def get_disc_output(self,disc_input,training=True):
+            fl = len(self.G.feature_layers) # featuer length
+            sorted_output = sort_gan_output(output,fl)
+            return GanOutput(*sorted_output)
+
+    def get_disc_output(self,disc_input,training=True) -> GanOutput:
         output = self.discriminator(disc_input,training=True) if training else self.discriminator.predict(disc_input)
-        if len(self.D.view_layers) == 0:
-            return [output,[]]
+        if not self.D.feature_layers and not self.D.view_layers:
+            return GanOutput(output)
         else:
-            return [output[0],output[1:]]
+            fl = len(self.D.feature_layers)
+            sorted_output = sort_gan_output(output,fl)
+            return GanOutput(*sorted_output)
 
     def save_images(self,name):
         data_helper: DataHelper = self.D.gan_input.data_helper
         gen_input = self.G.get_validation_batch(self.preview_size)
-        gen_images,view_images = self.get_gen_output(gen_input,training=False)
-        for i,im in enumerate(view_images):
+
+        gen_output:GanOutput = self.get_gen_output(gen_input,training=False)
+
+        for i,im in enumerate(gen_output.views):
             view_name = "sublayers/view_" + str(i) + "_" + name
             data_helper.save_images(view_name,im,**self.preview_args)
-        data_helper.save_images(name,gen_images,**self.preview_args)
+
+        data_helper.save_images(name,gen_output.result,**self.preview_args)
 
     def save_generator(self, epoch):
         filename = self.model_name + str(epoch)

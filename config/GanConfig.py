@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Iterable, List, Tuple, Union
+from typing import Tuple, Union
 
 from tensorflow.keras.layers import Activation, BatchNormalization, LeakyReLU
 from tensorflow.keras.regularizers import L2
@@ -34,6 +34,7 @@ class DenseLayerConfig():
     dropout_rate: float = 0
     minibatch_size: int = 0
     minibatch_dim: int = 0
+    train_features: bool = False
 
 @dataclass
 class ConvLayerConfig:

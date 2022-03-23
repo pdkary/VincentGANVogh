@@ -28,5 +28,7 @@ class DenseModelBuilder(BuilderBase):
         if config.dropout_rate > 0.0:
             self.out = Dropout(config.dropout_rate,name="dense_dropout_"+name)(self.out)
         self.out = config.activation.get()(self.out)
+        if config.train_features:
+            self.feature_layers.append(self.out)
         self.layer_count += 1
         return self

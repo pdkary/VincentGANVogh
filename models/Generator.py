@@ -17,6 +17,7 @@ class Generator(GANBase):
                 DM_builder = DM_builder.block(d)
             ##reshape
             DM_out = DM_builder.reshape(self.conv_input_shape).build()
+            self.feature_layers = DM_builder.feature_layers
         ## Convolutional model       
         CM_builder = ConvolutionalModelBuilder(
                                 input_layer=DM_out,

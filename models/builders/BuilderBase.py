@@ -9,6 +9,7 @@ class BuilderBase(ABC):
         self.out = input_layer
         self.layer_count = 0
         self.view_layers = []
+        self.feature_layers = []
         self.awaiting_concatenation = {}
     
     def build(self):

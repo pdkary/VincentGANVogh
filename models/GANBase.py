@@ -18,7 +18,8 @@ class GANBase():
     std_dims: List[int] = field(default_factory = lambda : [1,2,3])
     kernel_regularizer: RegularizationConfig = field(default=NoneCallable)
     kernel_initializer: str = field(default="glorot_uniform")
-    view_layers: List = field(default_factory= lambda : [])
+    view_layers: List = field(default_factory = lambda : [])
+    feature_layers: List = field(default_factory = lambda : [])
 
     @property
     def input(self):

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Callable, List, Tuple
+from typing import Any, Callable, List, Tuple
 
 from tensorflow.keras.losses import Loss
 from tensorflow.keras.metrics import Metric
@@ -29,6 +29,7 @@ class GanTrainingConfig:
     gen_optimizer: Optimizer = None
     disc_optimizer: Optimizer = None
     metrics: List[Metric] = field(default_factory=list)
+    feature_loss_coeff: float = 0.1
     style_loss_coeff: float = 0.25
     disc_batches_per_epoch: int = 1
     gen_batches_per_epoch: int = 1
@@ -42,4 +43,10 @@ class GanTrainingResult:
     metrics: List[float]
     stds: List[float] = field(default_factory=list)
     means: List[float] = field(default_factory=list)
+
+@dataclass
+class GanOutput:
+    result: Any
+    features: List = field(default_factory=list)
+    views: List = field(default_factory=list)
 

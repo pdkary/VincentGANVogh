@@ -1,7 +1,7 @@
 from typing import List
 
 import tensorflow as tf
-from config.TrainingConfig import GanTrainingConfig, GanTrainingResult
+from config.TrainingConfig import GanOutput, GanTrainingConfig, GanTrainingResult
 from models.Discriminator import Discriminator
 from models.Generator import Generator
 from trainers.AbstractTrainer import AbstractTrainer
@@ -18,13 +18,16 @@ class SimpleTrainer(AbstractTrainer):
 
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
-            gen_images, gen_views = self.get_gen_output(gen_input,training=True)
-            gen_results, disc_views = self.get_disc_output(gen_images, training=True)
-            g_loss = self.gen_loss_function(tf.ones_like(gen_results)*self.gen_label,gen_results)
-            metrics = []
+            gen_output: GanOutput = self.get_gen_output(gen_input,training=True)
+            disc_gen_output: GanOutput = self.get_disc_output(gen_output.result, training=True)
             
+            g_loss = self.gen_loss_function(
+                tf.ones_like(disc_gen_output.result)*self.gen_label,
+                disc_gen_output.result)
+
+            metrics = []
             for metric in self.g_metrics:
-                metric.update_state(gen_results)
+                metric.update_state(disc_gen_output.result)
                 metrics.append(metric.result())
             
             gradients_of_generator = gen_tape.gradient(g_loss, self.generator.trainable_variables)
@@ -33,16 +36,25 @@ class SimpleTrainer(AbstractTrainer):
 
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
-            gen_images,view_images = self.get_gen_output(gen_input,training=True)
-            gen_results, disc_gen_views = self.get_disc_output(gen_images, training=True)
-            real_results, disc_real_views = self.get_disc_output(disc_input, training=True)
-            real_loss = self.disc_loss_function(tf.ones_like(real_results)*self.real_label,real_results)
-            fake_loss = self.disc_loss_function(tf.ones_like(gen_results)*self.fake_label,gen_results)
-            d_loss = real_loss + fake_loss 
-            metrics = []
+            gen_output: GanOutput = self.get_gen_output(gen_input,training=True)
+            disc_gen_output: GanOutput = self.get_disc_output(gen_output.result, training=True)
+            disc_real_output: GanOutput = self.get_disc_output(disc_input, training=True)
             
+            real_loss = self.disc_loss_function(
+                tf.ones_like(disc_real_output.result)*self.real_label,
+                disc_real_output.result)
+
+            fake_loss = self.disc_loss_function(
+                tf.ones_like(disc_gen_output.result)*self.fake_label,
+                disc_gen_output.result)
+
+            feature_loss = self.disc_loss_function(disc_real_output.features,disc_gen_output.features)
+
+            d_loss = real_loss + fake_loss + self.feature_loss_coeff*tf.reduce_mean(feature_loss)
+
+            metrics = []
             for metric in self.d_metrics:
-                metric.update_state(real_results)
+                metric.update_state(disc_real_output.result)
                 metrics.append(metric.result())
             
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
