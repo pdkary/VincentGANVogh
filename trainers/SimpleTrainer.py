@@ -20,7 +20,7 @@ class SimpleTrainer(AbstractTrainer):
         with tf.GradientTape() as gen_tape:
             gen_images, gen_views = self.get_gen_output(gen_input,training=True)
             gen_results, disc_views = self.get_disc_output(gen_images, training=True)
-            g_loss = self.gen_loss_function(tf.ones_like(gen_results),gen_results)
+            g_loss = self.gen_loss_function(tf.ones_like(gen_results)*self.gen_label,gen_results)
             metrics = []
             
             for metric in self.g_metrics:
