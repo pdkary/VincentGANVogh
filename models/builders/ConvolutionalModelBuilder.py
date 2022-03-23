@@ -32,12 +32,12 @@ class ConvolutionalModelBuilder(BuilderBase):
     def block(self,config:DiscConvLayerConfig):
         if config.upsampling == "stride":
             up_config = ConvLayerConfig(config.filters,1,3,config.activation,transpose=True,strides=(2,2))
-            self.out = self.conv_layer(up_config)
+            self.out = self.layer(up_config)
         elif config.upsampling == True:
             self.out = UpSampling2D()(self.out)
 
         for i in range(config.convolutions):
-            self.out = self.conv_layer(config)
+            self.out = self.layer(config)
             self.out = Dropout(config.dropout_rate)(self.out) if config.dropout_rate > 0.0 else self.out
             self.out = config.normalization.get()(self.out)
             self.out = GaussianNoise(config.noise)(self.out) if config.noise > 0.0 else self.out
@@ -45,7 +45,7 @@ class ConvolutionalModelBuilder(BuilderBase):
             
         if config.downsampling == "stride":
             down_config = ConvLayerConfig(config.filters,1,3,config.activation,strides=(2,2))
-            self.out = self.conv_layer(down_config)
+            self.out = self.layer(down_config)
         elif config.downsampling == True:
             self.out = MaxPooling2D()(self.out)
             
@@ -60,12 +60,12 @@ class ConvolutionalModelBuilder(BuilderBase):
 
         if config.view_channels is not None:
             config = DiscConvLayerConfig(config.view_channels,1,1,SimpleActivations.sigmoid.value)
-            self.view_layers.append(self.conv_layer(config))
+            self.view_layers.append(self.layer(config))
         self.layer_count += 1
         return self
 
     ##shorthand to make a conv2d or conv2d transpose layer
-    def conv_layer(self,config: DiscConvLayerConfig):
+    def layer(self,config: DiscConvLayerConfig):
         c_args = dict(filters=config.filters,kernel_size=config.kernel_size,
                         strides=config.strides,padding="same",
                         kernel_regularizer = self.kernel_regularizer.get(),
