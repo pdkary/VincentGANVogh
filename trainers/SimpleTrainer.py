@@ -37,7 +37,7 @@ class SimpleTrainer(AbstractTrainer):
             gen_results, disc_gen_views = self.get_disc_output(gen_images, training=True)
             real_results, disc_real_views = self.get_disc_output(disc_input, training=True)
             real_loss = self.disc_loss_function(tf.ones_like(real_results)*self.real_label,real_results)
-            fake_loss = self.disc_loss_function(tf.zeros_like(gen_results)*self.gen_label,gen_results)
+            fake_loss = self.disc_loss_function(tf.ones_like(gen_results)*self.fake_label,gen_results)
             d_loss = real_loss + fake_loss 
             metrics = []
             
