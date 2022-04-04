@@ -23,18 +23,29 @@ class EncoderDecoderTrainer(AbstractTrainer):
     
     def train_generator(self, source_input, gen_input):
         with tf.GradientTape() as gen_tape:
+            #get initial generated image
             noise_to_img: GanOutput = self.get_gen_output(gen_input,training=True)
+            # get encoded gen and encoded real
             encoded_gen: GanOutput = self.get_disc_output(noise_to_img.result,training=True)
             encoded_real: GanOutput = self.get_disc_output(source_input,training=True)
 
+            #adain normalize the encoded generated image
             enc_real_mean, enc_real_std = get_mean_std(encoded_real.result)
             enc_gen_mean, enc_gen_std = get_mean_std(encoded_gen.result)
-
             adain_enc_gen = enc_real_std*(encoded_gen.result - enc_gen_mean)/enc_gen_std + enc_real_mean
-            adain_dec_gen: GanOutput = self.get_gen_output(adain_enc_gen,training=True)
-            adain_reenc_gen: GanOutput = self.get_disc_output(adain_dec_gen.result,training=True)
             
-            g_loss = self.gen_loss_function(tf.ones_like(adain_reenc_gen.result)*self.gen_label,adain_reenc_gen.result)
+            #decode normalized encoding
+            adain_dec_gen: GanOutput = self.get_gen_output(adain_enc_gen,training=True)
+
+            #re-encode the new decoded image
+            adain_reenc_gen: GanOutput = self.get_disc_output(adain_dec_gen.result,training=True)
+            adain_reenc_mean, adain_reenc_std = get_mean_std(adain_reenc_gen.result)
+            #content loss is diff between new encoding and real encoding
+            g_loss = self.gen_loss_function(encoded_real.result,adain_reenc_gen.result)
+            #style loss is diff of means and stds between
+            g_loss += self.style_loss_coeff*self.gen_loss_function(enc_real_mean,adain_reenc_mean)
+            g_loss += self.style_loss_coeff*self.gen_loss_function(enc_real_std,adain_reenc_std)
+            #do gradients
             gradients_of_generator = gen_tape.gradient(g_loss, self.generator.trainable_variables)
             self.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
         
