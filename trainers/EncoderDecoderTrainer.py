@@ -1,9 +1,6 @@
-from typing import List
-
 import tensorflow as tf
 import tensorflow.keras.backend as K
 from config.TrainingConfig import GanOutput, GanTrainingConfig, GanTrainingResult
-from helpers.DataHelper import DataHelper
 from models.Discriminator import Discriminator
 from models.Generator import Generator
 from trainers.AbstractTrainer import AbstractTrainer
@@ -50,7 +47,7 @@ class EncoderDecoderTrainer(AbstractTrainer):
             self.gen_optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
         
         metrics = []
-        for metric in self.d_metrics:
+        for metric in self.g_metrics:
             metric.update_state(adain_reenc_gen.result)
             metrics.append(metric.result())
         return GanTrainingResult(g_loss,metrics)
@@ -58,14 +55,15 @@ class EncoderDecoderTrainer(AbstractTrainer):
 
     def train_discriminator(self, disc_input, gen_input):
         with tf.GradientTape() as disc_tape:
+            #get gen image
             noise_to_img: GanOutput = self.get_gen_output(gen_input,training=True)
-            
+            #encode both
             encoded_gen: GanOutput = self.get_disc_output(noise_to_img.result,training=True)
             encoded_real: GanOutput = self.get_disc_output(disc_input,training=True)
-
+            #ones right, ones wrong, pretty simple
             d_loss = self.disc_loss_function(tf.ones_like(encoded_gen.result)*self.fake_label,encoded_gen.result)
             d_loss += self.disc_loss_function(tf.ones_like(encoded_real.result)*self.real_label,encoded_real.result)
-                
+            #do gradients    
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
             self.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.discriminator.trainable_variables))
         metrics = []
