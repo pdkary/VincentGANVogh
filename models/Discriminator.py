@@ -30,6 +30,14 @@ class Discriminator(GANBase):
         self.dense_out = DM_builder.build()
         self.feature_layers = DM_builder.feature_layers
         return self.dense_out
+
+    @property
+    def input_shape(self):
+        return self.gan_input.input_shape
+
+    @property
+    def output_shape(self):
+        return [self.dense_layers[-1].size]
     
     def to_DNA(self, activation_set: SearchableEnum = SimpleActivations):
         dna = super().to_DNA(activation_set=activation_set)

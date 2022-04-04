@@ -31,6 +31,14 @@ class Generator(GANBase):
         self.model = CM_builder.build()
         self.view_layers = CM_builder.view_layers
         return self.model
+
+    @property
+    def input_shape(self):
+        return self.gan_input.input_shape
+    
+    @property
+    def output_shape(self):
+        return self.to_DNA().conv_input_shape
     
     def to_DNA(self, activation_set: SearchableEnum = SimpleActivations):
         dna = super().to_DNA(activation_set=activation_set)

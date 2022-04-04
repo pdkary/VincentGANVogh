@@ -45,6 +45,9 @@ class AdaptiveInstanceNormalization(Layer):
         mean = K.mean(inputs, reduction_axes, keepdims=True)
         stddev = K.std(inputs, reduction_axes, keepdims=True) + self.epsilon
         normed = (inputs - mean)/stddev
+        mse = lambda yt,yp : K.mean(K.square(yp - yt), axis=-1)
+        self.add_loss(mse(self.gamma,stddev))
+        self.add_loss(mse(self.beta,mean))
         broadcast_gamma = K.reshape(self.gamma, broadcast_shape)
         broadcast_beta = K.reshape(self.beta, broadcast_shape)
         return normed * broadcast_gamma + broadcast_beta

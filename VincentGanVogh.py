@@ -12,6 +12,7 @@ from models.Discriminator import Discriminator
 from models.GanConverter import GanConverter
 from models.Generator import Generator
 from models.UNET import generate_UNET
+from trainers.EncoderDecoderTrainer import EncoderDecoderTrainer
 from trainers.SimpleTrainer import SimpleTrainer
 
 # from google.colab import drive
@@ -86,19 +87,19 @@ def disc_downsample_only():
 #Generator model
 # generator = generate_UNET(image_source)
 generator = Generator(
-    gan_input = dense_input,
+    gan_input = latent_input,
     dense_layers=[
-      dense_layer(1000,a=linear),
+      dense_layer(1000),
       dense_layer(4096),
       dense_layer(4096)
     ],
     conv_input_shape=(4,4,512),
     conv_layers = [
-      gen_layer(512,4,3,norm=adain),
-      gen_layer(512,4,3,norm=adain),
-      gen_layer(256,3,3,norm=adain),
-      gen_layer(128,3,3,norm=adain),
-      gen_layer(64, 2,3,norm=adain),
+      gen_layer(512,4,3,norm=instance_norm),
+      gen_layer(512,4,3,norm=instance_norm),
+      gen_layer(256,3,3,norm=instance_norm),
+      gen_layer(128,3,3,norm=instance_norm),
+      gen_layer(64, 2,3,norm=instance_norm),
       gen_layer(channels,1,1,sigmoid)
     ]
 )   
@@ -116,10 +117,10 @@ discriminator = Discriminator(
       disc_layer(512,4,3,norm=instance_norm),
     ],
     dense_layers = [
-      dense_layer(4096,ms=128,md=3),
-      dense_layer(4096,ms=64,md=3),
-      dense_layer(1000,ms=32,md=3,features=True),
-      dense_layer(1,a=sigmoid)
+      dense_layer(4096),
+      dense_layer(4096),
+      dense_layer(1000),
+      dense_layer(100)
     ]
 )
 
@@ -141,7 +142,7 @@ gan_training_config = GanTrainingConfig(
     preview_margin=6
 )
 #Trainer
-VGV = SimpleTrainer(generator,discriminator,gan_training_config)
+VGV = EncoderDecoderTrainer(generator,discriminator,gan_training_config)
 VGV.compile()
 
 #TRAINING

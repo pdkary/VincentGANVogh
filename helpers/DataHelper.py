@@ -141,6 +141,7 @@ class DataHelper(DataConfig):
                 if channels == 1:
                     img = np.reshape(img,newshape=(img_size,img_size))
                 else:
+                    img = np.array(img)
                     img = Image.fromarray((img).astype(np.uint8))
                     img = img.resize((img_size,img_size),Image.BICUBIC)
                     img = np.asarray(img)

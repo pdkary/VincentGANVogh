@@ -63,11 +63,7 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.discriminator.summary()
     
     @abstractmethod
-    def train_generator(self, source_input, gen_input) -> GanTrainingResult:
-        pass
-
-    @abstractmethod
-    def train_discriminator(self, source_input, gen_input) -> GanTrainingResult:
+    def train(self, epochs, printerval):
         pass
 
     def get_gen_output(self,gen_input,training=True) -> GanOutput:
@@ -103,27 +99,6 @@ class AbstractTrainer(GanTrainingConfig, ABC):
     def save_generator(self, epoch):
         filename = self.model_name + str(epoch)
         self.generator.save(self.model_output_path + filename)
-
-    def train(self, epochs, printerval):
-        for epoch in range(epochs):
-            if self.plot:
-                self.gan_plotter.start_epoch()
-            
-            train_input = self.D.gan_input.get_training_batch(self.batch_size)
-            test_input = self.D.gan_input.get_validation_batch(self.batch_size)
-            gen_input = self.G.get_training_batch(self.batch_size)
-            
-            DO: GanTrainingResult = self.train_discriminator(test_input, gen_input)
-            GO: GanTrainingResult = self.train_generator(train_input, gen_input)
-
-            if self.plot:
-              self.gan_plotter.batch_update([GO.loss, DO.loss, *GO.metrics, *DO.metrics])
-            
-            if epoch % printerval == 0:
-                self.save_images("train-"+str(epoch))
-                
-            if epoch >= 10 and self.plot:
-                self.gan_plotter.log_epoch()
 
     def train_n_eras(self, eras, epochs, printerval, ma_size):
         if self.plot:
