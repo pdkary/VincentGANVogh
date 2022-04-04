@@ -15,7 +15,6 @@ class SimpleTrainer(AbstractTrainer):
                  discriminator: Discriminator,
                  gan_training_config: GanTrainingConfig):
         super().__init__(generator, discriminator, gan_training_config)
-    
 
     def train_generator(self,source_input, gen_input):
         with tf.GradientTape() as gen_tape:
@@ -61,24 +60,3 @@ class SimpleTrainer(AbstractTrainer):
             gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
             self.disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.discriminator.trainable_variables))
         return GanTrainingResult(d_loss,metrics)
-
-    def train(self, epochs, printerval):
-        for epoch in range(epochs):
-            if self.plot:
-                self.gan_plotter.start_epoch()
-            
-            train_input = self.D.gan_input.get_training_batch(self.batch_size)
-            test_input = self.D.gan_input.get_validation_batch(self.batch_size)
-            gen_input = self.G.get_training_batch(self.batch_size)
-            
-            DO: GanTrainingResult = self.train_discriminator(test_input, gen_input)
-            GO: GanTrainingResult = self.train_generator(train_input, gen_input)
-
-            if self.plot:
-              self.gan_plotter.batch_update([GO.loss, DO.loss, *GO.metrics, *DO.metrics])
-            
-            if epoch % printerval == 0:
-                self.save_images("train-"+str(epoch))
-                
-            if epoch >= 10 and self.plot:
-                self.gan_plotter.log_epoch()

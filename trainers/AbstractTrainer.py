@@ -63,8 +63,33 @@ class AbstractTrainer(GanTrainingConfig, ABC):
         self.discriminator.summary()
     
     @abstractmethod
-    def train(self, epochs, printerval):
+    def train_discriminator(self, disc_input, gen_input) -> GanTrainingResult:
         pass
+
+    @abstractmethod
+    def train_generator(self, disc_input, gen_input) -> GanTrainingResult:
+        pass
+
+    def train(self, epochs, printerval):
+        for epoch in range(epochs):
+            if self.plot:
+                self.gan_plotter.start_epoch()
+            
+            train_input = self.D.gan_input.get_training_batch(self.batch_size)
+            test_input = self.D.gan_input.get_validation_batch(self.batch_size)
+            gen_input = self.G.get_training_batch(self.batch_size)
+            
+            DO: GanTrainingResult = self.train_discriminator(test_input, gen_input)
+            GO: GanTrainingResult = self.train_generator(train_input, gen_input)
+
+            if self.plot:
+              self.gan_plotter.batch_update([GO.loss, DO.loss, *GO.metrics, *DO.metrics])
+            
+            if epoch % printerval == 0:
+                self.save_images("train-"+str(epoch))
+                
+            if epoch >= 10 and self.plot:
+                self.gan_plotter.log_epoch()
 
     def get_gen_output(self,gen_input,training=True) -> GanOutput:
         output = self.generator(gen_input,training=True) if training else self.generator.predict(gen_input)
