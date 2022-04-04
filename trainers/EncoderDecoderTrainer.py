@@ -38,7 +38,7 @@ class EncoderDecoderTrainer(AbstractTrainer):
             adain_reenc_gen: GanOutput = self.get_disc_output(adain_dec_gen.result,training=True)
             adain_reenc_mean, adain_reenc_std = get_mean_std(adain_reenc_gen.result)
             #content loss is BCE of expected label and result
-            g_loss = self.gen_loss_function(tf.ones_like(adain_reenc_gen)*self.gen_label,adain_reenc_gen.result)
+            g_loss = self.gen_loss_function(tf.ones_like(adain_reenc_gen.result)*self.gen_label,adain_reenc_gen.result)
             #style loss is diff of means and stds between
             g_loss += self.style_loss_coeff*self.gen_loss_function(enc_real_mean,adain_reenc_mean)
             g_loss += self.style_loss_coeff*self.gen_loss_function(enc_real_std,adain_reenc_std)
